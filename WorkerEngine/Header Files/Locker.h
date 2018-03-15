@@ -11,6 +11,10 @@ public:
 	~Locker<T>() {}
 	Locker<T>() {}
 	
+	/*
+	* Enqueue onto the list 
+	* Mutexed for multithreading 
+	*/
 	void enqueue(T t)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -18,6 +22,10 @@ public:
 		c.notify_one();
 	}
 
+	/*
+	* Dequeue off the list
+	* Mutexed for multithreading
+	*/
 	T dequeue(void)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -29,6 +37,10 @@ public:
 		return val;
 	}
 
+	/*
+	* Check if list is empty
+	* Mutexed for multithreading
+	*/
 	bool empty()
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -37,6 +49,10 @@ public:
 		return em;
 	}
 
+	/*
+	* Check if T is already contained in the list
+	* Mutexed for multithreading
+	*/
 	bool contains(T t)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -50,10 +66,22 @@ public:
 		return false;
 	}
 
+	/*
+	* Lock the mutex
+	*/
 	void Lock() { _lockMutex.lock(); }
+
+	/*
+	* Unlock the mutex
+	*/
 	void Unlock() { _lockMutex.unlock(); }
 
+	/*
+	* Get the list
+	* Probably should be mutexed
+	*/
 	std::list<T> Get_List() { return q; }
+
 private:
 	std::list<T> q;
 	std::mutex _lockMutex;

@@ -9,12 +9,18 @@ public:
 	MyApp();
 	~MyApp();
 
+	/*
+	* Initializes the Application with threads + systems
+	* Calls Application::Init()
+	*/
 	void Init(int n);
 
+	/*
+	* Updates the game and specific functions
+	*/
 	void Update(SDL_Event * s);
 
 private:
-	int countedFrames = 0;
 	const int SCREEN_FPS = 60;
 	const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 };

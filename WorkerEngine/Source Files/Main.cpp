@@ -2,6 +2,21 @@
 
 #include "MyApp.h"
 
+/*===================================================================================*//**
+
+WorkerEngine
+
+A Prototype Engine made using the worker and manager design pattern for
+multithreading. This should allow the game to scale with higher level cpu's.
+
+Copyright 2017 John Janzen. All rights reserved.
+https://github.com/John-Janzen
+
+@author John Janzen
+@version 0.0.1
+@file Main.cpp
+
+*//*====================================================================================*/
 int main(int argc, char *argv[]) 
 {
 	int num = 2;
@@ -11,25 +26,25 @@ int main(int argc, char *argv[])
 
 	_myApp.Init(num);
 	
-	while (!dead)
+	while (!dead)				// Game Loop
 	{
 		e = new SDL_Event();
-		while (SDL_PollEvent(e))
+		while (SDL_PollEvent(e))// Listen for events
 		{
 			switch (e->type)
 			{
-			case SDL_QUIT:
+			case SDL_QUIT:		// Quit the game
 				dead = true;
 				break;
 			default:
 				break;
 			}
 		}
-		_myApp.Update(e);
+		_myApp.Update(e);		// Update the game
 	}
 	
-	_myApp.Close();
-	SDL_Quit();
+	_myApp.Close();				// Close the game
+	SDL_Quit();					// Close SDL
 
 	printf("System Closed");
 	getchar();

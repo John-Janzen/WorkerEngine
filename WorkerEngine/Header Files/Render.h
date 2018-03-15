@@ -20,16 +20,37 @@ public:
 	Render();
 	~Render();
 
+	/*
+	* Update function that checks the job type for what function to call
+	*/
 	virtual void Update(JOB_TYPES T, void* ptr = nullptr);
+
+	/*
+	* Deallocates SDL and OpenGL
+	*/
 	virtual void Close();
+
+	/*
+	* Initializes SDL and OpenGL
+	* This should be called on the Main thread
+	*/
 	void Init();
 
+	/*
+	* Initializes OpenGL Window and Rendering
+	*/
 	void InitGL();
+
+	/*
+	* Renders what is to be put on screen
+	* SwapsWindows at the very end
+	*/
 	void RenderWindow();
 
+	/*
+	* Swaps the cyan color and the multicolor flag
+	*/
 	void SwapColor();
-
-	//void loadMedia();
 	
 protected:
 	SDL_Window* _window = NULL;

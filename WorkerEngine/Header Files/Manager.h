@@ -11,12 +11,20 @@ class Manager
 public:
 	~Manager() {}
 
+	/*
+	* Get the static instance of the Manager
+	* Essentially global
+	*/
 	static Manager& instance()
 	{
 		static Manager manager;
 		return manager;
 	}
 
+	/*
+	* Close the Manager
+	* Deallocate the systems
+	*/
 	void Close()
 	{
 		for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
@@ -27,6 +35,9 @@ public:
 		_systems.clear();
 	}
 
+	/*
+	* Add a job to the list
+	*/
 	void addJob(std::shared_ptr<Job> j)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -37,16 +48,28 @@ public:
 		_c.notify_all();
 	}
 
+	/*
+	* Add a job to the list by:
+	* Name of system
+	* Job type
+	* Any void pointer
+	*/
 	void addJob(std::string name, JOB_TYPES j = JOB_TYPES::SYSTEM_DEFAULT, void* ptr = nullptr)
 	{
 		addJob(std::make_shared<Job>(_systems[name], j, ptr));
 	}
 
+	/*
+	* Add a system to the map
+	*/
 	void addSystem(std::string key, System * s)
 	{
 		_systems.emplace(std::make_pair(key, s));
 	}
 	
+	/*
+	* Give Job to the thread
+	*/
 	void Give_Job(ThreadWorker * t)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -54,6 +77,9 @@ public:
 		_c.notify_one();
 	}
 
+	/*
+	* Check if job is contained in the list
+	*/
 	bool contains(std::shared_ptr<Job> j)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -61,6 +87,9 @@ public:
 		_c.notify_all();
 	}
 
+	/*
+	* Check if the list has the system and job already on it
+	*/
 	bool checkHasSystem(System* s, JOB_TYPES T)
 	{
 		for (std::shared_ptr<Job> a : _actions.Get_List())
@@ -69,6 +98,9 @@ public:
 		return false;
 	}
 
+	/*
+	* Check if the list has any jobs
+	*/
 	bool hasJobs()
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -77,8 +109,15 @@ public:
 		return empty;
 	}
 
+	/*
+	* Get the number of threads
+	*/
 	void passCount(int i) { count = max = i; }
 
+	/*
+	* Signal manager that the thread is working
+	* Decrement the count
+	*/
 	void signalWorking()
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -86,6 +125,10 @@ public:
 		_c.notify_all();
 	}
 
+	/*
+	* Signal manager that the thread is done
+	* Increment the count
+	*/
 	void signalDone()
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
@@ -93,6 +136,10 @@ public:
 		_c.notify_all();
 	}
 
+	/*
+	* Check if all the threads are busy or not
+	* For Synchronization
+	*/
 	bool checkBusy()
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);

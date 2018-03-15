@@ -5,16 +5,34 @@
 class Job
 {
 public:
-	Job(System * sys, JOB_TYPES t, void* ptr = nullptr) : _system{ sys }, _type{ t }, _ptr{ ptr } {};
+	/*
+	* A Job that points to the system where the thread needs to go
+	* The job type the thread needs to do on the system
+	* Any type of data that needs to be in pointer form
+	*/
+	Job(System * sys, JOB_TYPES type, void* ptr = nullptr) : _system{ sys }, _type{ type }, _ptr{ ptr } {};
+
 	~Job() 
 	{
 		_system = nullptr;
 		_ptr = nullptr;
 		_type = JOB_TYPES::SYSTEM_DEFAULT;
 	};
-
+	
+	/*
+	* Get the current system that the thread needs to go to
+	*/
 	System* Get_System() { return _system; }
+
+	/*
+	* Get the job type the thread needs to do
+	*/
 	JOB_TYPES Get_JobType() { return _type; }
+
+	/*
+	* Get the data that is passed through as a pointer
+	* static_cast<?>(_ptr) **REQUIRED**
+	*/
 	void* Get_Data() { return _ptr; }
 
 private:
