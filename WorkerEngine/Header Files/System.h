@@ -3,6 +3,8 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "GameObject.h"
+
 /*
 * The list of job types that each system can do
 * Use the switch statement to organize the job types
@@ -11,10 +13,18 @@
 enum JOB_TYPES
 {
 	SYSTEM_DEFAULT = 0x000, // Unused
+
 	RENDER_LOAD = 0x100,	// Render Section
 	RENDER_UPDATE,
 	SWAP_COLOR,
-	INPUT_READ = 0x200		// Input Section
+	RENDER_HANDLE_CAMERA,
+
+	INPUT_READ_PRESSED = 0x200,// Input Section
+
+	ENGINE_MOVE_CAMERA_UP = 0x300,	// Engine Section
+	ENGINE_MOVE_CAMERA_DOWN,
+	ENGINE_MOVE_CAMERA_RIGHT,
+	ENGINE_MOVE_CAMERA_LEFT
 };
 
 class System

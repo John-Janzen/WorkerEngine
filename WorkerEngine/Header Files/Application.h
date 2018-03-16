@@ -8,6 +8,8 @@
 #include "Engine.h"
 #include "Render.h"
 #include "Input.h"
+#include "FileLoader.h"
+#include "GameObject.h"
 
 class Application
 {
@@ -30,4 +32,5 @@ public:
 protected:
 	std::vector<ThreadWorker*> _workers;
 	Render * renderCopy;
+	std::map<std::string, GameObject*> _worldObjects;
 };

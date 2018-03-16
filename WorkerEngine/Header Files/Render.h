@@ -6,6 +6,7 @@
 #include <gl\glut.h>
 #include <stdio.h>
 #include <string>
+#include <map>
 
 #include "System.h"
 
@@ -45,12 +46,14 @@ public:
 	* Renders what is to be put on screen
 	* SwapsWindows at the very end
 	*/
-	void RenderWindow();
+	void RenderWindow(void* ptr);
 
 	/*
 	* Swaps the cyan color and the multicolor flag
 	*/
 	void SwapColor();
+
+	void handleCamera(void* ptr);
 	
 protected:
 	SDL_Window* _window = NULL;

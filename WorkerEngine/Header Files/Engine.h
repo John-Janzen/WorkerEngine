@@ -6,14 +6,14 @@
 class Engine : public System
 {
 public:
-	Engine();
+	Engine(GameObject * player);
 	~Engine();
 
 	/*
 	* The Update function that should be called
 	* Currently does nothing
 	*/
-	virtual void Update(JOB_TYPES t, void* ptr);
+	virtual void Update(JOB_TYPES t, void* ptr = nullptr);
 
 	/*
 	* The Close function that should be called
@@ -22,6 +22,6 @@ public:
 	virtual void Close();
 
 private:
-	
+	GameObject * _camera;
 };
 

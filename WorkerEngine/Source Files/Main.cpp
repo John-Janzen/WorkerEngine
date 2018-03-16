@@ -22,25 +22,32 @@ int main(int argc, char *argv[])
 	int num = 2;
 	MyApp _myApp;
 	bool dead = false;
-	SDL_Event * e;
+	SDL_Event e;
 
 	_myApp.Init(num);
 	
 	while (!dead)				// Game Loop
 	{
-		e = new SDL_Event();
-		while (SDL_PollEvent(e))// Listen for events
+		while (SDL_PollEvent(&e))// Listen for events
 		{
-			switch (e->type)
+			switch (e.type)
 			{
+			case SDL_FIRSTEVENT:
+				break;
 			case SDL_QUIT:		// Quit the game
 				dead = true;
 				break;
+			case SDL_KEYDOWN:
+				Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, (void*)&e);	// Send Job if Event is changed
+				break;
+			case SDL_KEYUP:
+				break;
 			default:
+
 				break;
 			}
 		}
-		_myApp.Update(e);		// Update the game
+		_myApp.Update();		// Update the game
 	}
 	
 	_myApp.Close();				// Close the game

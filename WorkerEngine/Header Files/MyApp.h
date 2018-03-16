@@ -18,7 +18,7 @@ public:
 	/*
 	* Updates the game and specific functions
 	*/
-	void Update(SDL_Event * s);
+	void Update();
 
 private:
 	const int SCREEN_FPS = 60;

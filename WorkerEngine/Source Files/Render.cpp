@@ -15,14 +15,19 @@ void Render::Update(JOB_TYPES T, void* ptr)
 		InitGL();
 		break;
 	case RENDER_UPDATE:
-		RenderWindow();
+		RenderWindow(ptr);
 		break;
 	case SWAP_COLOR:
 		SwapColor();
 		break;
+	case RENDER_HANDLE_CAMERA:
+		handleCamera(ptr);
+		break;
 	default:
 		break;
 	}
+	if (ptr != nullptr)
+		ptr = nullptr;
 }
 
 void Render::Close()
@@ -69,6 +74,8 @@ void Render::Init()
 void Render::InitGL()
 {
 	GLenum error = GL_NO_ERROR;
+	
+	glViewport(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -83,6 +90,8 @@ void Render::InitGL()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	glPushMatrix();
 
 	error = glGetError();
 	if (error != GL_NO_ERROR)
@@ -99,34 +108,61 @@ void Render::InitGL()
 	}
 }
 
-void Render::RenderWindow()
+void Render::RenderWindow(void* ptr)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	glPopMatrix();
 
-	glTranslatef(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.f);
+	glPushMatrix();
 
-	if (_ColorMode == Color::COLOR_MODE_CYAN)
-	{
-		glBegin(GL_QUADS);
-			glColor3f(0.f, 1.f, 1.f);
-			glVertex2f(-50.f, -50.f);
-			glVertex2f(50.f, -50.f);
-			glVertex2f(50.f, 50.f);
-			glVertex2f(-50.f, 50.f);
-		glEnd();
-	}
-	else
-	{
-		glBegin(GL_QUADS);
-			glColor3f(1.f, 0.f, 0.f); glVertex2f(-50.f, -50.f);
-			glColor3f(1.f, 1.f, 0.f); glVertex2f(50.f, -50.f);
-			glColor3f(0.f, 1.f, 0.f); glVertex2f(50.f, 50.f);
-			glColor3f(0.f, 0.f, 1.f); glVertex2f(-50.f, 50.f);
-		glEnd();
-	}
+	glTranslatef(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f, 0.f);
+
+	//Red quad
+	glBegin(GL_QUADS);
+		glColor3f(1.f, 0.f, 0.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+	glEnd();
+
+	//Move to the right of the screen
+	glTranslatef(SCREEN_WIDTH, 0.f, 0.f);
+
+	//Green quad
+	glBegin(GL_QUADS);
+		glColor3f(0.f, 1.f, 0.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+	glEnd();
+
+	//Move to the lower right of the screen
+	glTranslatef(0.f, SCREEN_HEIGHT, 0.f);
+
+	//Blue quad
+	glBegin(GL_QUADS);
+		glColor3f(0.f, 0.f, 1.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+	glEnd();
+
+	//Move below the screen
+	glTranslatef(-SCREEN_WIDTH, 0.f, 0.f);
+
+	//Yellow quad
+	glBegin(GL_QUADS);
+		glColor3f(1.f, 1.f, 0.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
+		glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+		glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
+	glEnd();
 
 	SDL_GL_SwapWindow(_window);
 }
@@ -142,5 +178,21 @@ void Render::SwapColor()
 	{
 		_ColorMode = COLOR_MODE_CYAN;
 	}
+	_c.notify_one();
+}
+
+void Render::handleCamera(void* ptr)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	GameObject * camera = static_cast<GameObject*>(ptr);
+
+	glm::vec3 pos = camera->getPos();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glLoadIdentity();
+	glTranslatef(pos.x, pos.y, pos.z);
+	glPushMatrix();
+
 	_c.notify_one();
 }

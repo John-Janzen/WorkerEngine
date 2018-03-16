@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -125,6 +125,8 @@
   <ItemGroup>
     <ClCompile Include="Source Files\Application.cpp" />
     <ClCompile Include="Source Files\Engine.cpp" />
+    <ClCompile Include="Source Files\FileLoader.cpp" />
+    <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\Input.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MyApp.cpp" />
@@ -135,6 +137,8 @@
   <ItemGroup>
     <ClInclude Include="Header Files\Application.h" />
     <ClInclude Include="Header Files\Engine.h" />
+    <ClInclude Include="Header Files\FileLoader.h" />
+    <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\Input.h" />
     <ClInclude Include="Header Files\Job.h" />
     <ClInclude Include="Header Files\Locker.h" />

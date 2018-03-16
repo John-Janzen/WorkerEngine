@@ -10,15 +10,9 @@ void MyApp::Init(int n)
 	renderCopy->Update(JOB_TYPES::RENDER_LOAD);
 }
 
-void MyApp::Update(SDL_Event * e)
+void MyApp::Update()
 {
 	Uint32 now = SDL_GetTicks();
-
-	if (e->type != 0)
-		Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ, (void*)e);
-	else
-		delete(e);
-
 	while (Manager::instance().hasJobs() && !Manager::instance().checkBusy())
 	{
 		for (ThreadWorker * t : _workers)
@@ -30,10 +24,12 @@ void MyApp::Update(SDL_Event * e)
 			}
 		}	
 	}
-	while (Manager::instance().checkBusy());
-	renderCopy->Update(JOB_TYPES::RENDER_UPDATE);
+	while (Manager::instance().checkBusy());			// Wait for the threads to finish
+
+	renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, (void*)_worldObjects["Camera"]);
+	renderCopy->Update(JOB_TYPES::RENDER_UPDATE);		// Render the screen
 	
 	int frameTicks = SDL_GetTicks();
-	if (frameTicks - now < SCREEN_TICKS_PER_FRAME)
-		SDL_Delay(frameTicks - now);
+	if (frameTicks - now < SCREEN_TICKS_PER_FRAME)		// Wait time for synchronization
+		SDL_Delay(SCREEN_TICKS_PER_FRAME - (frameTicks - now));
 }

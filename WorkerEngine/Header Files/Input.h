@@ -21,8 +21,10 @@ public:
 	*/
 	virtual void Close();
 
-	void Read(void* ptr);
+	void ReadPress(void* ptr);
+	void ReadRelease(void* ptr);
 
 private:
+	const Uint8 * keys;
 };
 
