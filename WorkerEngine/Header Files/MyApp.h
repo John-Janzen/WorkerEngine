@@ -21,7 +21,7 @@ public:
 	void Update();
 
 private:
-	const int SCREEN_FPS = 60;
-	const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+	const Uint32 SCREEN_FPS = 60;
+	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 };
 

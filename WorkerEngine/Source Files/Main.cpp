@@ -38,15 +38,13 @@ int main(int argc, char *argv[])
 				dead = true;
 				break;
 			case SDL_KEYDOWN:
-				Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, (void*)&e);	// Send Job if Event is changed
-				break;
-			case SDL_KEYUP:
+				Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, (void*)&e);	// Send Job if Event is changeds
 				break;
 			default:
-
 				break;
 			}
 		}
+		Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
 		_myApp.Update();		// Update the game
 	}
 	

@@ -1,0 +1,15 @@
+//	Example data for level loading
+//	std::string name;
+//	int id;
+//	Components: render, rigid, sound;
+//	glm::vec3 position
+//	glm::vec3 rotation (in PI)
+// 	glm::vec3 scale
+
+
+//  Object 1 - test
+type: GameObject
+name: test
+id: 234
+Comp: render
+pos: 0 0 0

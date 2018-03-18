@@ -7,7 +7,7 @@
 class Input : public System
 {
 public:
-	Input();
+	Input(GameObject * player);
 	~Input();
 
 	/*
@@ -22,9 +22,11 @@ public:
 	virtual void Close();
 
 	void ReadPress(void* ptr);
-	void ReadRelease(void* ptr);
+
+	void readContinuous();
 
 private:
-	const Uint8 * keys;
+	const Uint8 * keys;	
+	GameObject * _camera;
 };
 

@@ -14,12 +14,13 @@ void Application::Init(int num)
 	renderCopy = new Render();
 	GameObject* p = new GameObject("Camera", 01);
 
-	Manager::instance().addSystem("Engine", new Engine(p));
+	Manager::instance().addSystem("Engine", new Engine());
 	Manager::instance().addSystem("Render", renderCopy);
-	Manager::instance().addSystem("Input", new Input());
+	Manager::instance().addSystem("Input", new Input(p));
 	Manager::instance().addSystem("FileLoader", new FileLoader());
 
 	_worldObjects.emplace(std::make_pair("Camera", p));
+	_worldObjects.emplace(std::make_pair("Cube", new GameObject("Cube", 02)));
 }
 
 void Application::Close()

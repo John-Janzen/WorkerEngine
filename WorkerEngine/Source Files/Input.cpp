@@ -1,6 +1,6 @@
 #include "Input.h"
 
-Input::Input() { keys = SDL_GetKeyboardState(NULL); }
+Input::Input(GameObject * p) : _camera{ p } { keys = SDL_GetKeyboardState(NULL); }
 
 Input::~Input() {}
 
@@ -11,6 +11,9 @@ void Input::Update(JOB_TYPES job, void* ptr = nullptr)
 	{
 	case INPUT_READ_PRESSED:
 		ReadPress(ptr);
+		break;
+	case INPUT_READ_CONTINUOUS:
+		readContinuous();
 		break;
 	default:
 		break;
@@ -37,18 +40,6 @@ void Input::ReadPress(void* ptr)
 		case SDLK_q:
 			Manager::instance().addJob("Render", JOB_TYPES::SWAP_COLOR);
 			break;
-		case SDLK_w:
-			Manager::instance().addJob("Engine", JOB_TYPES::ENGINE_MOVE_CAMERA_UP);
-			break;
-		case SDLK_a:
-			Manager::instance().addJob("Engine", JOB_TYPES::ENGINE_MOVE_CAMERA_LEFT);
-			break;
-		case SDLK_s:
-			Manager::instance().addJob("Engine", JOB_TYPES::ENGINE_MOVE_CAMERA_DOWN);
-			break;
-		case SDLK_d:
-			Manager::instance().addJob("Engine", JOB_TYPES::ENGINE_MOVE_CAMERA_RIGHT);
-			break;
 		default:
 			break;
 		}
@@ -62,5 +53,15 @@ void Input::ReadPress(void* ptr)
 		}
 		ptr = nullptr;
 	}
+
 	_c.notify_one();
+}
+
+void Input::readContinuous()
+{
+	keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_A]) _camera->adjustPosX(16.f);
+	if (keys[SDL_SCANCODE_W]) _camera->adjustPosY(16.f);
+	if (keys[SDL_SCANCODE_S]) _camera->adjustPosY(-16.f);
+	if (keys[SDL_SCANCODE_D]) _camera->adjustPosX(-16.f);
 }

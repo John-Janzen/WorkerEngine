@@ -9,7 +9,6 @@
 #include "Render.h"
 #include "Input.h"
 #include "FileLoader.h"
-#include "GameObject.h"
 
 class Application
 {

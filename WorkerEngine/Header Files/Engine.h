@@ -6,7 +6,7 @@
 class Engine : public System
 {
 public:
-	Engine(GameObject * player);
+	Engine();
 	~Engine();
 
 	/*
@@ -22,6 +22,5 @@ public:
 	virtual void Close();
 
 private:
-	GameObject * _camera;
 };
 

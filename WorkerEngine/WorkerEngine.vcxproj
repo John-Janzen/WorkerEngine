@@ -131,11 +131,13 @@
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MyApp.cpp" />
     <ClCompile Include="Source Files\Render.cpp" />
+    <ClCompile Include="Source Files\RenderComponent.cpp" />
     <ClCompile Include="Source Files\System.cpp" />
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Application.h" />
+    <ClInclude Include="Header Files\Component.h" />
     <ClInclude Include="Header Files\Engine.h" />
     <ClInclude Include="Header Files\FileLoader.h" />
     <ClInclude Include="Header Files\GameObject.h" />
@@ -145,6 +147,7 @@
     <ClInclude Include="Header Files\Manager.h" />
     <ClInclude Include="Header Files\MyApp.h" />
     <ClInclude Include="Header Files\Render.h" />
+    <ClInclude Include="Header Files\RenderComponent.h" />
     <ClInclude Include="Header Files\System.h" />
     <ClInclude Include="Header Files\ThreadWorker.h" />
   </ItemGroup>

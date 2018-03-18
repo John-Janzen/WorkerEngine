@@ -7,6 +7,8 @@ MyApp::~MyApp() {}
 void MyApp::Init(int n)
 {
 	Application::Init(n);
+	Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_LOAD_TXT_DATA, (void*)new std::string("Assets/prototype.dat"));
+	//Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, (void*)&e);
 	renderCopy->Update(JOB_TYPES::RENDER_LOAD);
 }
 
@@ -29,7 +31,7 @@ void MyApp::Update()
 	renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, (void*)_worldObjects["Camera"]);
 	renderCopy->Update(JOB_TYPES::RENDER_UPDATE);		// Render the screen
 	
-	int frameTicks = SDL_GetTicks();
+	Uint32 frameTicks = SDL_GetTicks();
 	if (frameTicks - now < SCREEN_TICKS_PER_FRAME)		// Wait time for synchronization
 		SDL_Delay(SCREEN_TICKS_PER_FRAME - (frameTicks - now));
 }
