@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SDL.h>
 #include <string>
 #include <thread>
 #include <time.h>

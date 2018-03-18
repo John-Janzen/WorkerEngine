@@ -8,7 +8,6 @@ void MyApp::Init(int n)
 {
 	Application::Init(n);
 	Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_LOAD_TXT_DATA, (void*)new std::string("Assets/prototype.dat"));
-	//Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, (void*)&e);
 	renderCopy->Update(JOB_TYPES::RENDER_LOAD);
 }
 
@@ -24,7 +23,7 @@ void MyApp::Update()
 				Manager::instance().Give_Job(t);
 				break;
 			}
-		}	
+		}
 	}
 	while (Manager::instance().checkBusy());			// Wait for the threads to finish
 

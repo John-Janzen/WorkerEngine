@@ -1,5 +1,7 @@
 #pragma once
+#include <GL\glew.h>
 #include <SDL.h>
+
 #include <SDL_opengl.h>
 #include <GL\freeglut.h>
 #include <gl\GLU.h>
@@ -58,6 +60,11 @@ public:
 protected:
 	SDL_Window* _window = NULL;
 	SDL_GLContext _context;
+
+	GLuint r_ProgramID = 0;
+	GLint r_VertexPos2DLocation = -1;
+	GLuint r_VBO = 0;
+	GLuint r_IBO = 0;
 
 	bool _renderQuad = true;
 

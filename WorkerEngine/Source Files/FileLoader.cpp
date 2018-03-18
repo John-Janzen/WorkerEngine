@@ -38,7 +38,7 @@ void FileLoader::loadTextData(void * ptr)
 		{
 			if ((line[0] == '/' && line[1] == '/') || line.empty())	continue;
 			
-			size_t find, find2;
+			size_t find;
 			if ((find = line.find_first_of(':')) != NULL)
 			{
 				std::string sub = line.substr(0, find);
