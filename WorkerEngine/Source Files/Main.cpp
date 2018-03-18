@@ -46,8 +46,9 @@ int main(int argc, char *argv[])
 		_myApp.Update();		// Update the game
 	}
 	
-	_myApp.Close();				// Close the game
-	SDL_Quit();					// Close SDL
+	Manager::instance().Close();	// Close the game
+	//_myApp.Close();				
+	SDL_Quit();						// Close SDL
 
 	printf("System Closed");
 	getchar();

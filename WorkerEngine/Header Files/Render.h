@@ -1,16 +1,13 @@
 #pragma once
-#include <GL\glew.h>
 #include <SDL.h>
-
+#include <GL\glew.h>
 #include <SDL_opengl.h>
-#include <GL\freeglut.h>
-#include <gl\GLU.h>
-#include <gl\glut.h>
 #include <stdio.h>
 #include <string>
 #include <map>
 
 #include "System.h"
+#include "Manager.h"
 
 enum Color {
 	COLOR_MODE_CYAN,

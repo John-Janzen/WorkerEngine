@@ -6,7 +6,7 @@ FileLoader::~FileLoader() {}
 
 void FileLoader::Update(JOB_TYPES j, void * ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
+	Manager::instance().signalWorking();
 	switch (j)
 	{
 	case FILE_LOAD_TXT_DATA:
@@ -17,7 +17,7 @@ void FileLoader::Update(JOB_TYPES j, void * ptr)
 	}
 	if (ptr != nullptr)
 		ptr = nullptr;
-	_c.notify_one();
+	Manager::instance().signalDone();
 }
 
 void FileLoader::Close()
@@ -27,70 +27,64 @@ void FileLoader::Close()
 
 void FileLoader::loadTextData(void * ptr)
 {
+	std::unique_lock<std::mutex> lock(_lockMutex);
 	std::string * s = static_cast<std::string*>(ptr);
 	std::ifstream in(s->c_str());
-	std::vector<GameObject*> _objects;
 	int location = -1;
 	if (in.is_open())
 	{
-		std::string line;
-		while (std::getline(in, line))
+		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+		output.erase(std::remove_if(output.begin(), output.end(), ::isspace), output.end());
+		in.close();
+		
+		if (output.empty())
 		{
-			if ((line[0] == '/' && line[1] == '/') || line.empty())	continue;
-			
-			size_t find;
-			if ((find = line.find_first_of(':')) != NULL)
+			printf("No data found within file %s", s);
+		}
+		else
+		{
+			std::vector<std::string> splitDataVector = split(output, ';');
+			for (std::vector<std::string>::iterator it = splitDataVector.begin(); it != splitDataVector.end(); ++it)
 			{
-				std::string sub = line.substr(0, find);
-				std::string sub2 = line.substr(find + 2, line.length() - 1);
-				if (sub.compare("type") == 0)
+				if (!(it->empty() || it->at(0) == '\t' || it->at(0) == '/'))
 				{
-					if (sub2.compare("GameObject") == 0)
+					std::map<std::string, std::string> gameObjData;
+					GameObject * go;
+					std::vector<std::string> splitMore = split(it->data(), ',');
+					for (std::vector<std::string>::iterator it2 = splitMore.begin(); it2 != splitMore.end(); ++it2)
 					{
-						_objects.emplace_back(new GameObject());
-						location++;
+						std::vector<std::string> keyValue = split(it2->data(), ':');
+						gameObjData.emplace(std::make_pair(keyValue[0], keyValue[1]));
 					}
-				}
-				else 
-				{
-					readGameObject(sub, sub2, _objects.at(location));
+
+					std::string gameObjectType = gameObjData.find("type")->second;
+					if (gameObjectType.compare("GameObject") == 0)
+					{
+						Manager::instance().addJob("Application", JOB_TYPES::APPLICATION_ADD_OBJECT, (void*)new GameObject(gameObjData));
+					}
 				}
 			}
 		}
-		in.close();
 	}
 	else
 	{
 		printf("File Missing %s", s->c_str());
 	}
+	_c.notify_one();
 }
 
-void FileLoader::readGameObject(std::string type, std::string data, GameObject * & go)
-{
-	if (type.compare("id") == 0)
-	{
-		go->setID(atoi(data.c_str()));
+template<typename Out>
+void FileLoader::split(const std::string &s, char delim, Out result) {
+	std::stringstream ss;
+	ss.str(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		*(result++) = item;
 	}
-	else if (type.compare("Comp") == 0)
-	{
-		if (data.compare("render") == 0)
-		{
-			go->addComponent("Render", new RenderComponent());
-		}
-	}
-	else if (type.compare("pos") == 0)
-	{
-		std::istringstream f(data);
-		std::vector<std::string> s;
-		std::string line;
-		while (std::getline(f, line, ' '))
-		{
-			s.emplace_back(line);
-		}
-		go->setPos(glm::vec3(atoi(s.at(0).c_str()), atoi(s.at(1).c_str()), atoi(s.at(2).c_str())));
-	}
-	else if (type.compare("name") == 0)
-	{
-		go->setName(data);
-	}
+}
+
+std::vector<std::string> FileLoader::split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	split(s, delim, std::back_inserter(elems));
+	return elems;
 }

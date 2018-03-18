@@ -1,5 +1,4 @@
 #pragma once
-#include <Windows.h>
 #include <gl/glew.h>
 #include <glm.hpp>
 #include <string>
@@ -12,6 +11,7 @@ class GameObject
 public:
 	GameObject() { _name = "null"; _ID = 0; _position = glm::vec3(); };
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
+	GameObject(std::map<std::string, std::string> s);
 	~GameObject();
 
 	void adjustPosY(GLfloat num)
@@ -29,9 +29,11 @@ public:
 		return _position;
 	}
 
-	void setName(std::string name) { _name = name; }
-	void setID(int id) { _ID = id; }
-	void setPos(glm::vec3 pos) { _position = pos; }
+	void setName(std::string name) { _name = name; };
+	void setID(int id) { _ID = id; };
+	void setPos(glm::vec3 pos) { _position = pos; };
+
+	std::string getName() { return _name; };
 
 	void addComponent(const std::string & name, Component * component)
 	{

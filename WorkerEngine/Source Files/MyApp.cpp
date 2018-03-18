@@ -25,9 +25,16 @@ void MyApp::Update()
 			}
 		}
 	}
+	for (GameObject * go : _worldObjects)
+	{
+		if (go->getName().compare("Camera") == 0)
+		{
+			renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, go);
+			break;
+		}
+	}
 	while (Manager::instance().checkBusy());			// Wait for the threads to finish
 
-	renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, (void*)_worldObjects["Camera"]);
 	renderCopy->Update(JOB_TYPES::RENDER_UPDATE);		// Render the screen
 	
 	Uint32 frameTicks = SDL_GetTicks();

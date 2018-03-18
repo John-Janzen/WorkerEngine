@@ -3,10 +3,15 @@
 #include <sstream>
 #include <ostream>
 #include <fstream>
+#include <string>
+#include <iterator>
+#include <chrono>
+#include <algorithm>
+#include <filesystem>
 #include <vector>
-#include <map>
 
 #include "System.h"
+#include "Manager.h"
 
 class FileLoader : public System
 {
@@ -18,6 +23,8 @@ public:
 	virtual void Close();
 	void loadTextData(void * ptr);
 
-	void readGameObject(std::string type, std::string data, GameObject * & go);
+	std::vector<std::string> split(const std::string & s, char delim);
+	template <typename Out>
+	void split(const std::string &s, char delim, Out result);
 };
 

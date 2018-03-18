@@ -1,7 +1,4 @@
 #pragma once
-#include <mutex>
-#include <condition_variable>
-#include <map>
 
 #include "Locker.h"
 #include "ThreadWorker.h"
@@ -28,10 +25,8 @@ public:
 	void Close()
 	{
 		for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
-		{
 			i->second->Close();
-			delete(i->second);
-		}
+
 		_systems.clear();
 	}
 

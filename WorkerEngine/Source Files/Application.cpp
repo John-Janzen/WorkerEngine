@@ -18,9 +18,27 @@ void Application::Init(int num)
 	Manager::instance().addSystem("Render", renderCopy);
 	Manager::instance().addSystem("Input", new Input(p));
 	Manager::instance().addSystem("FileLoader", new FileLoader());
+	Manager::instance().addSystem("Application", this);
 
-	_worldObjects.emplace(std::make_pair("Camera", p));
-	_worldObjects.emplace(std::make_pair("Cube", new GameObject("Cube", 02)));
+	_worldObjects.emplace_back(p);
+}
+
+void Application::Update(JOB_TYPES t, void* ptr)
+{
+	Manager::instance().signalWorking();
+	switch (t)
+	{
+	case SYSTEM_DEFAULT:
+		break;
+	case APPLICATION_ADD_OBJECT:
+		addWorldObject(ptr);
+		break;
+	default:
+		break;
+	}
+	if (ptr != nullptr)
+		ptr = nullptr;
+	Manager::instance().signalDone();
 }
 
 void Application::Close()
@@ -28,10 +46,16 @@ void Application::Close()
 	for (ThreadWorker * thread : _workers)
 		delete(thread);
 
-	for (std::map<std::string, GameObject*>::iterator it = _worldObjects.begin(); it != _worldObjects.end(); ++it)
-		delete(it->second);
+	for (GameObject * go : _worldObjects)
+		delete(go);
 
 	_worldObjects.clear();
-	
-	Manager::instance().Close();
+}
+
+void Application::addWorldObject(void * ptr)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	GameObject * go = static_cast<GameObject*>(ptr);
+	_worldObjects.emplace_back(go);
+	_c.notify_one();
 }

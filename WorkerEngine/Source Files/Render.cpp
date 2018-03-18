@@ -6,6 +6,7 @@ Render::~Render() {}
 
 void Render::Update(JOB_TYPES T, void* ptr)
 {
+	Manager::instance().signalWorking();
 	switch (T)
 	{
 	case SYSTEM_DEFAULT:
@@ -28,6 +29,7 @@ void Render::Update(JOB_TYPES T, void* ptr)
 	}
 	if (ptr != nullptr)
 		ptr = nullptr;
+	Manager::instance().signalDone();
 }
 
 void Render::Close()
@@ -143,7 +145,7 @@ void Render::InitGL()
 
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();
-					glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, -1.0f);
+					glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, -100.0f);
 
 					glMatrixMode(GL_MODELVIEW);
 					glLoadIdentity();
@@ -196,17 +198,6 @@ void Render::RenderWindow(void* ptr)
 	glDisableVertexAttribArray(r_VertexPos2DLocation);
 
 	glUseProgram(NULL);
-
-	glTranslatef(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f, 0.f);
-
-	//Red quad
-	glBegin(GL_QUADS);
-	glColor3f(1.f, 0.f, 0.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glEnd();
 
 	//Move to the right of the screen
 	glTranslatef(SCREEN_WIDTH, 0.f, 0.f);
@@ -269,8 +260,10 @@ void Render::handleCamera(void* ptr)
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
 	glLoadIdentity();
 	glTranslatef(pos.x, pos.y, pos.z);
+
 	glPushMatrix();
 
 	_c.notify_one();
