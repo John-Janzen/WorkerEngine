@@ -14,25 +14,15 @@ public:
 	GameObject(std::map<std::string, std::string> s);
 	~GameObject();
 
-	void adjustPosY(GLfloat num)
-	{
-		_position.y += num;
-	}
-
-	void adjustPosX(GLfloat num)
-	{
-		_position.x += num;
-	}
-
-	glm::vec3 getPos()
-	{
-		return _position;
-	}
+	void adjustPosY(GLfloat num) { _position.y += num; }
+	void adjustPosX(GLfloat num) { _position.x += num; }
+	void adjustPosZ(GLfloat num) { _position.z += num; }
 
 	void setName(std::string name) { _name = name; };
 	void setID(int id) { _ID = id; };
 	void setPos(glm::vec3 pos) { _position = pos; };
 
+	glm::vec3 getPos() { return _position; }
 	std::string getName() { return _name; };
 
 	void addComponent(const std::string & name, Component * component)

@@ -2,6 +2,10 @@
 #include <SDL.h>
 #include <GL\glew.h>
 #include <SDL_opengl.h>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
+#include <gtx\euler_angles.hpp>
+#include <gtc\type_ptr.hpp>
 #include <stdio.h>
 #include <string>
 #include <map>
@@ -61,7 +65,11 @@ protected:
 	GLuint r_ProgramID = 0;
 	GLint r_VertexPos2DLocation = -1;
 	GLuint r_VBO = 0;
-	GLuint r_IBO = 0;
+	GLuint r_VAO = 0;
+	GLuint r_EBO = 0;
+
+	GLint render_projection_matrix_loc;
+	GLint render_model_matrix_loc;
 
 	bool _renderQuad = true;
 
@@ -69,4 +77,3 @@ protected:
 	const int SCREEN_HEIGHT = 480;
 	Color _ColorMode = Color::COLOR_MODE_CYAN;
 };
-

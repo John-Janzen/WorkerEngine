@@ -31,14 +31,14 @@ public:
 	/*
 	* Get the ID of the thread
 	*/
-	int Get_ID() { return _id; }
+	char* Get_Name() { return _name; }
 
 	// Pointer to Job the thread needs to do
 	std::shared_ptr<Job> a;	
 
 private:
 	std::thread * _thread;
-	int _id;
+	char _name[30];
 	bool _dead;
 
 };
