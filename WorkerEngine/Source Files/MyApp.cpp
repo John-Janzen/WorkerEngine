@@ -25,19 +25,14 @@ void MyApp::Update()
 			}
 		}
 	}
-	for (GameObject * go : _worldObjects)
-	{
-		if (go->getName().compare("Camera") == 0)
-		{
-			renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(go));
-			break;
-		}
-	}
 	while (Manager::instance().checkBusy());			// Wait for the threads to finish
-
-	renderCopy->Update(JOB_TYPES::RENDER_UPDATE);		// Render the screen
+	renderCopy->Update(JOB_TYPES::RENDER_UPDATE, new RenderUpdateContent(_worldObjects));		// Render the screen
 	
 	Uint32 frameTicks = SDL_GetTicks();
 	if (frameTicks - now < SCREEN_TICKS_PER_FRAME)		// Wait time for synchronization
+	{
+		//printf("%d-", SCREEN_TICKS_PER_FRAME - (frameTicks - now));
 		SDL_Delay(SCREEN_TICKS_PER_FRAME - (frameTicks - now));
+	}
+		
 }

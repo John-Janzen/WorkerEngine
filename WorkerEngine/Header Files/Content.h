@@ -13,10 +13,16 @@ public:
 	GameObject * camera;
 
 	RenderCameraContent(GameObject * c) : camera{c} {}
-	~RenderCameraContent()
-	{ 
-		camera = nullptr; 
-	}
+	~RenderCameraContent() { camera = nullptr; }
+};
+
+class RenderUpdateContent : public BaseContent
+{
+public:
+	std::vector<GameObject*> objects;
+
+	RenderUpdateContent(std::vector<GameObject*> o) { objects = o; }
+	~RenderUpdateContent() {}
 };
 
 class InputContent : public BaseContent
@@ -40,8 +46,8 @@ public:
 class FileLoadedContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> _objects;
+	std::vector<GameObject*> objects;
 
-	FileLoadedContent(std::vector<GameObject*> o) { _objects = o; }
+	FileLoadedContent(std::vector<GameObject*> o) { objects = o; }
 	~FileLoadedContent() {}
 };

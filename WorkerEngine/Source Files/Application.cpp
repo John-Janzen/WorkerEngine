@@ -57,7 +57,7 @@ void Application::addWorldObject(BaseContent * ptr)
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
 
-	for (GameObject * go : FLContent->_objects)
+	for (GameObject * go : FLContent->objects)
 		_worldObjects.emplace_back(go);
 
 	_c.notify_one();

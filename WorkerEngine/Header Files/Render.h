@@ -52,7 +52,7 @@ public:
 	*/
 	void SwapColor();
 
-	void handleCamera(BaseContent* ptr);
+	void handleCamera(GameObject* ptr);
 	
 protected:
 	SDL_Window* _window = NULL;

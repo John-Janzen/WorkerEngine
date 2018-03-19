@@ -21,9 +21,6 @@ void Render::Update(JOB_TYPES T, BaseContent* ptr)
 	case SWAP_COLOR:
 		SwapColor();
 		break;
-	case RENDER_HANDLE_CAMERA:
-		handleCamera(ptr);
-		break;
 	default:
 		break;
 	}
@@ -144,13 +141,13 @@ void Render::InitGL()
 					glViewport(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 					glMatrixMode(GL_PROJECTION);
+
 					glLoadIdentity();
 					glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 1.0f, -100.0f);
 
 					glMatrixMode(GL_MODELVIEW);
+					glPopMatrix();
 					glLoadIdentity();
-
-					glPushMatrix();
 
 					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -171,6 +168,8 @@ void Render::InitGL()
 					glGenBuffers(1, &r_IBO);
 					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r_IBO);
 					glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+
+					glPushMatrix();
 				}
 			}
 		}
@@ -179,12 +178,16 @@ void Render::InitGL()
 
 void Render::RenderWindow(BaseContent* ptr)
 {
+	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
+	for (GameObject * go : RUContent->objects)
+	{
+		if (go->getName().compare("Camera") == 0)
+		{
+			handleCamera(go);
+			break;
+		}
+	}
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	glPushMatrix();
 
 	glUseProgram(r_ProgramID);
 	glEnableVertexAttribArray(r_VertexPos2DLocation);
@@ -198,42 +201,6 @@ void Render::RenderWindow(BaseContent* ptr)
 	glDisableVertexAttribArray(r_VertexPos2DLocation);
 
 	glUseProgram(NULL);
-
-	//Move to the right of the screen
-	glTranslatef(SCREEN_WIDTH, 0.f, 0.f);
-
-	//Green quad
-	glBegin(GL_QUADS);
-	glColor3f(0.f, 1.f, 0.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glEnd();
-
-	//Move to the lower right of the screen
-	glTranslatef(0.f, SCREEN_HEIGHT, 0.f);
-
-	//Blue quad
-	glBegin(GL_QUADS);
-	glColor3f(0.f, 0.f, 1.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glEnd();
-
-	//Move below the screen
-	glTranslatef(-SCREEN_WIDTH, 0.f, 0.f);
-
-	//Yellow quad
-	glBegin(GL_QUADS);
-	glColor3f(1.f, 1.f, 0.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, -SCREEN_HEIGHT / 4.f);
-	glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
-	glEnd();
 
 	SDL_GL_SwapWindow(_window);
 }
@@ -252,12 +219,9 @@ void Render::SwapColor()
 	_c.notify_one();
 }
 
-void Render::handleCamera(BaseContent* ptr)
+void Render::handleCamera(GameObject * camera)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
-	RenderCameraContent * RCContent = static_cast<RenderCameraContent*>(ptr);
-	
-	glm::vec3 pos = RCContent->camera->getPos();
+	glm::vec3 pos = camera->getPos();
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -266,6 +230,4 @@ void Render::handleCamera(BaseContent* ptr)
 	glTranslatef(pos.x, pos.y, pos.z);
 
 	glPushMatrix();
-
-	_c.notify_one();
 }
