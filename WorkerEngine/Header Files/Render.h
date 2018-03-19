@@ -23,7 +23,7 @@ public:
 	/*
 	* Update function that checks the job type for what function to call
 	*/
-	virtual void Update(JOB_TYPES T, void* ptr = nullptr);
+	virtual void Update(JOB_TYPES T, BaseContent* ptr = nullptr);
 
 	/*
 	* Deallocates SDL and OpenGL
@@ -45,14 +45,14 @@ public:
 	* Renders what is to be put on screen
 	* SwapsWindows at the very end
 	*/
-	void RenderWindow(void* ptr);
+	void RenderWindow(BaseContent* ptr);
 
 	/*
 	* Swaps the cyan color and the multicolor flag
 	*/
 	void SwapColor();
 
-	void handleCamera(void* ptr);
+	void handleCamera(BaseContent* ptr);
 	
 protected:
 	SDL_Window* _window = NULL;

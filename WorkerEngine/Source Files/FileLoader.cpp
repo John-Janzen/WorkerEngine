@@ -4,7 +4,7 @@ FileLoader::FileLoader() {}
 
 FileLoader::~FileLoader() {}
 
-void FileLoader::Update(JOB_TYPES j, void * ptr)
+void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (j)
@@ -25,12 +25,35 @@ void FileLoader::Close()
 
 }
 
-void FileLoader::loadTextData(void * ptr)
+void FileLoader::ObjImporter(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
-	std::string * s = static_cast<std::string*>(ptr);
-	std::ifstream in(s->c_str());
+	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
+
+	std::string path = FTLContent->path;
+	std::ifstream in(path.c_str());
+
+	if (in.is_open())
+	{
+
+	}
+	else
+	{
+		printf("Error opening file: %s", path.c_str());
+	}
+	_c.notify_all();
+}
+
+void FileLoader::loadTextData(BaseContent * ptr)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
+
+	std::string path = FTLContent->path;
+	std::ifstream in(path.c_str());
+
 	int location = -1;
+	std::vector<GameObject*> GameObjects;
 	if (in.is_open())
 	{
 		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -39,7 +62,7 @@ void FileLoader::loadTextData(void * ptr)
 		
 		if (output.empty())
 		{
-			printf("No data found within file %s", s);
+			printf("No data found within file %s", path.c_str());
 		}
 		else
 		{
@@ -60,15 +83,16 @@ void FileLoader::loadTextData(void * ptr)
 					std::string gameObjectType = gameObjData.find("type")->second;
 					if (gameObjectType.compare("GameObject") == 0)
 					{
-						Manager::instance().addJob("Application", JOB_TYPES::APPLICATION_ADD_OBJECT, (void*)new GameObject(gameObjData));
+						GameObjects.emplace_back(new GameObject(gameObjData));
 					}
 				}
 			}
 		}
+		Manager::instance().addJob("Application", JOB_TYPES::APPLICATION_ADD_OBJECTS, new FileLoadedContent(GameObjects));
 	}
 	else
 	{
-		printf("File Missing %s", s->c_str());
+		printf("File Missing %s", path.c_str());
 	}
 	_c.notify_one();
 }

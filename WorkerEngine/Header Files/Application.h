@@ -18,7 +18,7 @@ public:
 	*/
 	void Init(int i);
 
-	virtual void Update(JOB_TYPES t, void* ptr = nullptr);
+	virtual void Update(JOB_TYPES t, BaseContent * ptr = nullptr);
 
 	/*
 	* Closes this application
@@ -26,7 +26,7 @@ public:
 	*/
 	void Close();
 
-	void addWorldObject(void*);
+	void addWorldObject(BaseContent *);
 
 protected:
 	std::vector<ThreadWorker*> _workers;

@@ -13,7 +13,7 @@ public:
 	/*
 	* Update function that checks the job types to see what function to use
 	*/
-	virtual void Update(JOB_TYPES j, void* ptr);
+	virtual void Update(JOB_TYPES j, BaseContent * ptr);
 
 	/*
 	* The Close function that should be called
@@ -21,7 +21,7 @@ public:
 	*/
 	virtual void Close();
 
-	void ReadPress(void* ptr);
+	void ReadPress(BaseContent* ptr);
 
 	void readContinuous();
 

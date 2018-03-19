@@ -4,7 +4,7 @@ Render::Render() {}
 
 Render::~Render() {}
 
-void Render::Update(JOB_TYPES T, void* ptr)
+void Render::Update(JOB_TYPES T, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (T)
@@ -28,7 +28,7 @@ void Render::Update(JOB_TYPES T, void* ptr)
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
 }
 
@@ -177,7 +177,7 @@ void Render::InitGL()
 	}
 }
 
-void Render::RenderWindow(void* ptr)
+void Render::RenderWindow(BaseContent* ptr)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -234,6 +234,7 @@ void Render::RenderWindow(void* ptr)
 	glVertex2f(SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
 	glVertex2f(-SCREEN_WIDTH / 4.f, SCREEN_HEIGHT / 4.f);
 	glEnd();
+
 	SDL_GL_SwapWindow(_window);
 }
 
@@ -251,12 +252,12 @@ void Render::SwapColor()
 	_c.notify_one();
 }
 
-void Render::handleCamera(void* ptr)
+void Render::handleCamera(BaseContent* ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
-	GameObject * camera = static_cast<GameObject*>(ptr);
-
-	glm::vec3 pos = camera->getPos();
+	RenderCameraContent * RCContent = static_cast<RenderCameraContent*>(ptr);
+	
+	glm::vec3 pos = RCContent->camera->getPos();
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();

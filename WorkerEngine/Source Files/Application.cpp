@@ -23,14 +23,14 @@ void Application::Init(int num)
 	_worldObjects.emplace_back(p);
 }
 
-void Application::Update(JOB_TYPES t, void* ptr)
+void Application::Update(JOB_TYPES t, BaseContent * ptr)
 {
 	Manager::instance().signalWorking();
 	switch (t)
 	{
 	case SYSTEM_DEFAULT:
 		break;
-	case APPLICATION_ADD_OBJECT:
+	case APPLICATION_ADD_OBJECTS:
 		addWorldObject(ptr);
 		break;
 	default:
@@ -52,10 +52,13 @@ void Application::Close()
 	_worldObjects.clear();
 }
 
-void Application::addWorldObject(void * ptr)
+void Application::addWorldObject(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
-	GameObject * go = static_cast<GameObject*>(ptr);
-	_worldObjects.emplace_back(go);
+	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
+
+	for (GameObject * go : FLContent->_objects)
+		_worldObjects.emplace_back(go);
+
 	_c.notify_one();
 }

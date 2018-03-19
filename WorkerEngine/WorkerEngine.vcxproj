@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Header Files\Application.h" />
     <ClInclude Include="Header Files\Component.h" />
+    <ClInclude Include="Header Files\Content.h" />
     <ClInclude Include="Header Files\Engine.h" />
     <ClInclude Include="Header Files\FileLoader.h" />
     <ClInclude Include="Header Files\GameObject.h" />

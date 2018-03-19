@@ -9,9 +9,9 @@ void Engine::Close()
 
 }
 
-void Engine::Update(JOB_TYPES t, void* ptr)
+void Engine::Update(JOB_TYPES t, BaseContent* ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
+	Manager::instance().signalWorking();
 	switch (t)
 	{
 	case SYSTEM_DEFAULT:
@@ -21,5 +21,5 @@ void Engine::Update(JOB_TYPES t, void* ptr)
 	}
 	if (ptr != nullptr)
 		ptr = nullptr;
-	_c.notify_one();
+	Manager::instance().signalDone();
 }

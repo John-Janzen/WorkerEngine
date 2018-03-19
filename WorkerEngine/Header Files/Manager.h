@@ -49,7 +49,7 @@ public:
 	* Job type
 	* Any void pointer
 	*/
-	void addJob(std::string name, JOB_TYPES j = JOB_TYPES::SYSTEM_DEFAULT, void* ptr = nullptr)
+	void addJob(std::string name, JOB_TYPES j = JOB_TYPES::SYSTEM_DEFAULT, BaseContent * ptr = nullptr)
 	{
 		addJob(std::make_shared<Job>(_systems[name], j, ptr));
 	}

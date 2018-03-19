@@ -7,7 +7,7 @@ MyApp::~MyApp() {}
 void MyApp::Init(int n)
 {
 	Application::Init(n);
-	Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_LOAD_TXT_DATA, (void*)new std::string("Assets/prototype.dat"));
+	Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_LOAD_TXT_DATA, new FileToLoadContent("Assets/prototype.dat"));
 	renderCopy->Update(JOB_TYPES::RENDER_LOAD);
 }
 
@@ -29,7 +29,7 @@ void MyApp::Update()
 	{
 		if (go->getName().compare("Camera") == 0)
 		{
-			renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, go);
+			renderCopy->Update(JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(go));
 			break;
 		}
 	}

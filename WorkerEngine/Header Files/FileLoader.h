@@ -19,9 +19,10 @@ public:
 	FileLoader();
 	~FileLoader();
 
-	virtual void Update(JOB_TYPES j, void* ptr);
+	virtual void Update(JOB_TYPES j, BaseContent* ptr);
 	virtual void Close();
-	void loadTextData(void * ptr);
+	void ObjImporter(BaseContent* ptr);
+	void loadTextData(BaseContent* ptr);
 
 	std::vector<std::string> split(const std::string & s, char delim);
 	template <typename Out>

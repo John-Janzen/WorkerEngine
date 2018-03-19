@@ -1,6 +1,7 @@
 #pragma once
 
 #include "System.h"
+#include "Content.h"
 
 class Job
 {
@@ -10,12 +11,12 @@ public:
 	* The job type the thread needs to do on the system
 	* Any type of data that needs to be in pointer form
 	*/
-	Job(System * sys, JOB_TYPES type, void* ptr = nullptr) : _system{ sys }, _type{ type }, _ptr{ ptr } {};
+	Job(System * sys, JOB_TYPES type, BaseContent * ptr = nullptr) : _system{ sys }, _type{ type }, _ptr{ ptr } {};
 
 	~Job() 
 	{
 		_system = nullptr;
-		_ptr = nullptr;
+		delete(_ptr);
 		_type = JOB_TYPES::SYSTEM_DEFAULT;
 	};
 	
@@ -33,10 +34,10 @@ public:
 	* Get the data that is passed through as a pointer
 	* static_cast<?>(_ptr) **REQUIRED**
 	*/
-	void* Get_Data() { return _ptr; }
+	BaseContent * Get_Data() { return _ptr; }
 
 private:
 	System * _system;
 	JOB_TYPES _type;
-	void* _ptr;
+	BaseContent * _ptr;
 };

@@ -4,7 +4,7 @@ Input::Input(GameObject * p) : _camera{ p } { keys = SDL_GetKeyboardState(NULL);
 
 Input::~Input() {}
 
-void Input::Update(JOB_TYPES job, void* ptr = nullptr)
+void Input::Update(JOB_TYPES job, BaseContent* ptr = nullptr)
 {
 	Manager::instance().signalWorking();
 	switch (job)
@@ -28,10 +28,11 @@ void Input::Close()
 	
 }
 
-void Input::ReadPress(void* ptr)
+void Input::ReadPress(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
-	SDL_Event * e = static_cast<SDL_Event*>(ptr);
+	InputContent * IContent = static_cast<InputContent*>(ptr);
+	SDL_Event * e = IContent->Event;
 	switch (e->key.state)
 	{
 	case SDLK_0:
