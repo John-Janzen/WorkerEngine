@@ -1,8 +1,8 @@
 #pragma once
-#include <gl/glew.h>
 #include <glm.hpp>
 #include <string>
 #include <map>
+#include <vector>
 
 #include "RenderComponent.h"
 
@@ -11,7 +11,7 @@ class GameObject
 public:
 	GameObject() { _name = "null"; _ID = 0; _position = glm::vec3(); };
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
-	GameObject(std::map<std::string, std::string> s);
+	GameObject(std::map<std::string, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
 	~GameObject();
 
 	void adjustPosY(GLfloat num) { _position.y += num; }

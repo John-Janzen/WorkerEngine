@@ -21,10 +21,12 @@ public:
 
 	virtual void Update(JOB_TYPES j, BaseContent* ptr);
 	virtual void Close();
-	void ObjImporter(BaseContent* ptr);
+	RenderComponent * ObjImporter(std::string path, RenderComponent * rc);
 	void loadTextData(BaseContent* ptr);
 
 	std::vector<std::string> split(const std::string & s, char delim);
+	template<typename Out>
+	Out * mallocSpace(std::vector<Out>);
 	template <typename Out>
 	void split(const std::string &s, char delim, Out result);
 };

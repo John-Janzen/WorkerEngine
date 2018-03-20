@@ -45,11 +45,15 @@ public:
 	*/
 	void InitGL();
 
+	void InitObject(void * ptr);
+
 	/*
 	* Renders what is to be put on screen
 	* SwapsWindows at the very end
 	*/
 	void RenderWindow(BaseContent* ptr);
+
+	void RenderObject(GameObject * go);
 
 	/*
 	* Swaps the cyan color and the multicolor flag
@@ -63,13 +67,12 @@ protected:
 	SDL_GLContext _context;
 
 	GLuint r_ProgramID = 0;
-	GLint r_VertexPos2DLocation = -1;
-	GLuint r_VBO = 0;
-	GLuint r_VAO = 0;
-	GLuint r_EBO = 0;
 
 	GLint render_projection_matrix_loc;
 	GLint render_model_matrix_loc;
+	glm::mat4 projection_look_matrix;
+	glm::mat4 projection_matrix;
+	glm::mat4 look_matrix;
 
 	bool _renderQuad = true;
 

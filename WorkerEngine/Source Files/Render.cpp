@@ -14,6 +14,7 @@ void Render::Update(JOB_TYPES T, BaseContent* ptr)
 	case RENDER_LOAD:
 		Init();
 		InitGL();
+		InitObject(ptr);
 		break;
 	case RENDER_UPDATE:
 		RenderWindow(ptr);
@@ -33,8 +34,6 @@ void Render::Close()
 {
 	glUseProgram(0);
 	glDeleteProgram(r_ProgramID);
-	glDeleteVertexArrays(1, &r_VAO);
-	glDeleteBuffers(1, &r_VBO);
 
 	SDL_DestroyWindow(_window);
 	_window = NULL;
@@ -95,7 +94,7 @@ void Render::InitGL()
 
 	const GLchar* vertexShaderSource[] =
 	{
-		"#version 330\nuniform mat4 model_matrix; uniform mat4 projection_matrix; layout(location = 0) in vec4 position; layout(location = 1) in vec4 color; out vec4 vs_fs_color; void main(void) { vs_fs_color = color; gl_Position = projection_matrix * (model_matrix * position); } "
+		"#version 330\nuniform mat4 model_matrix; uniform mat4 projection_matrix; layout(location = 0) in vec4 position; layout(location = 1) in vec4 color; out vec4 vs_fs_color; void main(void) { vs_fs_color = vec4(1.0, 1.0, 1.0, 1.0); gl_Position = projection_matrix * (model_matrix * position); } "
 	};
 	glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -140,49 +139,13 @@ void Render::InitGL()
 			}
 			else
 			{
-				glViewport(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT);
+				glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 				glUseProgram(r_ProgramID);
 				render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
 				render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
 
-				static const GLfloat vertex_positions[] =
-				{
-					-1.0f, -1.0f,  0.0f, 1.0f,
-					1.0f, -1.0f,  0.0f, 1.0f,
-					- 1.0f,  1.0f,  0.0f, 1.0f,
-					- 1.0f, -1.0f,  0.0f, 1.0f
-				};
-
-				static const GLfloat vertex_colors[] = 
-				{
-					1.0f, 1.0f, 1.0f, 1.0f,
-					1.0f, 1.0f, 0.0f, 1.0f,
-					1.0f, 0.0f, 1.0f, 1.0f,
-					0.0f, 1.0f, 1.0f, 1.0f
-				};
-
-				static const GLushort vertex_indices[] = 
-				{
-					0, 1, 2
-				};
-
-				glGenBuffers(1, &r_EBO);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r_EBO);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * sizeof(vertex_indices), vertex_indices, GL_STATIC_DRAW);
-
-				glGenVertexArrays(1, &r_VAO);
-				glBindVertexArray(r_VAO);
-
-				glGenBuffers(1, &r_VBO);
-				glBindBuffer(GL_ARRAY_BUFFER, r_VBO);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * (sizeof(vertex_positions) + sizeof(vertex_colors)), NULL, GL_STATIC_DRAW);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sizeof(vertex_positions), vertex_positions);
-				glBufferSubData(GL_ARRAY_BUFFER, sizeof(GLfloat) * sizeof(vertex_positions), sizeof(GLfloat) * sizeof(vertex_colors), vertex_colors);
-
-				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(vertex_positions));
-				glEnableVertexAttribArray(0);
-				glEnableVertexAttribArray(1);
+				projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
+				look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 				glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 			}
@@ -190,59 +153,70 @@ void Render::InitGL()
 	}
 }
 
+void Render::InitObject(void * ptr)
+{
+	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
+	RenderComponent * rc;
+	for (GameObject * go : RUContent->objects)
+	{
+		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
+		{
+			glGenBuffers(1, &rc->_EBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * rc->numFaces), rc->getFaces(), GL_STATIC_DRAW);
+
+			glGenVertexArrays(1, &rc->_VAO);
+			glBindVertexArray(rc->_VAO);
+
+			glGenBuffers(1, &rc->_VBO);
+			glBindBuffer(GL_ARRAY_BUFFER, rc->_VBO);
+			glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) * rc->numVertices), rc->getVertices(), GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		}
+	}
+}
+
 void Render::RenderWindow(BaseContent* ptr)
 {
-	
 	glm::mat4 translate;
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
 	for (GameObject * go : RUContent->objects)
 	{
 		if (go->getName().compare("Camera") == 0)
-		{
 			translate = glm::translate(glm::mat4(), go->getPos());
-			break;
-		}
 	}
 	
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(r_ProgramID);
 
-	glm::mat4 projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
-	glm::mat4 look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection_look_matrix = projection_matrix * (look_matrix * translate);
+	projection_look_matrix = projection_matrix * (look_matrix * translate);
 	glUniformMatrix4fv(render_projection_matrix_loc, 1, GL_FALSE, glm::value_ptr(projection_look_matrix));
 
-	glBindVertexArray(r_VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r_EBO);
-	glm::mat4 model_matrix;
-
-	model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, 0.0f, -5.0f));
-	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -5.0f));
-	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, NULL);
-
-	model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -5.0f));
-	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glDrawElementsBaseVertex(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, NULL, 1);
-
-	model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, -5.0f));
-	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 1);
-
-	//glDisableVertexAttribArray(r_VertexPos2DLocation);
-
-	//glUseProgram(NULL);
+	for (GameObject * go : RUContent->objects)
+	{
+		if (go->getComponent("render") != nullptr)
+			RenderObject(go);
+	}
 
 	glBindVertexArray(0);
-	
 	SDL_GL_SwapWindow(_window);
+}
+
+void Render::RenderObject(GameObject * go)
+{
+	RenderComponent * rc = static_cast<RenderComponent*>(go->getComponent("render"));
+	glBindVertexArray(rc->_VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
+
+	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
+	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+	glDrawElements(GL_TRIANGLES, rc->numFaces / 9, GL_UNSIGNED_INT, NULL);
 }
 
 void Render::SwapColor()

@@ -2,6 +2,12 @@
 
 #include "Application.h"
 
+enum STATE
+{
+	LOADING,
+	UPDATE
+};
+
 class MyApp : public Application
 {
 public:
@@ -22,5 +28,7 @@ public:
 private:
 	const Uint32 SCREEN_FPS = 60;
 	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+	size_t numOfObjects = 2;
+	STATE state = LOADING;
 };
 
