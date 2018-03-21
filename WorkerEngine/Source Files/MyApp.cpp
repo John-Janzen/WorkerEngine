@@ -29,14 +29,14 @@ void MyApp::Update()
 	case LOADING:
 		if (_worldObjects.size() == numOfObjects && !Manager::instance().hasJobs() && !Manager::instance().checkBusy())
 		{
-			renderCopy->Update(JOB_TYPES::RENDER_LOAD, new RenderUpdateContent(_worldObjects));
+			renderCopy->Update(JOB_TYPES::RENDER_LOAD, new RenderUpdateContent(&_worldObjects));
 			state = UPDATE;
 		}
 		break;
 	case UPDATE:
 	{
 		while (Manager::instance().checkBusy());			// Wait for the threads to finish
-		renderCopy->Update(JOB_TYPES::RENDER_UPDATE, new RenderUpdateContent(_worldObjects));		// Render the screen
+		renderCopy->Update(JOB_TYPES::RENDER_UPDATE, new RenderUpdateContent(&_worldObjects));		// Render the screen
 
 		Uint32 frameTicks = SDL_GetTicks();
 		if (frameTicks - now < SCREEN_TICKS_PER_FRAME)

@@ -10,19 +10,22 @@ public:
 class RenderCameraContent : public BaseContent
 {
 public:
-	GameObject * camera;
+	float moveX, moveY, moveZ;
 
-	RenderCameraContent(GameObject * c) : camera{c} {}
-	~RenderCameraContent() { camera = nullptr; }
+	RenderCameraContent(float mX, float mY, float mZ) : moveX(mX), moveY(mY), moveZ(mZ) {}
+	~RenderCameraContent() {}
 };
 
 class RenderUpdateContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> objects;
+	std::vector<GameObject*> * objects;
 
-	RenderUpdateContent(std::vector<GameObject*> o) { objects = o; }
-	~RenderUpdateContent() {}
+	RenderUpdateContent(std::vector<GameObject*> * o) { objects = o; }
+	~RenderUpdateContent() 
+	{
+		objects = nullptr;
+	}
 };
 
 class InputContent : public BaseContent

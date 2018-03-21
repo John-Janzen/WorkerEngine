@@ -1,6 +1,6 @@
 #include "Input.h"
 
-Input::Input(GameObject * p) : _camera{ p } { keys = SDL_GetKeyboardState(NULL); }
+Input::Input() { keys = SDL_GetKeyboardState(NULL); }
 
 Input::~Input() {}
 
@@ -19,7 +19,7 @@ void Input::Update(JOB_TYPES job, BaseContent* ptr = nullptr)
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
 }
 
@@ -58,10 +58,14 @@ void Input::ReadPress(BaseContent * ptr)
 void Input::readContinuous()
 {
 	keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_A]) _camera->adjustPosX(0.1f);
-	if (keys[SDL_SCANCODE_W]) _camera->adjustPosY(-0.1f);
-	if (keys[SDL_SCANCODE_S]) _camera->adjustPosY(0.1f);
-	if (keys[SDL_SCANCODE_D]) _camera->adjustPosX(-0.1f);
-	if (keys[SDL_SCANCODE_E]) _camera->adjustPosZ(0.1f);
-	if (keys[SDL_SCANCODE_Q]) _camera->adjustPosZ(-0.1f);
+	float moveX = 0, moveY = 0, moveZ = 0;
+	if (keys[SDL_SCANCODE_A]) moveX = 0.1f;
+	if (keys[SDL_SCANCODE_W]) moveY = -0.1f;
+	if (keys[SDL_SCANCODE_S]) moveY = 0.1f;
+	if (keys[SDL_SCANCODE_D]) moveX = -0.1f;
+	if (keys[SDL_SCANCODE_E]) moveZ = 0.1f;
+	if (keys[SDL_SCANCODE_Q]) moveZ = -0.1f;
+
+	if (moveX != 0 || moveY != 0 || moveZ != 0)
+		Manager::instance().addJob("Render", JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(moveX, moveY, moveZ));
 }

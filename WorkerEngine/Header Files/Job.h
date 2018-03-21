@@ -16,7 +16,8 @@ public:
 	~Job() 
 	{
 		_system = nullptr;
-		delete(_ptr);
+		if (_ptr != nullptr)
+			_ptr = nullptr;
 		_type = JOB_TYPES::SYSTEM_DEFAULT;
 	};
 	

@@ -1,6 +1,6 @@
 #include "Render.h"
 
-Render::Render() {}
+Render::Render(GameObject * c) : _camera { c } {}
 
 Render::~Render() {}
 
@@ -21,6 +21,9 @@ void Render::Update(JOB_TYPES T, BaseContent* ptr)
 		break;
 	case SWAP_COLOR:
 		SwapColor();
+		break;
+	case RENDER_HANDLE_CAMERA:
+		handleCamera(ptr);
 		break;
 	default:
 		break;
@@ -158,7 +161,7 @@ void Render::InitObject(void * ptr)
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
 	RenderComponent * rc;
 
-	for (GameObject * go : RUContent->objects)
+	for (GameObject * go : *RUContent->objects)
 	{
 		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
 		{
@@ -185,9 +188,10 @@ void Render::InitObject(void * ptr)
 
 void Render::RenderWindow(BaseContent* ptr)
 {
+	std::unique_lock<std::mutex>lock(_lockMutex);
 	glm::mat4 translate;
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
-	for (GameObject * go : RUContent->objects)
+	for (GameObject * go : *RUContent->objects)
 	{
 		if (go->getName().compare("Camera") == 0)
 			translate = glm::translate(glm::mat4(), go->getPos());
@@ -203,7 +207,7 @@ void Render::RenderWindow(BaseContent* ptr)
 	projection_look_matrix = projection_matrix * (look_matrix * translate);
 	glUniformMatrix4fv(render_projection_matrix_loc, 1, GL_FALSE, glm::value_ptr(projection_look_matrix));
 
-	for (GameObject * go : RUContent->objects)
+	for (GameObject * go : *RUContent->objects)
 	{
 		if (go->getComponent("render") != nullptr)
 			RenderObject(go);
@@ -211,6 +215,7 @@ void Render::RenderWindow(BaseContent* ptr)
 
 	glBindVertexArray(0);
 	SDL_GL_SwapWindow(_window);
+	_c.notify_all();
 }
 
 void Render::RenderObject(GameObject * go)
@@ -238,8 +243,12 @@ void Render::SwapColor()
 	_c.notify_one();
 }
 
-void Render::handleCamera(GameObject * camera)
+void Render::handleCamera(BaseContent * ptr)
 {
-	glm::vec3 pos = camera->getPos();
-
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	RenderCameraContent * RCContent = static_cast<RenderCameraContent*>(ptr);
+	_camera->adjustPosX(RCContent->moveX);
+	_camera->adjustPosY(RCContent->moveY);
+	_camera->adjustPosZ(RCContent->moveZ);
+	_c.notify_all();
 }

@@ -19,7 +19,7 @@ void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
 }
 
@@ -40,6 +40,7 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 	std::vector<GLfloat> normals;
 	std::vector<GLuint> faces;
 	std::vector<GLfloat> textures;
+	std::vector<std::string> splitData, splitMore, splitMoreMore;
 
 	if (in.is_open())
 	{
@@ -53,35 +54,31 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 		}
 		else
 		{
-			std::vector<std::string> splitData = split(output, '\n');
+			split(output, '\n', splitData);
 			for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
 			{
-				std::vector<std::string> splitMore = split(it->data(), ' ');
+				split(it->data(), ' ', splitMore);
 				if (it->at(0) == 'v')
 				{
 					if (it->at(1) == ' ')
 					{
 						// Vertex found
-						for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
-						{
-							vertices.emplace_back((GLfloat)atof(it2->data()));
-						}
+						vertices.emplace_back(parseFloat(splitMore.at(1)));
+						vertices.emplace_back(parseFloat(splitMore.at(2)));
+						vertices.emplace_back(parseFloat(splitMore.at(3)));
 					}
 					else if (it->at(1) == 'n')
 					{
 						// Normal found
-						for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
-						{
-							normals.emplace_back((GLfloat)atof(it2->data()));
-						}
+						normals.emplace_back(parseFloat(splitMore.at(1)));
+						normals.emplace_back(parseFloat(splitMore.at(2)));
+						normals.emplace_back(parseFloat(splitMore.at(3)));
 					}
 					else if (it->at(1) == 't')
 					{
 						// Texture found
-						for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
-						{
-							textures.emplace_back((GLfloat)atof(it2->data()));
-						}
+						textures.emplace_back(parseFloat(splitMore.at(1)));
+						textures.emplace_back(parseFloat(splitMore.at(2)));
 					}
 				}
 				else if (it->at(0) == 'f')
@@ -90,15 +87,16 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 					
 					for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
 					{
-						std::vector<std::string> splitMoreMore = split(it2->data(), '/');
-						for (std::string s : splitMoreMore)
-						{
-							faces.emplace_back((GLfloat)atoi(s.c_str()));
-						}
-						
+						split(it2->data(), '/', splitMoreMore);
+						faces.emplace_back(parseInt(splitMoreMore.at(0)));
+						faces.emplace_back(parseInt(splitMoreMore.at(1)));
+						faces.emplace_back(parseInt(splitMoreMore.at(2)));
+						splitMoreMore.clear();
 					}
 				}
+				splitMore.clear();
 			}
+			splitData.clear();
 			std::vector<GLuint> ind;
 			std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
 			rc->setVertices(mallocSpace(combined));
@@ -127,6 +125,8 @@ void FileLoader::loadTextData(BaseContent * ptr)
 	int location = -1;
 	std::vector<GameObject*> GameObjects;
 	std::vector<Component*> components;
+	std::map<std::string, std::string> gameObjData;
+	std::vector<std::string> splitData, splitMore, modelData, keyValue;
 	if (in.is_open())
 	{
 		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -139,19 +139,18 @@ void FileLoader::loadTextData(BaseContent * ptr)
 		}
 		else
 		{
-			std::vector<std::string> splitDataVector = split(output, ';');
-			for (std::vector<std::string>::iterator it = splitDataVector.begin(); it != splitDataVector.end(); ++it)
+			split(output, ';', splitData);
+			for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
 			{
 				if (!(it->empty() || it->at(0) == '\t' || it->at(0) == '/'))
 				{
-					std::map<std::string, std::string> gameObjData;
-					std::vector<std::string> splitMore = split(it->data(), ',');
+					split(it->data(), ',', splitMore);
 					for (std::vector<std::string>::iterator it2 = splitMore.begin(); it2 != splitMore.end(); ++it2)
 					{
-						std::vector<std::string> keyValue = split(it2->data(), ':');
+						split(it2->data(), ':', keyValue);
 						if (keyValue[0].compare("comp") == 0)
 						{
-							std::vector<std::string> modelData = split(keyValue[1], '/');
+							split(keyValue[1], '/', modelData);
 							if (modelData[0].compare("render") == 0)
 							{
 								RenderComponent * rc = new RenderComponent();
@@ -159,21 +158,24 @@ void FileLoader::loadTextData(BaseContent * ptr)
 								components.emplace_back(rc);
 							}
 							gameObjData.emplace(std::make_pair(keyValue[0], modelData[0]));
+							modelData.clear();
 						}
 						else
 						{
 							gameObjData.emplace(std::make_pair(keyValue[0], keyValue[1]));
 						}
-						
+						keyValue.clear();
 					}
-					std::string gameObjectType = gameObjData.find("type")->second;
-					if (gameObjectType.compare("GameObject") == 0)
+					if (gameObjData.find("type")->second.compare("GameObject") == 0)
 					{
 						GameObjects.emplace_back(new GameObject(gameObjData, components));
 						components.clear();
+						gameObjData.clear();
 					}
+					splitMore.clear();
 				}
 			}
+			splitData.clear();
 		}
 		Manager::instance().addJob("Application", JOB_TYPES::APPLICATION_ADD_OBJECTS, new FileLoadedContent(GameObjects));
 	}
@@ -182,6 +184,16 @@ void FileLoader::loadTextData(BaseContent * ptr)
 		printf("File Missing %s", path.c_str());
 	}
 	_c.notify_one();
+}
+
+GLfloat FileLoader::parseFloat(const std::string& str)
+{
+	return std::stof(str);
+}
+
+GLuint FileLoader::parseInt(const std::string& str)
+{
+	return std::stoi(str);
 }
 
 template<typename Out>
@@ -194,22 +206,17 @@ void FileLoader::split(const std::string &s, char delim, Out result) {
 	}
 }
 
-std::vector<std::string> FileLoader::split(const std::string &s, char delim) {
-	std::vector<std::string> elems;
-	split(s, delim, std::back_inserter(elems));
-	return elems;
+void FileLoader::split(const std::string &s, char delim, std::vector<std::string> & out) {
+	split(s, delim, std::back_inserter(out));
 }
 
 template<typename Out>
 Out* FileLoader::mallocSpace(std::vector<Out> tooManyVecs)
 {
-	size_t sizeInner = tooManyVecs.size();
-	Out* arr = (Out*)malloc(sizeInner * sizeof(Out));
+	Out* arr = (Out*)malloc(tooManyVecs.size() * sizeof(Out));
 	int j = 0;
 	for (std::vector<Out>::iterator it = tooManyVecs.begin(); it != tooManyVecs.end(); ++it, j++)
-	{
 		arr[j] = *it;
-	}
 	return arr;
 }
 

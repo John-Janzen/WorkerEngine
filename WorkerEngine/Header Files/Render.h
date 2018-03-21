@@ -18,30 +18,10 @@ enum Color {
 	COLOR_MODE_MULTI
 };
 
-static const GLfloat vertex_positions[] = {
-	-1.0f, -1.0f,  0.0f, 1.0f,
-	1.0f, -1.0f,  0.0f, 1.0f,
-	-1.0f,  1.0f,  0.0f, 1.0f,
-	-1.0f, -1.0f,  0.0f, 1.0f,
-};
-//
-//// Color for each vertex
-//static const GLfloat vertex_colors[] = {
-//	1.0f, 1.0f, 1.0f, 1.0f,
-//	1.0f, 1.0f, 0.0f, 1.0f,
-//	1.0f, 0.0f, 1.0f, 1.0f,
-//	0.0f, 1.0f, 1.0f, 1.0f
-//};
-//
-//// Indices for the triangle strips
-//static const GLushort vertex_indices[] = {
-//	0, 1, 2
-//};
-
 class Render : public System
 {
 public:
-	Render();
+	Render(GameObject * c);
 	~Render();
 
 	/*
@@ -80,7 +60,7 @@ public:
 	*/
 	void SwapColor();
 
-	void handleCamera(GameObject* ptr);
+	void handleCamera(BaseContent * ptr);
 
 	
 protected:
@@ -99,11 +79,11 @@ protected:
 	GLuint _VAO = 0;
 	GLuint _EBO = 0;
 
-
+	GameObject * _camera;
 
 	bool _renderQuad = true;
 
-	const int SCREEN_WIDTH = 640;
-	const int SCREEN_HEIGHT = 480;
+	const int SCREEN_WIDTH = 800;
+	const int SCREEN_HEIGHT = 600;
 	Color _ColorMode = Color::COLOR_MODE_CYAN;
 };

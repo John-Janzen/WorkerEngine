@@ -11,12 +11,13 @@ void Application::Init(int num)
 
 	Manager::instance().passCount(num);
 
-	renderCopy = new Render();
+
 	GameObject* p = new GameObject("Camera", 01);
+	renderCopy = new Render(p);
 
 	Manager::instance().addSystem("Engine", new Engine());
 	Manager::instance().addSystem("Render", renderCopy);
-	Manager::instance().addSystem("Input", new Input(p));
+	Manager::instance().addSystem("Input", new Input());
 	Manager::instance().addSystem("FileLoader", new FileLoader());
 	Manager::instance().addSystem("Application", this);
 
@@ -37,7 +38,7 @@ void Application::Update(JOB_TYPES t, BaseContent * ptr)
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
 }
 
