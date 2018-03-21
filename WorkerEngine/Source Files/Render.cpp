@@ -11,9 +11,11 @@ void Render::Update(JOB_TYPES T, BaseContent* ptr)
 	{
 	case SYSTEM_DEFAULT:
 		break;
-	case RENDER_LOAD:
+	case RENDER_INIT:
 		Init();
 		InitGL();
+		break;
+	case RENDER_LOAD:
 		InitObject(ptr);
 		break;
 	case RENDER_UPDATE:
@@ -150,6 +152,8 @@ void Render::InitGL()
 				projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
 				look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
+				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				SDL_GL_SwapWindow(_window);
 				glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 			}
 		}

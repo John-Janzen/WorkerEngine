@@ -6,12 +6,24 @@
 
 #include "RenderComponent.h"
 
+enum LOADABLE_ITEMS
+{
+	DEFAULT, // Unused
+	TYPE,
+	NAME,
+	ID,
+	COMP,
+	POSX,
+	POSY, 
+	POSZ
+};
+
 class GameObject
 {
 public:
 	GameObject() { _name = "null"; _ID = 0; _position = glm::vec3(); };
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
-	GameObject(std::map<std::string, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
+	GameObject(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
 	~GameObject();
 
 	void adjustPosY(GLfloat num) { _position.y += num; }

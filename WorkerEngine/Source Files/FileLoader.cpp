@@ -33,7 +33,9 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
 	RenderComponent * rc = FLContent->rc;
 	std::ifstream in(FLContent->path.c_str());
-	
+
+	Model_Loaded * ml;
+		
 	std::vector<GLfloat> vertices;
 	std::vector<GLfloat> normals;
 	std::vector<GLuint> faces;
@@ -95,20 +97,28 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 				splitMore.clear();
 			}
 			splitData.clear();
+
 			std::vector<GLuint> ind;
 			std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
-			rc->setVertices(mallocSpace(combined));
-			rc->setIndices(mallocSpace(ind));
+			GLfloat * vert = mallocSpace(combined);
+			GLuint * in = mallocSpace(ind);
+			rc->setVertices(vert);
+			rc->setIndices(in);
 			rc->numInd = ind.size();
 			rc->numVertices = combined.size();
 			rc->numTextures = textures.size();
 			rc->numNormals = normals.size();
+
+			ml = new Model_Loaded(vert, in, ind.size(), combined.size(), textures.size(), normals.size());
+			addModel(std::make_pair(FLContent->path, ml));
+			printf("Model Loaded: %s\n", FLContent->path.c_str());
 		}
 	}
 	else
 	{
 		printf("Error opening file: %s", FLContent->path.c_str());
 	}
+
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
@@ -162,11 +172,10 @@ void FileLoader::loadTextData(BaseContent * ptr)
 
 void FileLoader::individualGameObject(BaseContent * ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
 	FileIndividualContent * FIContent = static_cast<FileIndividualContent*> (ptr);
 
 	std::vector<std::string> modelData, keyValue;
-	std::map<std::string, std::string> gameObjData;
+	std::map<LOADABLE_ITEMS, std::string> gameObjData;
 	std::vector<Component*> components;
 	GameObject *go = nullptr;
 	for (std::vector<std::string>::iterator it2 = FIContent->info.begin(); it2 != FIContent->info.end(); ++it2)
@@ -178,24 +187,38 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 			if (modelData[0].compare("render") == 0)
 			{
 				RenderComponent * rc = new RenderComponent();
-				this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
+				Model_Loaded * ml;
+				std::unique_lock<std::mutex> lock(_lockMutex);
+				if ((ml = checkForModel(std::string("Assets/" + modelData[1] + ".obj"))) != nullptr)
+				{
+					rc->setVertices(ml->vertices);
+					rc->setIndices(ml->indices);
+					rc->numInd = ml->ISize;
+					rc->numNormals = ml->NSize;
+					rc->numTextures = ml->TSize;
+					rc->numVertices = ml->VSize;
+				}
+				else
+				{
+					this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
+				}
+				_c.notify_all();
 				components.emplace_back(rc);
 			}
-			gameObjData.emplace(std::make_pair(keyValue[0], modelData[0]));
+			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), modelData[0]));
 			modelData.clear();
 		}
 		else
 		{
-			gameObjData.emplace(std::make_pair(keyValue[0], keyValue[1]));
+			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), keyValue[1]));
 		}
 		keyValue.clear();
 	}
-	if (gameObjData.find("type")->second.compare("GameObject") == 0)
+	if (gameObjData.find(TYPE)->second.compare("GameObject") == 0)
 	{
 		go = new GameObject(gameObjData, components);
 	}
 	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
-	_c.notify_all();
 }
 
 GLfloat FileLoader::parseFloat(const std::string& str)
@@ -232,20 +255,63 @@ Out* FileLoader::mallocSpace(std::vector<Out> tooManyVecs)
 	return arr;
 }
 
+void FileLoader::addModel(std::pair<std::string, Model_Loaded *> pair)
+{
+	_loadedModels.emplace(pair);
+}
+
+Model_Loaded * FileLoader::checkForModel(const std::string & s)
+{
+	return (_loadedModels.find(s) != _loadedModels.end()) ? _loadedModels.find(s)->second : nullptr;
+}
+
+LOADABLE_ITEMS FileLoader::findLoadItem(const std::string & item)
+{
+	if (item.compare("type") == 0)
+	{
+		return TYPE;
+	}
+	else if (item.compare("name") == 0)
+	{
+		return NAME;
+	}
+	else if (item.compare("id") == 0)
+	{
+		return ID;
+	}
+	else if (item.compare("comp") == 0)
+	{
+		return COMP;
+	}
+	else if (item.compare("posX") == 0)
+	{
+		return POSX;
+	}
+	else if (item.compare("posY") == 0)
+	{
+		return POSY;
+	}
+	else if (item.compare("posZ") == 0)
+	{
+		return POSZ;
+	}
+	return DEFAULT;
+}
+
 std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & indices)
 {
 	std::vector<GLfloat> finalData;
 	std::map<std::string, size_t> locations;
 	indices = std::vector<GLuint>();
-	size_t location = 0;
+	size_t location = 0; 
+	std::map <std::string, size_t> ::iterator loc;
 	
 	for (std::vector<GLuint>::iterator it = faces.begin(); it != faces.end(); it += 3)
 	{
 		GLuint v = *it, n = *(it + 1), t = *(it + 2);
 		std::stringstream ss;
 		ss << v << '/' << n << '/' << t;
-		
-		std::map <std::string, size_t> ::iterator loc;
+
 		if ((loc = locations.find(ss.str())) == locations.end())
 		{
 			indices.emplace_back(location);
