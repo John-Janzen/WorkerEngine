@@ -59,12 +59,12 @@ void Input::readContinuous()
 {
 	keys = SDL_GetKeyboardState(NULL);
 	float moveX = 0, moveY = 0, moveZ = 0;
-	if (keys[SDL_SCANCODE_A]) moveX = 0.1f;
-	if (keys[SDL_SCANCODE_W]) moveY = -0.1f;
-	if (keys[SDL_SCANCODE_S]) moveY = 0.1f;
-	if (keys[SDL_SCANCODE_D]) moveX = -0.1f;
-	if (keys[SDL_SCANCODE_E]) moveZ = 0.1f;
-	if (keys[SDL_SCANCODE_Q]) moveZ = -0.1f;
+	if (keys[SDL_SCANCODE_A]) moveX += 0.1f;
+	if (keys[SDL_SCANCODE_W]) moveY += -0.1f;
+	if (keys[SDL_SCANCODE_S]) moveY += 0.1f;
+	if (keys[SDL_SCANCODE_D]) moveX += -0.1f;
+	if (keys[SDL_SCANCODE_E]) moveZ += 0.1f;
+	if (keys[SDL_SCANCODE_Q]) moveZ += -0.1f;
 
 	if (moveX != 0 || moveY != 0 || moveZ != 0)
 		Manager::instance().addJob("Render", JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(moveX, moveY, moveZ));

@@ -24,6 +24,8 @@ public:
 	void ObjImporter(BaseContent * ptr);
 	void loadTextData(BaseContent* ptr);
 
+	void individualGameObject(BaseContent * ptr);
+
 	GLfloat parseFloat(const std::string & str);
 
 	GLuint parseInt(const std::string & str);

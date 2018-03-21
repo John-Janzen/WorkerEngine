@@ -1,3 +1,5 @@
+#load: 3;
+
 //	Comments end with;
 //	To not be read;
 //	;
@@ -8,9 +10,17 @@
 //	glm::vec3 position;
 //	glm::vec3 rotation (in PI);
 // 	glm::vec3 scale;
+//	;
 
 type: GameObject,
-name: test,
+name: Camera,
+id: 01,
+posX: 0,
+posY: 0,
+posZ: 0;
+
+type: GameObject,
+name: Cube_01,
 id: 234,
 comp: render/cube,
 posX: 0,
@@ -18,7 +28,7 @@ posY: 0,
 posZ: -5;
 
 type: GameObject,
-name: monkey,
+name: Monkey_01,
 id: 235,
 comp: render/monkey,
 posX: 5,

@@ -16,16 +16,23 @@ public:
 	~RenderCameraContent() {}
 };
 
+class RenderLoadContent : public BaseContent
+{
+public:
+	std::vector<GameObject*> * objects;
+	GameObject * camera;
+
+	RenderLoadContent(std::vector<GameObject*> * o, GameObject * c) : objects{ o }, camera{c} { }
+	~RenderLoadContent() { objects = nullptr; camera = nullptr; }
+};
+
 class RenderUpdateContent : public BaseContent
 {
 public:
 	std::vector<GameObject*> * objects;
 
-	RenderUpdateContent(std::vector<GameObject*> * o) { objects = o; }
-	~RenderUpdateContent() 
-	{
-		objects = nullptr;
-	}
+	RenderUpdateContent(std::vector<GameObject*> * o) : objects{ o } { }
+	~RenderUpdateContent() { objects = nullptr; }
 };
 
 class InputContent : public BaseContent
@@ -59,8 +66,26 @@ public:
 class FileLoadedContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> objects;
+	GameObject * object;
 
-	FileLoadedContent(std::vector<GameObject*> o) : objects { o } { }
-	~FileLoadedContent() {}
+	FileLoadedContent(GameObject * o) : object { o } { }
+	~FileLoadedContent() { object = nullptr; }
+};
+
+class FileIndividualContent : public BaseContent
+{
+public:
+	std::vector<std::string> info;
+
+	FileIndividualContent(std::vector<std::string> vs) : info { vs } {}
+	~FileIndividualContent() {}
+};
+
+class IntPassContent : public BaseContent
+{
+public :
+	int num;
+
+	IntPassContent(int n) : num (n) {}
+	~IntPassContent() {}
 };

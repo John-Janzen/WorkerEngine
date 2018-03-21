@@ -2,6 +2,10 @@
 
 #include "Application.h"
 
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::milliseconds ms;
+typedef std::chrono::duration<float> fsec;
+
 enum STATE
 {
 	LOADING,
@@ -28,7 +32,6 @@ public:
 private:
 	const Uint32 SCREEN_FPS = 60;
 	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
-	size_t numOfObjects = 3;
 	STATE state = LOADING;
 };
 

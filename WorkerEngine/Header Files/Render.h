@@ -21,7 +21,7 @@ enum Color {
 class Render : public System
 {
 public:
-	Render(GameObject * c);
+	Render();
 	~Render();
 
 	/*

@@ -8,7 +8,10 @@ GameObject::GameObject(std::map<std::string, std::string> map, std::vector<Compo
 {
 	_name = map.find("name")->second;
 	_ID = atoi(map.find("id")->second.c_str());
-	std::string component = map.find("comp")->second;
+
+	if (map.find("comp") != map.end())
+		std::string component = map.find("comp")->second;
+
 	GLfloat x = atof(map.find("posX")->second.c_str());
 	GLfloat y = atof(map.find("posY")->second.c_str());
 	GLfloat z = atof(map.find("posZ")->second.c_str());

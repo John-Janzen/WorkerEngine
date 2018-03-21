@@ -12,8 +12,8 @@ void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
 	case FILE_LOAD_TXT_DATA:
 		loadTextData(ptr);
 		break;
-	case FILE_OBJ_LOAD:
-		ObjImporter(ptr);
+	case FILE_LOAD_GAMEOBJECT:
+		individualGameObject(ptr);
 		break;
 	default:
 		break;
@@ -30,8 +30,6 @@ void FileLoader::Close()
 
 void FileLoader::ObjImporter(BaseContent * ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
-
 	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
 	RenderComponent * rc = FLContent->rc;
 	std::ifstream in(FLContent->path.c_str());
@@ -111,22 +109,17 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 	{
 		printf("Error opening file: %s", FLContent->path.c_str());
 	}
-	_c.notify_one();
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
 	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
 
 	std::string path = FTLContent->path;
 	std::ifstream in(path.c_str());
 
 	int location = -1;
-	std::vector<GameObject*> GameObjects;
-	std::vector<Component*> components;
-	std::map<std::string, std::string> gameObjData;
-	std::vector<std::string> splitData, splitMore, modelData, keyValue;
+	std::vector<std::string> splitData, splitMore;
 	if (in.is_open())
 	{
 		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -144,46 +137,65 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			{
 				if (!(it->empty() || it->at(0) == '\t' || it->at(0) == '/'))
 				{
-					split(it->data(), ',', splitMore);
-					for (std::vector<std::string>::iterator it2 = splitMore.begin(); it2 != splitMore.end(); ++it2)
+					if (it->at(0) == '#')
 					{
-						split(it2->data(), ':', keyValue);
-						if (keyValue[0].compare("comp") == 0)
-						{
-							split(keyValue[1], '/', modelData);
-							if (modelData[0].compare("render") == 0)
-							{
-								RenderComponent * rc = new RenderComponent();
-								Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_OBJ_LOAD, new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
-								components.emplace_back(rc);
-							}
-							gameObjData.emplace(std::make_pair(keyValue[0], modelData[0]));
-							modelData.clear();
-						}
-						else
-						{
-							gameObjData.emplace(std::make_pair(keyValue[0], keyValue[1]));
-						}
-						keyValue.clear();
+						std::vector<std::string> smallSplit;
+						split(it->data(), ':', smallSplit);
+						Manager::instance().addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(smallSplit[1])));
 					}
-					if (gameObjData.find("type")->second.compare("GameObject") == 0)
+					else
 					{
-						GameObjects.emplace_back(new GameObject(gameObjData, components));
-						components.clear();
-						gameObjData.clear();
+						split(it->data(), ',', splitMore);
+						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(splitMore));
+						splitMore.clear();
 					}
-					splitMore.clear();
 				}
 			}
 			splitData.clear();
 		}
-		Manager::instance().addJob("Application", JOB_TYPES::APPLICATION_ADD_OBJECTS, new FileLoadedContent(GameObjects));
 	}
 	else
 	{
 		printf("File Missing %s", path.c_str());
 	}
-	_c.notify_one();
+}
+
+void FileLoader::individualGameObject(BaseContent * ptr)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	FileIndividualContent * FIContent = static_cast<FileIndividualContent*> (ptr);
+
+	std::vector<std::string> modelData, keyValue;
+	std::map<std::string, std::string> gameObjData;
+	std::vector<Component*> components;
+	GameObject *go = nullptr;
+	for (std::vector<std::string>::iterator it2 = FIContent->info.begin(); it2 != FIContent->info.end(); ++it2)
+	{
+		split(it2->data(), ':', keyValue);
+		if (keyValue[0].compare("comp") == 0)
+		{
+			split(keyValue[1], '/', modelData);
+			if (modelData[0].compare("render") == 0)
+			{
+				RenderComponent * rc = new RenderComponent();
+				this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
+				components.emplace_back(rc);
+			}
+			gameObjData.emplace(std::make_pair(keyValue[0], modelData[0]));
+			modelData.clear();
+		}
+		else
+		{
+			gameObjData.emplace(std::make_pair(keyValue[0], keyValue[1]));
+		}
+		keyValue.clear();
+	}
+	if (gameObjData.find("type")->second.compare("GameObject") == 0)
+	{
+		go = new GameObject(gameObjData, components);
+	}
+	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
+	_c.notify_all();
 }
 
 GLfloat FileLoader::parseFloat(const std::string& str)

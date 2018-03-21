@@ -1,6 +1,6 @@
 #include "Render.h"
 
-Render::Render(GameObject * c) : _camera { c } {}
+Render::Render() {}
 
 Render::~Render() {}
 
@@ -158,8 +158,9 @@ void Render::InitGL()
 
 void Render::InitObject(void * ptr)
 {
-	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
+	RenderLoadContent * RUContent = static_cast<RenderLoadContent*>(ptr);
 	RenderComponent * rc;
+	_camera = RUContent->camera;
 
 	for (GameObject * go : *RUContent->objects)
 	{
@@ -182,6 +183,9 @@ void Render::InitObject(void * ptr)
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*) (5 * sizeof(GL_FLOAT)));
 			glEnableVertexAttribArray(2);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 		}
 	}
 }
@@ -227,6 +231,8 @@ void Render::RenderObject(GameObject * go)
 	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
 }
 
 void Render::SwapColor()
