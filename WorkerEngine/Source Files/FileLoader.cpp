@@ -13,6 +13,7 @@ void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
 		loadTextData(ptr);
 		break;
 	case FILE_OBJ_LOAD:
+		ObjImporter(ptr);
 		break;
 	default:
 		break;
@@ -27,9 +28,13 @@ void FileLoader::Close()
 
 }
 
-RenderComponent * FileLoader::ObjImporter(std::string path, RenderComponent* rc)
+void FileLoader::ObjImporter(BaseContent * ptr)
 {
-	std::ifstream in(path.c_str());
+	std::unique_lock<std::mutex> lock(_lockMutex);
+
+	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
+	RenderComponent * rc = FLContent->rc;
+	std::ifstream in(FLContent->path.c_str());
 	
 	std::vector<GLfloat> vertices;
 	std::vector<GLfloat> normals;
@@ -44,7 +49,7 @@ RenderComponent * FileLoader::ObjImporter(std::string path, RenderComponent* rc)
 
 		if (output.empty())
 		{
-			printf("No data foudn within file %s", path.c_str());
+			printf("No data foudn within file %s", FLContent->path.c_str());
 		}
 		else
 		{
@@ -106,9 +111,9 @@ RenderComponent * FileLoader::ObjImporter(std::string path, RenderComponent* rc)
 	}
 	else
 	{
-		printf("Error opening file: %s", path.c_str());
+		printf("Error opening file: %s", FLContent->path.c_str());
 	}
-	return rc;
+	_c.notify_one();
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
@@ -149,7 +154,9 @@ void FileLoader::loadTextData(BaseContent * ptr)
 							std::vector<std::string> modelData = split(keyValue[1], '/');
 							if (modelData[0].compare("render") == 0)
 							{
-								components.emplace_back(ObjImporter(std::string("Assets/" + modelData[1] + ".obj"), new RenderComponent()));
+								RenderComponent * rc = new RenderComponent();
+								Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_OBJ_LOAD, new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
+								components.emplace_back(rc);
 							}
 							gameObjData.emplace(std::make_pair(keyValue[0], modelData[0]));
 						}

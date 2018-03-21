@@ -21,7 +21,7 @@ public:
 
 	virtual void Update(JOB_TYPES j, BaseContent* ptr);
 	virtual void Close();
-	RenderComponent * ObjImporter(std::string path, RenderComponent * rc);
+	void ObjImporter(BaseContent * ptr);
 	void loadTextData(BaseContent* ptr);
 
 	std::vector<std::string> split(const std::string & s, char delim);

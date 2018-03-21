@@ -13,6 +13,7 @@ void MyApp::Init(int n)
 void MyApp::Update()
 {
 	Uint32 now = SDL_GetTicks();
+	Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
 	while (Manager::instance().hasJobs() && !Manager::instance().checkBusy())
 	{
 		for (ThreadWorker * t : _workers)
@@ -27,7 +28,7 @@ void MyApp::Update()
 	switch (state)
 	{
 	case LOADING:
-		if (_worldObjects.size() == numOfObjects && !Manager::instance().hasJobs())
+		if (_worldObjects.size() == numOfObjects && !Manager::instance().hasJobs() && !Manager::instance().checkBusy())
 		{
 			renderCopy->Update(JOB_TYPES::RENDER_LOAD, new RenderUpdateContent(_worldObjects));
 			state = UPDATE;
@@ -35,6 +36,7 @@ void MyApp::Update()
 		break;
 	case UPDATE:
 	{
+
 		while (Manager::instance().checkBusy());			// Wait for the threads to finish
 		renderCopy->Update(JOB_TYPES::RENDER_UPDATE, new RenderUpdateContent(_worldObjects));		// Render the screen
 

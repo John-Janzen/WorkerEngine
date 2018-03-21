@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-		Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
 		_myApp.Update();		// Update the game
 	}
 	

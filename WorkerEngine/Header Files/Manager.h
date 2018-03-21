@@ -36,7 +36,7 @@ public:
 	void addJob(std::shared_ptr<Job> j)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
-		if (!checkHasSystem(j->Get_System(), j->Get_JobType()))
+		if (!checkHasSystem(j->Get_System(), j->Get_JobType(), j->Get_Data()))
 		{
 			_actions.enqueue(j);
 		}
@@ -85,10 +85,10 @@ public:
 	/*
 	* Check if the list has the system and job already on it
 	*/
-	bool checkHasSystem(System* s, JOB_TYPES T)
+	bool checkHasSystem(System* s, JOB_TYPES T, BaseContent * bc = nullptr)
 	{
 		for (std::shared_ptr<Job> a : _actions.Get_List())
-			if (a->Get_System() == s && a->Get_JobType() == T)
+			if (a->Get_System() == s && a->Get_JobType() == T && a->Get_Data() == bc)
 				return true;
 		return false;
 	}
