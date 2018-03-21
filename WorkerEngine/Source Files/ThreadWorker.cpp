@@ -1,8 +1,9 @@
 #include "ThreadWorker.h"
 
-ThreadWorker::ThreadWorker(int i) : _id(i)
+ThreadWorker::ThreadWorker(int i)
 { 
-	printf("Thread%d Start\n", _id);
+	sprintf_s(_name, "Thread%d", i);
+	printf("%s Start\n", _name);
 	_thread = new std::thread(&ThreadWorker::Running, this); 
 };
 
@@ -10,7 +11,7 @@ ThreadWorker::~ThreadWorker()
 { 
 	_dead = true;
 	_thread->join();
-	printf("Thread%d End\n", _id);
+	printf("%s End\n", _name);
 }
 
 void ThreadWorker::Running()
@@ -24,7 +25,7 @@ void ThreadWorker::Running()
 		}
 		else
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 }

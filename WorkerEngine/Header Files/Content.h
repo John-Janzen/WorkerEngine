@@ -43,11 +43,21 @@ public:
 	~FileToLoadContent() {}
 };
 
+class FileLoadOBJContent : public BaseContent
+{
+public:
+	std::string path;
+	RenderComponent * rc;
+
+	FileLoadOBJContent(std::string p, RenderComponent * r) : path(p), rc{ r } {}
+	~FileLoadOBJContent() { rc = nullptr; }
+};
+
 class FileLoadedContent : public BaseContent
 {
 public:
 	std::vector<GameObject*> objects;
 
-	FileLoadedContent(std::vector<GameObject*> o) { objects = o; }
+	FileLoadedContent(std::vector<GameObject*> o) : objects { o } { }
 	~FileLoadedContent() {}
 };

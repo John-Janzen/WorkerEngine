@@ -58,8 +58,10 @@ void Input::ReadPress(BaseContent * ptr)
 void Input::readContinuous()
 {
 	keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_A]) _camera->adjustPosX(16.f);
-	if (keys[SDL_SCANCODE_W]) _camera->adjustPosY(16.f);
-	if (keys[SDL_SCANCODE_S]) _camera->adjustPosY(-16.f);
-	if (keys[SDL_SCANCODE_D]) _camera->adjustPosX(-16.f);
+	if (keys[SDL_SCANCODE_A]) _camera->adjustPosX(0.1f);
+	if (keys[SDL_SCANCODE_W]) _camera->adjustPosY(-0.1f);
+	if (keys[SDL_SCANCODE_S]) _camera->adjustPosY(0.1f);
+	if (keys[SDL_SCANCODE_D]) _camera->adjustPosX(-0.1f);
+	if (keys[SDL_SCANCODE_E]) _camera->adjustPosZ(0.1f);
+	if (keys[SDL_SCANCODE_Q]) _camera->adjustPosZ(-0.1f);
 }
