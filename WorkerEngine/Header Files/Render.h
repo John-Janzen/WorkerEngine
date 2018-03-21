@@ -18,6 +18,26 @@ enum Color {
 	COLOR_MODE_MULTI
 };
 
+static const GLfloat vertex_positions[] = {
+	-1.0f, -1.0f,  0.0f, 1.0f,
+	1.0f, -1.0f,  0.0f, 1.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	-1.0f, -1.0f,  0.0f, 1.0f,
+};
+//
+//// Color for each vertex
+//static const GLfloat vertex_colors[] = {
+//	1.0f, 1.0f, 1.0f, 1.0f,
+//	1.0f, 1.0f, 0.0f, 1.0f,
+//	1.0f, 0.0f, 1.0f, 1.0f,
+//	0.0f, 1.0f, 1.0f, 1.0f
+//};
+//
+//// Indices for the triangle strips
+//static const GLushort vertex_indices[] = {
+//	0, 1, 2
+//};
+
 class Render : public System
 {
 public:
@@ -61,6 +81,7 @@ public:
 	void SwapColor();
 
 	void handleCamera(GameObject* ptr);
+
 	
 protected:
 	SDL_Window* _window = NULL;
@@ -73,6 +94,12 @@ protected:
 	glm::mat4 projection_look_matrix;
 	glm::mat4 projection_matrix;
 	glm::mat4 look_matrix;
+
+	GLuint _VBO = 0;
+	GLuint _VAO = 0;
+	GLuint _EBO = 0;
+
+
 
 	bool _renderQuad = true;
 

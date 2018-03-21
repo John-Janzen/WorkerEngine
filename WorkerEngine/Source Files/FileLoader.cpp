@@ -94,12 +94,14 @@ RenderComponent * FileLoader::ObjImporter(std::string path, RenderComponent* rc)
 					}
 				}
 			}
-			rc->setVertices(mallocSpace(vertices));
-			rc->setNormals(mallocSpace(normals));
-			rc->setFaces(mallocSpace(faces));
-			rc->setTextures(mallocSpace(textures));
-			rc->numFaces = faces.size();
-			rc->numVertices = vertices.size();
+			std::vector<GLuint> ind;
+			std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
+			rc->setVertices(mallocSpace(combined));
+			rc->setIndices(mallocSpace(ind));
+			rc->numInd = ind.size();
+			rc->numVertices = combined.size();
+			rc->numTextures = textures.size();
+			rc->numNormals = normals.size();
 		}
 	}
 	else
@@ -161,6 +163,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					if (gameObjectType.compare("GameObject") == 0)
 					{
 						GameObjects.emplace_back(new GameObject(gameObjData, components));
+						components.clear();
 					}
 				}
 			}
@@ -201,4 +204,44 @@ Out* FileLoader::mallocSpace(std::vector<Out> tooManyVecs)
 		arr[j] = *it;
 	}
 	return arr;
+}
+
+std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & indices)
+{
+	std::vector<GLfloat> finalData;
+	std::map<std::string, size_t> locations;
+	indices = std::vector<GLuint>();
+	size_t location = 0;
+	
+	for (std::vector<GLuint>::iterator it = faces.begin(); it != faces.end(); it += 3)
+	{
+		GLuint v = *it, n = *(it + 1), t = *(it + 2);
+		std::stringstream ss;
+		ss << v << '/' << n << '/' << t;
+		
+		std::map <std::string, size_t> ::iterator loc;
+		if ((loc = locations.find(ss.str())) == locations.end())
+		{
+			indices.emplace_back(location);
+			locations.emplace(std::make_pair(ss.str(), location++));
+			size_t p = ((*it) - 1) * 3;
+			size_t pt = (*(it + 1) - 1) * 2;
+			size_t pn = (*(it + 2) - 1) * 3;
+			finalData.emplace_back(vert.at(p));
+			finalData.emplace_back(vert.at(p + 1)); 
+			finalData.emplace_back(vert.at(p + 2));
+			
+			finalData.emplace_back(text.at(pt));
+			finalData.emplace_back(text.at(pt + 1));
+
+			finalData.emplace_back(norm.at(pn));
+			finalData.emplace_back(norm.at(pn + 1));
+			finalData.emplace_back(norm.at(pn + 2));
+		}
+		else 
+		{
+			indices.emplace_back(loc->second);
+		}
+	}
+	return finalData;
 }

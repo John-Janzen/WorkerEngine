@@ -157,13 +157,14 @@ void Render::InitObject(void * ptr)
 {
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
 	RenderComponent * rc;
+
 	for (GameObject * go : RUContent->objects)
 	{
 		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
 		{
 			glGenBuffers(1, &rc->_EBO);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * rc->numFaces), rc->getFaces(), GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * rc->numInd), rc->getIndices(), GL_STATIC_DRAW);
 
 			glGenVertexArrays(1, &rc->_VAO);
 			glBindVertexArray(rc->_VAO);
@@ -172,8 +173,12 @@ void Render::InitObject(void * ptr)
 			glBindBuffer(GL_ARRAY_BUFFER, rc->_VBO);
 			glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) * rc->numVertices), rc->getVertices(), GL_STATIC_DRAW);
 
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), 0);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*) (3 * sizeof(GL_FLOAT)));
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*) (5 * sizeof(GL_FLOAT)));
+			glEnableVertexAttribArray(2);
 		}
 	}
 }
@@ -216,7 +221,7 @@ void Render::RenderObject(GameObject * go)
 
 	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glDrawElements(GL_TRIANGLES, rc->numFaces / 9, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
 }
 
 void Render::SwapColor()

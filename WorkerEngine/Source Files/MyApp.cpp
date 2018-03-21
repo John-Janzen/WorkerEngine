@@ -8,7 +8,6 @@ void MyApp::Init(int n)
 {
 	Application::Init(n);
 	Manager::instance().addJob("FileLoader", JOB_TYPES::FILE_LOAD_TXT_DATA, new FileToLoadContent("Assets/prototype.dat"));
-	
 }
 
 void MyApp::Update()

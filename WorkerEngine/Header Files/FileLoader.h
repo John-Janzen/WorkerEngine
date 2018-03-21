@@ -25,6 +25,7 @@ public:
 	void loadTextData(BaseContent* ptr);
 
 	std::vector<std::string> split(const std::string & s, char delim);
+	std::vector<GLfloat> combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & ind);
 	template<typename Out>
 	Out * mallocSpace(std::vector<Out>);
 	template <typename Out>
