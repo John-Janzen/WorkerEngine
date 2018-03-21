@@ -10,19 +10,29 @@ public:
 class RenderCameraContent : public BaseContent
 {
 public:
+	float moveX, moveY, moveZ;
+
+	RenderCameraContent(float mX, float mY, float mZ) : moveX(mX), moveY(mY), moveZ(mZ) {}
+	~RenderCameraContent() {}
+};
+
+class RenderLoadContent : public BaseContent
+{
+public:
+	std::vector<GameObject*> * objects;
 	GameObject * camera;
 
-	RenderCameraContent(GameObject * c) : camera{c} {}
-	~RenderCameraContent() { camera = nullptr; }
+	RenderLoadContent(std::vector<GameObject*> * o, GameObject * c) : objects{ o }, camera{c} { }
+	~RenderLoadContent() { objects = nullptr; camera = nullptr; }
 };
 
 class RenderUpdateContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> objects;
+	std::vector<GameObject*> * objects;
 
-	RenderUpdateContent(std::vector<GameObject*> o) { objects = o; }
-	~RenderUpdateContent() {}
+	RenderUpdateContent(std::vector<GameObject*> * o) : objects{ o } { }
+	~RenderUpdateContent() { objects = nullptr; }
 };
 
 class InputContent : public BaseContent
@@ -43,11 +53,39 @@ public:
 	~FileToLoadContent() {}
 };
 
+class FileLoadOBJContent : public BaseContent
+{
+public:
+	std::string path;
+	RenderComponent * rc;
+
+	FileLoadOBJContent(std::string p, RenderComponent * r) : path(p), rc{ r } {}
+	~FileLoadOBJContent() { rc = nullptr; }
+};
+
 class FileLoadedContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> objects;
+	GameObject * object;
 
-	FileLoadedContent(std::vector<GameObject*> o) { objects = o; }
-	~FileLoadedContent() {}
+	FileLoadedContent(GameObject * o) : object { o } { }
+	~FileLoadedContent() { object = nullptr; }
+};
+
+class FileIndividualContent : public BaseContent
+{
+public:
+	std::vector<std::string> info;
+
+	FileIndividualContent(std::vector<std::string> vs) : info { vs } {}
+	~FileIndividualContent() {}
+};
+
+class IntPassContent : public BaseContent
+{
+public :
+	int num;
+
+	IntPassContent(int n) : num (n) {}
+	~IntPassContent() {}
 };

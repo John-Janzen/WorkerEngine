@@ -131,7 +131,6 @@
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MyApp.cpp" />
     <ClCompile Include="Source Files\Render.cpp" />
-    <ClCompile Include="Source Files\RenderComponent.cpp" />
     <ClCompile Include="Source Files\System.cpp" />
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
   </ItemGroup>

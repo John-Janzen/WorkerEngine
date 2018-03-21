@@ -2,6 +2,10 @@
 #include <SDL.h>
 #include <GL\glew.h>
 #include <SDL_opengl.h>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
+#include <gtx\euler_angles.hpp>
+#include <gtc\type_ptr.hpp>
 #include <stdio.h>
 #include <string>
 #include <map>
@@ -41,32 +45,45 @@ public:
 	*/
 	void InitGL();
 
+	void InitObject(void * ptr);
+
 	/*
 	* Renders what is to be put on screen
 	* SwapsWindows at the very end
 	*/
 	void RenderWindow(BaseContent* ptr);
 
+	void RenderObject(GameObject * go);
+
 	/*
 	* Swaps the cyan color and the multicolor flag
 	*/
 	void SwapColor();
 
-	void handleCamera(GameObject* ptr);
+	void handleCamera(BaseContent * ptr);
+
 	
 protected:
 	SDL_Window* _window = NULL;
 	SDL_GLContext _context;
 
 	GLuint r_ProgramID = 0;
-	GLint r_VertexPos2DLocation = -1;
-	GLuint r_VBO = 0;
-	GLuint r_IBO = 0;
+
+	GLint render_projection_matrix_loc;
+	GLint render_model_matrix_loc;
+	glm::mat4 projection_look_matrix;
+	glm::mat4 projection_matrix;
+	glm::mat4 look_matrix;
+
+	GLuint _VBO = 0;
+	GLuint _VAO = 0;
+	GLuint _EBO = 0;
+
+	GameObject * _camera;
 
 	bool _renderQuad = true;
 
-	const int SCREEN_WIDTH = 640;
-	const int SCREEN_HEIGHT = 480;
+	const int SCREEN_WIDTH = 800;
+	const int SCREEN_HEIGHT = 600;
 	Color _ColorMode = Color::COLOR_MODE_CYAN;
 };
-

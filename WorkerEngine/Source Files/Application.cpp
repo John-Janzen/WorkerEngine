@@ -12,15 +12,12 @@ void Application::Init(int num)
 	Manager::instance().passCount(num);
 
 	renderCopy = new Render();
-	GameObject* p = new GameObject("Camera", 01);
 
 	Manager::instance().addSystem("Engine", new Engine());
 	Manager::instance().addSystem("Render", renderCopy);
-	Manager::instance().addSystem("Input", new Input(p));
+	Manager::instance().addSystem("Input", new Input());
 	Manager::instance().addSystem("FileLoader", new FileLoader());
 	Manager::instance().addSystem("Application", this);
-
-	_worldObjects.emplace_back(p);
 }
 
 void Application::Update(JOB_TYPES t, BaseContent * ptr)
@@ -30,14 +27,23 @@ void Application::Update(JOB_TYPES t, BaseContent * ptr)
 	{
 	case SYSTEM_DEFAULT:
 		break;
-	case APPLICATION_ADD_OBJECTS:
-		addWorldObject(ptr);
+	//case APPLICATION_ADD_OBJECTS:
+	//	addWorldObject(ptr);
+	//	break;
+	case APPLICATION_ADD_SINGLE_OBJECT:
+		addSingleObject(ptr);
 		break;
+	case APPLICATION_NUMBER_OBJECTS:
+	{
+		IntPassContent * IPContent = static_cast<IntPassContent*>(ptr);
+		numOfObjects = IPContent->num;
+		break;
+	}
 	default:
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
 }
 
@@ -52,13 +58,14 @@ void Application::Close()
 	_worldObjects.clear();
 }
 
-void Application::addWorldObject(BaseContent * ptr)
+void Application::addSingleObject(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
 
-	for (GameObject * go : FLContent->objects)
-		_worldObjects.emplace_back(go);
+	if (FLContent->object != nullptr)
+		_worldObjects.emplace_back(FLContent->object);
 
+	printf("Loaded: %s\n", FLContent->object->getName().c_str());
 	_c.notify_one();
 }

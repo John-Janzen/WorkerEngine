@@ -26,10 +26,11 @@ public:
 	*/
 	void Close();
 
-	void addWorldObject(BaseContent *);
+	void addSingleObject(BaseContent * ptr);
 
 protected:
 	std::vector<ThreadWorker*> _workers;
 	Render * renderCopy;
 	std::vector<GameObject*> _worldObjects;
+	int numOfObjects = -1;
 };

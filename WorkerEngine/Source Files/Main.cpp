@@ -17,7 +17,7 @@ https://github.com/John-Janzen
 *//*====================================================================================*/
 int main(int argc, char *argv[]) 
 {
-	int num = 2;
+	int num = 3;
 	MyApp _myApp;
 	bool dead = false;
 	SDL_Event e;
@@ -30,13 +30,13 @@ int main(int argc, char *argv[])
 		{
 			switch (e.type)
 			{
-			case SDL_FIRSTEVENT:
-				break;
 			case SDL_QUIT:		// Quit the game
 				dead = true;
 				break;
 			case SDL_KEYDOWN:
-				Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
+				if (e.key.repeat == 0)
+					Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
+				
 				break;
 			default:
 				break;

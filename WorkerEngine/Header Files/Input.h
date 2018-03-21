@@ -7,7 +7,7 @@
 class Input : public System
 {
 public:
-	Input(GameObject * player);
+	Input();
 	~Input();
 
 	/*
