@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
 			case SDL_KEYDOWN:
 				if (e.key.repeat == 0)
 					Manager::instance().addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
-				
 				break;
 			default:
 				break;

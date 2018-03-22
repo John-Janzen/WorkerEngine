@@ -50,14 +50,30 @@ public:
 	LOADABLE_ITEMS findLoadItem(const std::string & item);
 	
 	std::vector<GLfloat> combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & ind);
-	
-	template<typename Out>
-	Out * mallocSpace(std::vector<Out>);
-
-	template <typename Out>
-	void split(const std::string &s, char delim, Out result);
 
 private:
+
+	template<typename Out>
+	Out * mallocSpace(std::vector<Out> tooManyVecs)
+	{
+		Out* arr = (Out*)malloc(tooManyVecs.size() * sizeof(Out));
+		int j = 0;
+		for (std::vector<Out>::iterator it = tooManyVecs.begin(); it != tooManyVecs.end(); ++it, j++)
+			arr[j] = *it;
+		return arr;
+	}
+
+	template <typename Out>
+	void split(const std::string &s, char delim, Out result)
+	{
+		std::stringstream ss;
+		ss.str(s);
+		std::string item;
+		while (std::getline(ss, item, delim)) {
+			*(result++) = item;
+		}
+	}
+
 	std::map<std::string, Model_Loaded*> _loadedModels;
 };
 
