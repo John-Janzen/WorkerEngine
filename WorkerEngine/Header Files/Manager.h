@@ -147,6 +147,18 @@ public:
 		return check;
 	}
 
+	bool checkFree()
+	{
+		std::unique_lock<std::mutex> lock(_lockMutex);
+		bool check;
+		if (count > 0)
+			check = true;
+		else
+			check = false;
+		_c.notify_all();
+		return check;
+	}
+
 private:
 	Manager() {}
 	int count, max;

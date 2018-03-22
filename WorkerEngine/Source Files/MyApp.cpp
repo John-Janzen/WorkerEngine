@@ -15,7 +15,7 @@ void MyApp::Init(int n)
 void MyApp::Update()
 {
 	now = SDL_GetTicks();
-	while (Manager::instance().hasJobs() && !Manager::instance().checkBusy())
+	while (Manager::instance().hasJobs() && Manager::instance().checkFree())
 	{
 		for (ThreadWorker * t : _workers)
 		{

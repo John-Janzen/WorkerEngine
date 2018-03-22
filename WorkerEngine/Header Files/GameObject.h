@@ -13,9 +13,7 @@ enum LOADABLE_ITEMS
 	NAME,
 	ID,
 	COMP,
-	POSX,
-	POSY, 
-	POSZ
+	POS
 };
 
 class GameObject
