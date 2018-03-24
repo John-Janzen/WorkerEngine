@@ -4,7 +4,7 @@ Render::Render() {}
 
 Render::~Render() {}
 
-void Render::Update(JOB_TYPES T, BaseContent* ptr)
+void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (T)
@@ -170,6 +170,7 @@ void Render::InitObject(void * ptr)
 	{
 		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
 		{
+			//printf("Object %s Init\n", go->getName().c_str());
 			glGenBuffers(1, &rc->_EBO);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * rc->numInd), rc->getIndices(), GL_STATIC_DRAW);

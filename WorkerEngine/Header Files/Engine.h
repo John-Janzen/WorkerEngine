@@ -14,7 +14,7 @@ public:
 	* The Update function that should be called
 	* Currently does nothing
 	*/
-	virtual void Update(JOB_TYPES t, BaseContent* ptr = nullptr);
+	virtual void Update(JOB_TYPES t, bool & flag, BaseContent* ptr = nullptr);
 
 	/*
 	* The Close function that should be called

@@ -27,7 +27,7 @@ public:
 	/*
 	* Update function that checks the job type for what function to call
 	*/
-	virtual void Update(JOB_TYPES T, BaseContent* ptr = nullptr);
+	virtual void Update(JOB_TYPES T, bool & flag, BaseContent* ptr = nullptr);
 
 	/*
 	* Deallocates SDL and OpenGL

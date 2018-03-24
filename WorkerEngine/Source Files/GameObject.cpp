@@ -33,11 +33,9 @@ GameObject::GameObject(std::map<LOADABLE_ITEMS, std::string> map, std::vector<Co
 			do
 			{
 				std::string sub = data.substr(0, (loc = data.find_first_of(',')));
-
 				if (count == 0) x = atof(sub.c_str());
 				else if (count == 1) y = atof(sub.c_str());
 				else { z = atof(sub.c_str()); break; }
-
 				data = data.substr(loc + 1);
 				count++;
 			} while (!data.empty());

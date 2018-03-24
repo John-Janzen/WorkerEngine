@@ -1,7 +1,6 @@
 #pragma once
 
 #include "System.h"
-#include "Content.h"
 
 class Job
 {

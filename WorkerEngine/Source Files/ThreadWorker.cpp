@@ -18,9 +18,9 @@ void ThreadWorker::Running()
 {
 	while (!_dead)
 	{
-		if (a != nullptr)
+		if ((a = Manager::instance().Give_Job()) != nullptr)
 		{
-			a->Get_System()->Update(a->Get_JobType(), a->Get_Data());
+			a->Get_System()->Update(a->Get_JobType(), _flag, a->Get_Data());
 			a = nullptr;
 		}
 		else

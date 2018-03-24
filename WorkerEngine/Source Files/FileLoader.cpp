@@ -4,7 +4,7 @@ FileLoader::FileLoader() {}
 
 FileLoader::~FileLoader() {}
 
-void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
+void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (j)
@@ -231,6 +231,10 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	{
 		go = new GameObject(gameObjData, components);
 	}
+	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
+	{
+		go = new Quad(gameObjData, components);
+	}
 	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }
 
@@ -287,8 +291,6 @@ void FileLoader::findLoadItem(const std::string & item, const std::string & data
 				rc->setVertices(ml->vertices);
 				rc->setIndices(ml->indices);
 				rc->numInd = ml->ISize;
-				rc->numNormals = ml->NSize;
-				rc->numTextures = ml->TSize;
 				rc->numVertices = ml->VSize;
 			}
 			else

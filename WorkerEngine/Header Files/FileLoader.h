@@ -31,7 +31,7 @@ public:
 	FileLoader();
 	~FileLoader();
 
-	virtual void Update(JOB_TYPES j, BaseContent* ptr);
+	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
 
 	void ObjImporter(BaseContent * ptr);

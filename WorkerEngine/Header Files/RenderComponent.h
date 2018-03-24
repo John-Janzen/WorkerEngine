@@ -4,7 +4,8 @@
 class RenderComponent : public Component
 {
 public:
-	RenderComponent() {}
+	RenderComponent(const GLfloat * arr = nullptr, const GLuint * arr2 = nullptr, size_t ind_size = 0, size_t vert_size = 0) 
+		: _vertices (arr), _indices(arr2), numInd(ind_size), numVertices(vert_size) {}
 	~RenderComponent() 
 	{
 		glDeleteVertexArrays(1, &_VAO);
@@ -21,8 +22,6 @@ public:
 	GLuint _EBO = 0;
 	size_t numInd;
 	size_t numVertices;
-	size_t numNormals;
-	size_t numTextures;
 private:
 	const GLfloat * _vertices;
 	const GLuint * _indices;

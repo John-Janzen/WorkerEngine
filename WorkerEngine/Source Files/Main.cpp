@@ -17,7 +17,7 @@ https://github.com/John-Janzen
 *//*====================================================================================*/
 int main(int argc, char *argv[]) 
 {
-	int num = 2;
+	uint16_t num = std::thread::hardware_concurrency() / 2;
 	MyApp _myApp;
 	bool dead = false;
 	SDL_Event e;

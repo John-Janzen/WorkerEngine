@@ -130,6 +130,7 @@
     <ClCompile Include="Source Files\Input.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MyApp.cpp" />
+    <ClCompile Include="Source Files\Quad.cpp" />
     <ClCompile Include="Source Files\Render.cpp" />
     <ClCompile Include="Source Files\System.cpp" />
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
@@ -143,9 +144,9 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\Input.h" />
     <ClInclude Include="Header Files\Job.h" />
-    <ClInclude Include="Header Files\Locker.h" />
     <ClInclude Include="Header Files\Manager.h" />
     <ClInclude Include="Header Files\MyApp.h" />
+    <ClInclude Include="Header Files\Quad.h" />
     <ClInclude Include="Header Files\Render.h" />
     <ClInclude Include="Header Files\RenderComponent.h" />
     <ClInclude Include="Header Files\System.h" />

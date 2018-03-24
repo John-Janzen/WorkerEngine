@@ -4,7 +4,7 @@ Input::Input() { keys = SDL_GetKeyboardState(NULL); }
 
 Input::~Input() {}
 
-void Input::Update(JOB_TYPES job, BaseContent* ptr = nullptr)
+void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 {
 	Manager::instance().signalWorking();
 	switch (job)
@@ -59,12 +59,12 @@ void Input::readContinuous()
 {
 	keys = SDL_GetKeyboardState(NULL);
 	float moveX = 0, moveY = 0, moveZ = 0;
-	if (keys[SDL_SCANCODE_A]) moveX += 0.1f;
-	if (keys[SDL_SCANCODE_W]) moveY += -0.1f;
-	if (keys[SDL_SCANCODE_S]) moveY += 0.1f;
-	if (keys[SDL_SCANCODE_D]) moveX += -0.1f;
-	if (keys[SDL_SCANCODE_E]) moveZ += 0.1f;
-	if (keys[SDL_SCANCODE_Q]) moveZ += -0.1f;
+	if (keys[SDL_SCANCODE_A]) moveX += 1.0f;
+	if (keys[SDL_SCANCODE_W]) moveY += -1.0f;
+	if (keys[SDL_SCANCODE_S]) moveY += 1.0f;
+	if (keys[SDL_SCANCODE_D]) moveX += -1.0f;
+	if (keys[SDL_SCANCODE_E]) moveZ += 1.0f;
+	if (keys[SDL_SCANCODE_Q]) moveZ += -1.0f;
 
 	if (moveX != 0 || moveY != 0 || moveZ != 0)
 		Manager::instance().addJob("Render", JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(moveX, moveY, moveZ));

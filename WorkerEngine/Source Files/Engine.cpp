@@ -9,7 +9,7 @@ void Engine::Close()
 
 }
 
-void Engine::Update(JOB_TYPES t, BaseContent* ptr)
+void Engine::Update(JOB_TYPES t, bool & flag, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (t)

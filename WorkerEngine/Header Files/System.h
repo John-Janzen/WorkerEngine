@@ -3,7 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "GameObject.h"
+#include "Quad.h"
 #include "Content.h"
 
 /*
@@ -77,7 +77,7 @@ public:
 	* Virtual Update funciton 
 	* Threads will use the seperate system's update instead
 	*/
-	virtual void Update(JOB_TYPES t, BaseContent * ptr = nullptr) = 0;
+	virtual void Update(JOB_TYPES t, bool & flag, BaseContent * ptr = nullptr) = 0;
 
 	/*
 	* Virtual Close function
