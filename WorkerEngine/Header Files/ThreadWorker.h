@@ -5,7 +5,7 @@
 #include <time.h>
 #include <chrono>
 
-#include "Job.h"
+#include "Manager.h"
 
 class ThreadWorker
 {
@@ -39,6 +39,6 @@ public:
 private:
 	std::thread * _thread;
 	char _name[30];
-	bool _dead;
+	bool _dead, _flag;
 
 };

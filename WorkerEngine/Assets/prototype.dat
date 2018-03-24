@@ -1,8 +1,13 @@
-#load: 9;
+load: 21;
+
+models {
+	quad,
+	cube,
+	monkey
+};
 
 //	Comments end with;
 //	To not be read;
-//	;
 //	Example data for level loading;
 //	std::string name;
 //	int id;
@@ -10,76 +15,153 @@
 //	glm::vec3 position;
 //	glm::vec3 rotation (in PI);
 // 	glm::vec3 scale;
-//	;
 
-type: GameObject,
-name: Camera,
-id: 01,
-posX: 0,
-posY: 0,
-posZ: 0;
+Camera {
+	type: GameObject,
+	id: 01,
+	pos: (0, 0, -100)
+};
 
-type: GameObject,
-name: Quad_01,
-id: 233,
-comp: render/quad,
-posX: 0,
-posY: -2,
-posZ: 0;
+Quad_0 {
+	type: Quad,
+	id: 0,
+	comp: render(quad),
+	pos: (26, -17, 0)
+};
 
-type: GameObject,
-name: Cube_01,
-id: 234,
-comp: render/cube,
-posX: 0,
-posY: 0,
-posZ: -5;
+Quad_01 {
+	type: Quad,
+	id: 1,
+	comp: render(quad),
+	pos: (-5, 23, 0)
+};
 
-type: GameObject,
-name: Cube_02,
-id: 236,
-comp: render/cube,
-posX: -5,
-posY: 0,
-posZ: -5;
+Quad_02 {
+	type: Quad,
+	id: 2,
+	comp: render(quad),
+	pos: (-12, -12, 0)
+};
+Quad_03 {
+	type: Quad,
+	id: 3,
+	comp: render(quad),
+	pos: (0, 0, 0)
+};
 
-type: GameObject,
-name: Cube_03,
-id: 237,
-comp: render/cube,
-posX: 0,
-posY: -5,
-posZ: -5;
+Quad_04 {
+	type: Quad,
+	id: 4,
+	comp: render(quad),
+	pos: (42, 1, 0)
+};
 
-type: GameObject,
-name: Monkey_01,
-id: 235,
-comp: render/monkey,
-posX: 5,
-posY: 0,
-posZ: -5;
+Quad_05 {
+	type: Quad,
+	id: 5,
+	comp: render(quad),
+	pos: (1, 1, 0)
+};
 
-type: GameObject,
-name: Monkey_02,
-id: 238,
-comp: render/monkey,
-posX: 5,
-posY: 5,
-posZ: -5;
+Quad_06 {
+	type: Quad,
+	id: 6,
+	comp: render(quad),
+	pos: (20, -39, 0)
+};
+Quad_07 {
+	type: Quad,
+	id: 7,
+	comp: render(quad),
+	pos: (-34, 4, 0)
+};
 
-type: GameObject,
-name: Monkey_03,
-id: 239,
-comp: render/monkey,
-posX: 5,
-posY: -5,
-posZ: -5;
+Quad_08 {
+	type: Quad,
+	id: 8,
+	comp: render(quad),
+	pos: (20, -20, 0)
+};
 
-type: GameObject,
-name: Monkey_04,
-id: 240,
-comp: render/monkey,
-posX: 5,
-posY: -5,
-posZ: 0;
+Quad_09 {
+	type: Quad,
+	id: 9,
+	comp: render(quad),
+	pos: (-16, -32, 0)
+};
 
+Quad_10 {
+	type: Quad,
+	id: 10,
+	comp: render(quad),
+	pos: (10, -43, 0)
+};
+
+Quad_11 {
+	type: Quad,
+	id: 11,
+	comp: render(quad),
+	pos: (18, 23, 0)
+};
+Quad_12 {
+	type: Quad,
+	id: 12,
+	comp: render(quad),
+	pos: (42, -49, 0)
+};
+
+Quad_13 {
+	type: Quad,
+	id: 13,
+	comp: render(quad),
+	pos: (29, -7, 0)
+};
+
+Quad_14 {
+	type: Quad,
+	id: 14,
+	comp: render(quad),
+	pos: (3, -9, 0)
+};
+
+Quad_15 {
+	type: Quad,
+	id: 15,
+	comp: render(quad),
+	pos: (38, 42, 0)
+};
+
+Quad_16 {
+	type: Quad,
+	id: 16,
+	comp: render(quad),
+	pos: (-20, 17, 0)
+};
+
+Quad_17 {
+	type: Quad,
+	id: 17,
+	comp: render(quad),
+	pos: (30, 21, 0)
+};
+
+Quad_18 {
+	type: Quad,
+	id: 18,
+	comp: render(quad),
+	pos: (14, -14, 0)
+};
+
+Quad_19 {
+	type: Quad,
+	id: 19,
+	comp: render(quad),
+	pos: (-33, 19, 0)
+};
+
+Quad_20 {
+	type: Quad,
+	id: 20,
+	comp: render(quad),
+	pos: (43, -42, 0)
+};

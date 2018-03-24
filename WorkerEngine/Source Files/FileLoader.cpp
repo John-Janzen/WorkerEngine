@@ -4,7 +4,7 @@ FileLoader::FileLoader() {}
 
 FileLoader::~FileLoader() {}
 
-void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
+void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
 	Manager::instance().signalWorking();
 	switch (j)
@@ -14,6 +14,9 @@ void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
 		break;
 	case FILE_LOAD_GAMEOBJECT:
 		individualGameObject(ptr);
+		break;
+	case FILE_LOAD_MODEL:
+		ObjImporter(ptr);
 		break;
 	default:
 		break;
@@ -31,7 +34,6 @@ void FileLoader::Close()
 void FileLoader::ObjImporter(BaseContent * ptr)
 {
 	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
-	RenderComponent * rc = FLContent->rc;
 	std::ifstream in(FLContent->path.c_str());
 
 	Model_Loaded * ml;
@@ -100,25 +102,16 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 
 			std::vector<GLuint> ind;
 			std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
-			GLfloat * vert = mallocSpace(combined);
-			GLuint * in = mallocSpace(ind);
-			rc->setVertices(vert);
-			rc->setIndices(in);
-			rc->numInd = ind.size();
-			rc->numVertices = combined.size();
-			rc->numTextures = textures.size();
-			rc->numNormals = normals.size();
-
-			ml = new Model_Loaded(vert, in, ind.size(), combined.size(), textures.size(), normals.size());
+			ml = new Model_Loaded(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size(), textures.size(), normals.size());
 			addModel(std::make_pair(FLContent->path, ml));
 			printf("Model Loaded: %s\n", FLContent->path.c_str());
+			modelCount++;
 		}
 	}
 	else
 	{
 		printf("Error opening file: %s", FLContent->path.c_str());
 	}
-
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
@@ -129,40 +122,64 @@ void FileLoader::loadTextData(BaseContent * ptr)
 	std::ifstream in(path.c_str());
 
 	int location = -1;
-	std::vector<std::string> splitData, splitMore;
+	std::vector<std::string> splitData;
 	if (in.is_open())
 	{
+		
 		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 		output.erase(std::remove_if(output.begin(), output.end(), ::isspace), output.end());
-		in.close();
-		
+
 		if (output.empty())
 		{
 			printf("No data found within file %s", path.c_str());
 		}
 		else
 		{
-			split(output, ';', splitData);
-			for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
+			std::string sub;
+			size_t local, local2;
+			do 
 			{
-				if (!(it->empty() || it->at(0) == '\t' || it->at(0) == '/'))
+				if (output[0] == '/' && output[1] == '/')
 				{
-					if (it->at(0) == '#')
+					output = output.substr(local = output.find_first_of(';') + 1);
+					continue;
+				}
+				sub = output.substr(0, local = output.find_first_of(';'));
+
+				if ((local2 = output.find_first_of('{')) > local)
+				{
+					split(sub, ':', splitData);
+					if (splitData[0].compare("load") == 0)
 					{
-						std::vector<std::string> smallSplit;
-						split(it->data(), ':', smallSplit);
-						Manager::instance().addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(smallSplit[1])));
+						Manager::instance().addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(splitData[1])));
+					}
+					splitData.clear();
+				}
+				else
+				{
+					if (sub.substr(0, local2).compare("models") == 0)
+					{
+						size_t modelsEnd = sub.find_last_of('}') - 1;
+						sub = sub.substr(local2 + 1, modelsEnd - local2);
+						split(sub, ',', splitData);
+						modelsToLoad = splitData.size();
+						modelCount = 0;
+						for (std::string s : splitData)
+						{
+							Manager::instance().addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(std::string("Assets/" + s + ".obj")));
+						}
+						splitData.clear();
 					}
 					else
 					{
-						split(it->data(), ',', splitMore);
-						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(splitMore));
-						splitMore.clear();
+						while (modelCount != modelsToLoad);
+						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
 					}
 				}
-			}
-			splitData.clear();
+				output = output.substr(local + 1);
+			} while (!output.empty());
 		}
+		in.close();
 	}
 	else
 	{
@@ -174,49 +191,49 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 {
 	FileIndividualContent * FIContent = static_cast<FileIndividualContent*> (ptr);
 
-	std::vector<std::string> modelData, keyValue;
+	std::vector<std::string> modelData;
 	std::map<LOADABLE_ITEMS, std::string> gameObjData;
 	std::vector<Component*> components;
+	std::string data = FIContent->info;
 	GameObject *go = nullptr;
-	for (std::vector<std::string>::iterator it2 = FIContent->info.begin(); it2 != FIContent->info.end(); ++it2)
+
+	size_t begin = data.find_first_of('{'), end = data.find_last_of('}');
+
+	findLoadItem("name", data.substr(0, begin), gameObjData);
+	data = data.substr(begin + 1, end - begin - 1);
+
+	size_t local;
+	do
 	{
-		split(it2->data(), ':', keyValue);
-		if (keyValue[0].compare("comp") == 0)
+		std::string s = data.substr(0, local = data.find_first_of(','));
+
+		split(s, ':', modelData);
+		if (modelData[0].compare("comp") == 0)
 		{
-			split(keyValue[1], '/', modelData);
-			if (modelData[0].compare("render") == 0)
-			{
-				RenderComponent * rc = new RenderComponent();
-				Model_Loaded * ml;
-				std::unique_lock<std::mutex> lock(_lockMutex);
-				if ((ml = checkForModel(std::string("Assets/" + modelData[1] + ".obj"))) != nullptr)
-				{
-					rc->setVertices(ml->vertices);
-					rc->setIndices(ml->indices);
-					rc->numInd = ml->ISize;
-					rc->numNormals = ml->NSize;
-					rc->numTextures = ml->TSize;
-					rc->numVertices = ml->VSize;
-				}
-				else
-				{
-					this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
-				}
-				_c.notify_all();
-				components.emplace_back(rc);
-			}
-			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), modelData[0]));
-			modelData.clear();
+			findLoadItem(modelData[0], modelData[1], gameObjData, &components);
 		}
 		else
 		{
-			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), keyValue[1]));
+			if (modelData[0].compare("pos") == 0)
+			{
+				local = data.find_last_of(')');
+				size_t local2 = data.find_first_of('(');
+				findLoadItem(modelData[0], data.substr(local2 + 1, local - local2 - 1), gameObjData);
+			}
+			else
+				findLoadItem(modelData[0], modelData[1], gameObjData);
 		}
-		keyValue.clear();
-	}
+		modelData.clear();
+		data = data.substr(local + 1);
+	} while (!data.empty());
+	
 	if (gameObjData.find(TYPE)->second.compare("GameObject") == 0)
 	{
 		go = new GameObject(gameObjData, components);
+	}
+	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
+	{
+		go = new Quad(gameObjData, components);
 	}
 	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }
@@ -237,7 +254,9 @@ void FileLoader::split(const std::string &s, char delim, std::vector<std::string
 
 void FileLoader::addModel(std::pair<std::string, Model_Loaded *> pair)
 {
+	std::unique_lock<std::mutex> lock(_lockMutex);
 	_loadedModels.emplace(pair);
+	_c.notify_all();
 }
 
 Model_Loaded * FileLoader::checkForModel(const std::string & s)
@@ -245,37 +264,47 @@ Model_Loaded * FileLoader::checkForModel(const std::string & s)
 	return (_loadedModels.find(s) != _loadedModels.end()) ? _loadedModels.find(s)->second : nullptr;
 }
 
-LOADABLE_ITEMS FileLoader::findLoadItem(const std::string & item)
+void FileLoader::findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string> & map, std::vector<Component*> * comps)
 {
 	if (item.compare("type") == 0)
 	{
-		return TYPE;
+		map.emplace(std::make_pair(TYPE, data));
 	}
 	else if (item.compare("name") == 0)
 	{
-		return NAME;
+		map.emplace(std::make_pair(NAME, data));
 	}
 	else if (item.compare("id") == 0)
 	{
-		return ID;
+		map.emplace(std::make_pair(ID, data));
 	}
 	else if (item.compare("comp") == 0)
 	{
-		return COMP;
+		size_t brac1 = data.find_first_of('('), brac2 = data.find_last_of(')');
+		if (data.substr(0, brac1).compare("render") == 0)
+		{
+			std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
+			RenderComponent * rc = new RenderComponent();
+			Model_Loaded * ml;
+			if ((ml = checkForModel(std::string("Assets/" + sub2 + ".obj"))) != nullptr)
+			{
+				rc->setVertices(ml->vertices);
+				rc->setIndices(ml->indices);
+				rc->numInd = ml->ISize;
+				rc->numVertices = ml->VSize;
+			}
+			else
+			{
+				this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + sub2 + ".obj"), rc));
+			}
+			comps->emplace_back(rc);
+		}
+		map.emplace(std::make_pair(COMP, data.substr(0, brac1)));
 	}
-	else if (item.compare("posX") == 0)
+	else if (item.compare("pos") == 0)
 	{
-		return POSX;
+		map.emplace(std::make_pair(POS, data));
 	}
-	else if (item.compare("posY") == 0)
-	{
-		return POSY;
-	}
-	else if (item.compare("posZ") == 0)
-	{
-		return POSZ;
-	}
-	return DEFAULT;
 }
 
 std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & indices)

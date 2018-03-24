@@ -4,7 +4,7 @@ Application::Application() {}
 
 Application::~Application() {}
 
-void Application::Init(int num)
+void Application::Init(uint16_t num)
 {
 	for (int i = 0; i < num; i++)
 		_workers.emplace_back(new ThreadWorker(i));
@@ -20,7 +20,7 @@ void Application::Init(int num)
 	Manager::instance().addSystem("Application", this);
 }
 
-void Application::Update(JOB_TYPES t, BaseContent * ptr)
+void Application::Update(JOB_TYPES t, bool &flag, BaseContent * ptr)
 {
 	Manager::instance().signalWorking();
 	switch (t)
@@ -64,8 +64,9 @@ void Application::addSingleObject(BaseContent * ptr)
 	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
 
 	if (FLContent->object != nullptr)
+	{
 		_worldObjects.emplace_back(FLContent->object);
-
-	printf("Loaded: %s\n", FLContent->object->getName().c_str());
+		printf("Loaded: %s\n", FLContent->object->getName().c_str());
+	}
 	_c.notify_one();
 }

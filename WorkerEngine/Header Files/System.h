@@ -3,7 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "GameObject.h"
+#include "Quad.h"
 #include "Content.h"
 
 /*
@@ -60,6 +60,7 @@ enum JOB_TYPES
 
 	FILE_LOAD_TXT_DATA = 0x400,
 	FILE_LOAD_GAMEOBJECT,
+	FILE_LOAD_MODEL,
 
 	APPLICATION_ADD_OBJECTS = 0x500,
 	APPLICATION_ADD_SINGLE_OBJECT,
@@ -76,7 +77,7 @@ public:
 	* Virtual Update funciton 
 	* Threads will use the seperate system's update instead
 	*/
-	virtual void Update(JOB_TYPES t, BaseContent * ptr = nullptr) = 0;
+	virtual void Update(JOB_TYPES t, bool & flag, BaseContent * ptr = nullptr) = 0;
 
 	/*
 	* Virtual Close function

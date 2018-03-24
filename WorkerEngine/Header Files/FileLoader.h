@@ -9,9 +9,12 @@
 #include <algorithm>
 #include <filesystem>
 #include <vector>
+#include <atomic>
 
 #include "System.h"
 #include "Manager.h"
+
+static std::atomic_int32_t modelCount = -1;
 
 struct Model_Loaded
 {
@@ -28,7 +31,7 @@ public:
 	FileLoader();
 	~FileLoader();
 
-	virtual void Update(JOB_TYPES j, BaseContent* ptr);
+	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
 
 	void ObjImporter(BaseContent * ptr);
@@ -47,7 +50,7 @@ public:
 
 	Model_Loaded * checkForModel(const std::string & s);
 
-	LOADABLE_ITEMS findLoadItem(const std::string & item);
+	void findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string>&, std::vector<Component*> * c = nullptr);
 	
 	std::vector<GLfloat> combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & ind);
 
@@ -75,5 +78,6 @@ private:
 	}
 
 	std::map<std::string, Model_Loaded*> _loadedModels;
+	size_t modelsToLoad = 0;
 };
 

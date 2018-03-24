@@ -59,8 +59,8 @@ public:
 	std::string path;
 	RenderComponent * rc;
 
-	FileLoadOBJContent(std::string p, RenderComponent * r) : path(p), rc{ r } {}
-	~FileLoadOBJContent() { rc = nullptr; }
+	FileLoadOBJContent(std::string p, RenderComponent * r = nullptr) : path(p), rc{r} {}
+	~FileLoadOBJContent() { if (rc != nullptr) rc = nullptr; }
 };
 
 class FileLoadedContent : public BaseContent
@@ -75,9 +75,9 @@ public:
 class FileIndividualContent : public BaseContent
 {
 public:
-	std::vector<std::string> info;
+	std::string info;
 
-	FileIndividualContent(std::vector<std::string> vs) : info { vs } {}
+	FileIndividualContent(std::string vs) : info { vs } {}
 	~FileIndividualContent() {}
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application.h"
+#include "Quad.h"
 
 typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
@@ -22,7 +23,7 @@ public:
 	* Initializes the Application with threads + systems
 	* Calls Application::Init()
 	*/
-	void Init(int n);
+	void Init(uint16_t n);
 
 	/*
 	* Updates the game and specific functions
@@ -34,5 +35,6 @@ private:
 	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 	Uint32 now, frameTicks;
 	STATE state = LOADING;
+	bool _flag = false;
 };
 
