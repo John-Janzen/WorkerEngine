@@ -99,7 +99,7 @@ void Render::InitGL()
 
 	const GLchar* vertexShaderSource[] =
 	{
-		"#version 330\nuniform mat4 model_matrix; uniform mat4 projection_matrix; layout(location = 0) in vec4 position; layout(location = 1) in vec4 color; out vec4 vs_fs_color; void main(void) { vs_fs_color = vec4(1.0, 1.0, 1.0, 1.0); gl_Position = projection_matrix * (model_matrix * position); } "
+		"#version 330\nuniform mat4 model_matrix; uniform mat4 projection_matrix; uniform vec4 color_vec; layout(location = 0) in vec4 position; out vec4 vs_fs_color; void main(void) { vs_fs_color = color_vec; gl_Position = projection_matrix * (model_matrix * position); } "
 	};
 	glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -148,6 +148,7 @@ void Render::InitGL()
 				glUseProgram(r_ProgramID);
 				render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
 				render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
+				color_vec_loc = glGetUniformLocation(r_ProgramID, "color_vec");
 
 				projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
 				look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -235,6 +236,7 @@ void Render::RenderObject(GameObject * go)
 
 	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+	glUniform4f(color_vec_loc, go->color.x, go->color.y, go->color.z, go->color.w);
 	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);

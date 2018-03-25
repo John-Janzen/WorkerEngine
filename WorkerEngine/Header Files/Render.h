@@ -71,6 +71,8 @@ protected:
 
 	GLint render_projection_matrix_loc;
 	GLint render_model_matrix_loc;
+	GLint color_vec_loc;
+
 	glm::mat4 projection_look_matrix;
 	glm::mat4 projection_matrix;
 	glm::mat4 look_matrix;

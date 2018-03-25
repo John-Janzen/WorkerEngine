@@ -10,11 +10,6 @@ void MyApp::Init(uint16_t n)
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
 	renderCopy->Update(RENDER_INIT, _flag);
 	Manager::instance().addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent("Assets/prototype.dat"));
-	/*for (int i = 0; i < 100; i++)
-	{
-		std::string name("Quad_" + std::to_string(i));
-		Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(new Quad(name, i)));
-	}*/
 }
 
 void MyApp::Update()
@@ -42,7 +37,7 @@ void MyApp::Update()
 	case UPDATE:
 	{
 		for (GameObject * go : _worldObjects)
-			go->Update(50, 50);
+			Manager::instance().addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go, 50, 50));
 
 		while (Manager::instance().checkBusy());			// Wait for the threads to finish
 

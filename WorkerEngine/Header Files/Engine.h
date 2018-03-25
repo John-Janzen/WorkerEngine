@@ -16,6 +16,8 @@ public:
 	*/
 	virtual void Update(JOB_TYPES t, bool & flag, BaseContent* ptr = nullptr);
 
+	void HandlePlayer(BaseContent * ptr);
+
 	/*
 	* The Close function that should be called
 	* Currently does nothing

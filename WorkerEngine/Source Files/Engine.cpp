@@ -16,10 +16,19 @@ void Engine::Update(JOB_TYPES t, bool & flag, BaseContent* ptr)
 	{
 	case SYSTEM_DEFAULT:
 		break;
+	case ENGINE_HANDLE_OBJECT:
+		HandlePlayer(ptr);
+		break;
 	default:
 		break;
 	}
 	if (ptr != nullptr)
-		ptr = nullptr;
+		delete(ptr);
 	Manager::instance().signalDone();
+}
+
+void Engine::HandlePlayer(BaseContent* ptr)
+{
+	EngineObjectContent * EOContent = static_cast<EngineObjectContent*> (ptr);
+	EOContent->obj->Update(EOContent->width, EOContent->height);
 }

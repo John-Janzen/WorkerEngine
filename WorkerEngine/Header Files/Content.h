@@ -7,6 +7,16 @@ public:
 	virtual ~BaseContent() {};
 };
 
+class EngineObjectContent : public BaseContent
+{
+public:
+	GameObject * obj;
+	int width, height;
+
+	EngineObjectContent(GameObject * o, int w, int h) : obj {o}, width (w), height (h) {}
+	~EngineObjectContent() { obj = nullptr; }
+};
+
 class RenderCameraContent : public BaseContent
 {
 public:
