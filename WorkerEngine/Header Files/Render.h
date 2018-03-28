@@ -55,11 +55,6 @@ public:
 
 	void RenderObject(GameObject * go);
 
-	/*
-	* Swaps the cyan color and the multicolor flag
-	*/
-	void SwapColor();
-
 	void handleCamera(BaseContent * ptr);
 
 	

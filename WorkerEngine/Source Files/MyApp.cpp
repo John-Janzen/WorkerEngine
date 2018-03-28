@@ -18,7 +18,6 @@ void MyApp::Update()
 	switch (state)
 	{
 	case LOADING:
-		Manager::instance();
 		if (_worldObjects.size() == numOfObjects)
 		{
 			printf("Loading started");

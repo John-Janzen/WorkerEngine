@@ -172,10 +172,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					}
 					else
 					{
-						if (modelCount != modelsToLoad)
-						{
-
-						}
+						while (modelCount != modelsToLoad) {}
 						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
 					}
 				}

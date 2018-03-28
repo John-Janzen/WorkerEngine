@@ -21,9 +21,6 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 	case RENDER_UPDATE:
 		RenderWindow(ptr);
 		break;
-	case SWAP_COLOR:
-		SwapColor();
-		break;
 	case RENDER_HANDLE_CAMERA:
 		handleCamera(ptr);
 		break;
@@ -240,20 +237,6 @@ void Render::RenderObject(GameObject * go)
 	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
-}
-
-void Render::SwapColor()
-{
-	std::unique_lock<std::mutex> lock(_lockMutex);
-	if (_ColorMode == COLOR_MODE_CYAN)
-	{
-		_ColorMode = COLOR_MODE_MULTI;
-	}
-	else
-	{
-		_ColorMode = COLOR_MODE_CYAN;
-	}
-	_c.notify_one();
 }
 
 void Render::handleCamera(BaseContent * ptr)
