@@ -44,10 +44,9 @@ bool MyApp::Update()
 			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go, 50, 50));
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
-
+		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		frameTicks = SDL_GetTicks();
 		printf("%u-", frameTicks - now);
-		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		break;
 	}
 	default:

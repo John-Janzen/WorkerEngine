@@ -25,8 +25,6 @@ void ThreadWorker::Running()
 			a->Get_System()->Update(a->Get_JobType(), _flag, a->Get_Data());
 			a = nullptr;
 			_parent->signalDone(this);
-			/*if (_parent->checkBusy())
-				printf("SOMETHING'S FUCKY");*/
 		}
 		else
 		{
