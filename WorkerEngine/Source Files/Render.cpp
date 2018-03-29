@@ -21,9 +21,6 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 	case RENDER_UPDATE:
 		RenderWindow(ptr);
 		break;
-	case RENDER_HANDLE_CAMERA:
-		handleCamera(ptr);
-		break;
 	default:
 		break;
 	}
@@ -235,12 +232,4 @@ void Render::RenderObject(GameObject * go)
 	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
-}
-
-void Render::handleCamera(BaseContent * ptr)
-{
-	RenderCameraContent * RCContent = static_cast<RenderCameraContent*>(ptr);
-	_camera->adjustPosX(RCContent->moveX);
-	_camera->adjustPosY(RCContent->moveY);
-	_camera->adjustPosZ(RCContent->moveZ);
 }

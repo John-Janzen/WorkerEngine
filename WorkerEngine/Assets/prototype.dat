@@ -24,9 +24,9 @@ Camera {
 
 Player_01 {
 	type: Player,
-	comp: render(quad),
+	comp: render(monkey),
 	id: 234,
-	pos: (0, 0, -10)
+	pos: (0, 0, 50)
 
 };
 

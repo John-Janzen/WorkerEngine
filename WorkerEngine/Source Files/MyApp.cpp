@@ -46,7 +46,7 @@ bool MyApp::Update()
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
 		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		frameTicks = SDL_GetTicks();
-		printf("%u-", frameTicks - now);
+		//printf("%u-", frameTicks - now);
 		break;
 	}
 	default:

@@ -53,9 +53,6 @@ public:
 	void RenderWindow(BaseContent* ptr);
 
 	void RenderObject(GameObject * go);
-
-	void handleCamera(BaseContent * ptr);
-
 	
 protected:
 	SDL_Window* _window = NULL;
