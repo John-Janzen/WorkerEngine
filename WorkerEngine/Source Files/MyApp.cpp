@@ -9,19 +9,19 @@ void MyApp::Init(uint16_t n)
 	Application::Init(n);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
 	renderCopy->Update(RENDER_INIT, _flag);
-	_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent("Assets/prototype.dat"));
+	_scheduler->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
 }
 
 bool MyApp::Update()
 {
-	now = SDL_GetTicks();
 	bool success = false;
+	now = SDL_GetTicks();
 	_scheduler->RunSchedule();
 
 	switch (state)
 	{
 	case LOADING:
-		if (_worldObjects.size() == numOfObjects)
+		if (_worldObjects.size() == numOfObjects && !Manager::instance().checkDone())
 		{
 			printf("Loading started");
 			for (GameObject * obj : _worldObjects)
@@ -39,14 +39,15 @@ bool MyApp::Update()
 	case UPDATE:
 	{
 		success = ReadInputs();
+
 		for (GameObject * go : _worldObjects)
 			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go, 50, 50));
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
 
-		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		frameTicks = SDL_GetTicks();
 		printf("%u-", frameTicks - now);
+		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		break;
 	}
 	default:

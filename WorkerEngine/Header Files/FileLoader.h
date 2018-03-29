@@ -33,6 +33,8 @@ public:
 	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
 
+	void LoadExternalFile(BaseContent * ptr);
+
 	void ObjImporter(BaseContent * ptr);
 
 	void loadTextData(BaseContent* ptr);

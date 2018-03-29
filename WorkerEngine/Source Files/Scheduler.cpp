@@ -14,6 +14,7 @@ void Scheduler::Close()
 
 void Scheduler::RunSchedule()
 {
+	std::shared_ptr<Job> j;
 	while (Manager::instance().checkThreads() || !_jobs.empty())
 	{
 		if (!_jobs.empty())
@@ -23,7 +24,12 @@ void Scheduler::RunSchedule()
 			_jobs.clear();
 			_c.notify_all();
 		}
-		Manager::instance().AllocateJobs();
+		if ((j = Manager::instance().AllocateJobs()) != nullptr)
+		{
+			bool flag = false;
+			j->Get_System()->Update(j->Get_JobType(), flag, j->Get_Data());
+			j = nullptr;
+		}
 	}
 }
 

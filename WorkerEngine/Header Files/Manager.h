@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ThreadPool.h"
-
 class Manager
 {
 public:
@@ -45,12 +44,22 @@ public:
 	/*
 	* Give Job to the thread
 	*/
-	void AllocateJobs()
+	std::shared_ptr<Job> AllocateJobs()
 	{
 		while (!_actions.empty() && _poolOfThreads->checkFree())
 		{
 			if (_poolOfThreads->emplaceJob(_actions.front()))
 				_actions.pop_front();
+		}
+		if (!_actions.empty())
+		{
+			std::shared_ptr<Job> j = _actions.front();
+			_actions.pop_front();
+			return j;
+		}
+		else
+		{
+			return nullptr;
 		}
 	}
 
