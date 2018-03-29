@@ -6,23 +6,20 @@ Application::~Application() {}
 
 void Application::Init(uint16_t num)
 {
-	for (int i = 0; i < num; i++)
-		_workers.emplace_back(new ThreadWorker(i));
+	Manager::instance().Init(num);
+	_scheduler = new Scheduler();
 
-	Manager::instance().passCount(num);
-
-	renderCopy = new Render();
-
-	Manager::instance().addSystem("Engine", new Engine());
-	Manager::instance().addSystem("Render", renderCopy);
-	Manager::instance().addSystem("Input", new Input());
-	Manager::instance().addSystem("FileLoader", new FileLoader());
-	Manager::instance().addSystem("Application", this);
+	_scheduler->addSystem("Engine", new Engine(_scheduler));
+	renderCopy = new Render(_scheduler);
+	_scheduler->addSystem("Render", renderCopy);
+	_scheduler->addSystem("Input", new Input(_scheduler));
+	_scheduler->addSystem("FileLoader", new FileLoader(_scheduler));
+	_scheduler->addSystem("Application", this);
 }
 
 void Application::Update(JOB_TYPES t, bool &flag, BaseContent * ptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (t)
 	{
 	case SYSTEM_DEFAULT:
@@ -44,13 +41,11 @@ void Application::Update(JOB_TYPES t, bool &flag, BaseContent * ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Application::Close()
 {
-	for (ThreadWorker * thread : _workers)
-		delete(thread);
 
 	for (GameObject * go : _worldObjects)
 		delete(go);

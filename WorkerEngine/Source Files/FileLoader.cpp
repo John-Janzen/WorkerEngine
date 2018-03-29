@@ -1,12 +1,11 @@
 #include "FileLoader.h"
 
-FileLoader::FileLoader() {}
+FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch} {}
 
 FileLoader::~FileLoader() {}
 
 void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
-	Manager::instance().signalWorking();
 	switch (j)
 	{
 	case FILE_LOAD_TXT_DATA:
@@ -23,7 +22,6 @@ void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
 }
 
 void FileLoader::Close()
@@ -151,7 +149,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					split(sub, ':', splitData);
 					if (splitData[0].compare("load") == 0)
 					{
-						Manager::instance().addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(splitData[1])));
+						_scheduler->addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(splitData[1])));
 					}
 					splitData.clear();
 				}
@@ -166,14 +164,14 @@ void FileLoader::loadTextData(BaseContent * ptr)
 						modelCount = 0;
 						for (std::string s : splitData)
 						{
-							Manager::instance().addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(std::string("Assets/" + s + ".obj")));
+							_scheduler->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(std::string("Assets/" + s + ".obj")));
 						}
 						splitData.clear();
 					}
 					else
 					{
 						while (modelCount != modelsToLoad) {}
-						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
+						_scheduler->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
 					}
 				}
 				output = output.substr(local + 1);
@@ -235,7 +233,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	{
 		go = new Quad(gameObjData, components);
 	}
-	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
+	_scheduler->addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }
 
 GLfloat FileLoader::parseFloat(const std::string& str)

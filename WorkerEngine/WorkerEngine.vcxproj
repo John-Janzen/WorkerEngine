@@ -132,6 +132,7 @@
     <ClCompile Include="Source Files\MyApp.cpp" />
     <ClCompile Include="Source Files\Quad.cpp" />
     <ClCompile Include="Source Files\Render.cpp" />
+    <ClCompile Include="Source Files\Scheduler.cpp" />
     <ClCompile Include="Source Files\System.cpp" />
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
   </ItemGroup>
@@ -149,7 +150,9 @@
     <ClInclude Include="Header Files\Quad.h" />
     <ClInclude Include="Header Files\Render.h" />
     <ClInclude Include="Header Files\RenderComponent.h" />
+    <ClInclude Include="Header Files\Scheduler.h" />
     <ClInclude Include="Header Files\System.h" />
+    <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\ThreadWorker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

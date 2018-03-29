@@ -1,12 +1,12 @@
 #include "Render.h"
 
-Render::Render() {}
+Render::Render(Scheduler * sch) : _scheduler{sch} {}
 
 Render::~Render() {}
 
 void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (T)
 	{
 	case SYSTEM_DEFAULT:
@@ -29,7 +29,7 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Render::Close()

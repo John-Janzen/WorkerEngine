@@ -2,12 +2,11 @@
 #include <stdio.h>
 
 #include "System.h"
-#include "Manager.h"
 
 class Engine : public System
 {
 public:
-	Engine();
+	Engine(Scheduler *_scheduler);
 	~Engine();
 
 	/*
@@ -25,5 +24,6 @@ public:
 	virtual void Close();
 
 private:
+	Scheduler * _scheduler;
 };
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 
+#include "GameObject.h"
+
 class BaseContent
 {
 public:
