@@ -54,7 +54,7 @@ public:
 		collision = true;
 	}
 
-	virtual void Update(int, int) {};
+	virtual void Update(float x, float y) {};
 
 	glm::vec4 color;
 

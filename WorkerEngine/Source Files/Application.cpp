@@ -51,6 +51,7 @@ void Application::Close()
 		delete(go);
 
 	_worldObjects.clear();
+	delete(_scheduler);
 }
 
 void Application::addSingleObject(BaseContent * ptr)

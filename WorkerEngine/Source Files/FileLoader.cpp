@@ -235,13 +235,18 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 		data = data.substr(local + 1);
 	} while (!data.empty());
 	
-	if (gameObjData.find(TYPE)->second.compare("GameObject") == 0)
+	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
 	{
-		go = new GameObject(gameObjData, components);
+		go = new Player(gameObjData, components);
+		_scheduler->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
 	}
 	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
 	{
 		go = new Quad(gameObjData, components);
+	}
+	else
+	{
+		go = new GameObject(gameObjData, components);
 	}
 	_scheduler->addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }

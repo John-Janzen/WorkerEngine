@@ -130,6 +130,7 @@
     <ClCompile Include="Source Files\Input.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MyApp.cpp" />
+    <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\Quad.cpp" />
     <ClCompile Include="Source Files\Render.cpp" />
     <ClCompile Include="Source Files\Scheduler.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Application.h" />
+    <ClInclude Include="Header Files\Command.h" />
     <ClInclude Include="Header Files\Component.h" />
     <ClInclude Include="Header Files\Content.h" />
     <ClInclude Include="Header Files\Engine.h" />
@@ -146,7 +148,9 @@
     <ClInclude Include="Header Files\Input.h" />
     <ClInclude Include="Header Files\Job.h" />
     <ClInclude Include="Header Files\Manager.h" />
+    <ClInclude Include="Header Files\MoveCommand.h" />
     <ClInclude Include="Header Files\MyApp.h" />
+    <ClInclude Include="Header Files\Player.h" />
     <ClInclude Include="Header Files\Quad.h" />
     <ClInclude Include="Header Files\Render.h" />
     <ClInclude Include="Header Files\RenderComponent.h" />

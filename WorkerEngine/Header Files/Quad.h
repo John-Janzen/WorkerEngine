@@ -29,7 +29,7 @@ public:
 		_velocity = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, 0);
 		color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	}
-	void Update(int boundX, int boundY);
+	void Update(float x = 0, float y = 0);
 	~Quad();
 
 private:

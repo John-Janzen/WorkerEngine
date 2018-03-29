@@ -195,7 +195,6 @@ void Render::InitObject(void * ptr)
 
 void Render::RenderWindow(BaseContent* ptr)
 {
-	std::unique_lock<std::mutex>lock(_lockMutex);
 	glm::mat4 translate;
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
 	for (GameObject * go : *RUContent->objects)
@@ -222,7 +221,6 @@ void Render::RenderWindow(BaseContent* ptr)
 
 	glBindVertexArray(0);
 	SDL_GL_SwapWindow(_window);
-	_c.notify_all();
 }
 
 void Render::RenderObject(GameObject * go)
@@ -241,10 +239,8 @@ void Render::RenderObject(GameObject * go)
 
 void Render::handleCamera(BaseContent * ptr)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
 	RenderCameraContent * RCContent = static_cast<RenderCameraContent*>(ptr);
 	_camera->adjustPosX(RCContent->moveX);
 	_camera->adjustPosY(RCContent->moveY);
 	_camera->adjustPosZ(RCContent->moveZ);
-	_c.notify_all();
 }

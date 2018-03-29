@@ -3,6 +3,7 @@
 
 #include "System.h"
 #include "Scheduler.h"
+#include "MoveCommand.h"
 
 class Input : public System
 {
@@ -29,5 +30,7 @@ private:
 	const Uint8 * keys;	
 	GameObject * _camera;
 	Scheduler * _scheduler;
+	Player * _player;
+	MoveCommand * _MoveCommand;
 };
 

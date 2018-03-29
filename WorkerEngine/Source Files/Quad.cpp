@@ -7,14 +7,15 @@ Quad::Quad(std::string n, int id) : GameObject(n, id) {
 }
 
 
-void Quad::Update(int boundX, int boundY)
+void Quad::Update(float x, float y)
 {
+	int boundX = 50, boundY = 50;
 	if (_position.x >= boundX || _position.x <= -boundX)
 		_velocity.x = -_velocity.x;
 	if (_position.y >= boundY || _position.y <= -boundY)
 		_velocity.y = -_velocity.y;
 
-	_position += _velocity * 0.1f;
+	_position += _velocity * 1.5f;
 
 	if (collision)
 		color = glm::vec4(1.0, 0.0, 0.0, 1.0);

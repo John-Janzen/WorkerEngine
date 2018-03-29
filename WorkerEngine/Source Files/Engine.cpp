@@ -30,5 +30,5 @@ void Engine::Update(JOB_TYPES t, bool & flag, BaseContent* ptr)
 void Engine::HandlePlayer(BaseContent* ptr)
 {
 	EngineObjectContent * EOContent = static_cast<EngineObjectContent*> (ptr);
-	EOContent->obj->Update(EOContent->width, EOContent->height);
+	EOContent->obj->Update(0, 0);
 }
