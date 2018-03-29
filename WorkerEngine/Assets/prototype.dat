@@ -1,4 +1,4 @@
-load: 21;
+load: 23;
 
 models {
 	quad,
@@ -20,6 +20,13 @@ Camera {
 	type: GameObject,
 	id: 01,
 	pos: (0, 0, -100)
+};
+
+Monkey_01 {
+	type: GameObject,
+	id: 21,
+	comp: render(monkey),
+	pos: (0, 0, 50)
 };
 
 Quad_0 {

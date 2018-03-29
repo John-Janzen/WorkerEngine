@@ -12,7 +12,6 @@
 #include <atomic>
 
 #include "System.h"
-#include "Manager.h"
 
 static std::atomic_int32_t modelCount = -1;
 
@@ -28,11 +27,13 @@ struct Model_Loaded
 class FileLoader : public System
 {
 public:
-	FileLoader();
+	FileLoader(Scheduler * sch);
 	~FileLoader();
 
 	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
+
+	void LoadExternalFile(BaseContent * ptr);
 
 	void ObjImporter(BaseContent * ptr);
 
@@ -78,6 +79,7 @@ private:
 	}
 
 	std::map<std::string, Model_Loaded*> _loadedModels;
-	size_t modelsToLoad = 0;
+	std::atomic<size_t> modelsToLoad = 0;
+	Scheduler * _scheduler;
 };
 

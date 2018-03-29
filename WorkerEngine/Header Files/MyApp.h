@@ -28,7 +28,9 @@ public:
 	/*
 	* Updates the game and specific functions
 	*/
-	void Update();
+	bool Update();
+
+	bool ReadInputs();
 
 private:
 	const Uint32 SCREEN_FPS = 60;

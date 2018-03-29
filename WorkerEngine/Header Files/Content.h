@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 
+#include "GameObject.h"
+
 class BaseContent
 {
 public:
@@ -66,11 +68,10 @@ public:
 class FileLoadOBJContent : public BaseContent
 {
 public:
-	std::string path;
-	RenderComponent * rc;
+	std::string data, name;
 
-	FileLoadOBJContent(std::string p, RenderComponent * r = nullptr) : path(p), rc{r} {}
-	~FileLoadOBJContent() { if (rc != nullptr) rc = nullptr; }
+	FileLoadOBJContent(std::string p, std::string n) : data(p), name(n) {}
+	~FileLoadOBJContent() {}
 };
 
 class FileLoadedContent : public BaseContent

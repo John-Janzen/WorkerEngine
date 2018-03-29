@@ -1,12 +1,12 @@
 #include "Render.h"
 
-Render::Render() {}
+Render::Render(Scheduler * sch) : _scheduler{sch} {}
 
 Render::~Render() {}
 
 void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (T)
 	{
 	case SYSTEM_DEFAULT:
@@ -21,9 +21,6 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 	case RENDER_UPDATE:
 		RenderWindow(ptr);
 		break;
-	case SWAP_COLOR:
-		SwapColor();
-		break;
 	case RENDER_HANDLE_CAMERA:
 		handleCamera(ptr);
 		break;
@@ -32,7 +29,7 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Render::Close()
@@ -208,7 +205,7 @@ void Render::RenderWindow(BaseContent* ptr)
 	}
 	
 	glEnable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -240,20 +237,6 @@ void Render::RenderObject(GameObject * go)
 	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
-}
-
-void Render::SwapColor()
-{
-	std::unique_lock<std::mutex> lock(_lockMutex);
-	if (_ColorMode == COLOR_MODE_CYAN)
-	{
-		_ColorMode = COLOR_MODE_MULTI;
-	}
-	else
-	{
-		_ColorMode = COLOR_MODE_CYAN;
-	}
-	_c.notify_one();
 }
 
 void Render::handleCamera(BaseContent * ptr)

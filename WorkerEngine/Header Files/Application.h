@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ThreadWorker.h"
 #include "Render.h"
 #include "Engine.h"
 #include "Input.h"
@@ -29,8 +28,8 @@ public:
 	void addSingleObject(BaseContent * ptr);
 
 protected:
-	std::vector<ThreadWorker*> _workers;
 	Render * renderCopy;
 	std::vector<GameObject*> _worldObjects;
+	Scheduler * _scheduler;
 	int numOfObjects = -1;
 };

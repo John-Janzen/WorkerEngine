@@ -2,12 +2,12 @@
 #include <SDL.h>
 
 #include "System.h"
-#include "Manager.h"
+#include "Scheduler.h"
 
 class Input : public System
 {
 public:
-	Input();
+	Input(Scheduler * sch);
 	~Input();
 
 	/*
@@ -28,5 +28,6 @@ public:
 private:
 	const Uint8 * keys;	
 	GameObject * _camera;
+	Scheduler * _scheduler;
 };
 

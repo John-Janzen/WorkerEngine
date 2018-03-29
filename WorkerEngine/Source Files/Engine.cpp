@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-Engine::Engine() {};
+Engine::Engine(Scheduler * sch) : _scheduler(sch) {};
 
 Engine::~Engine(){}
 
@@ -11,7 +11,7 @@ void Engine::Close()
 
 void Engine::Update(JOB_TYPES t, bool & flag, BaseContent* ptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (t)
 	{
 	case SYSTEM_DEFAULT:
@@ -24,7 +24,7 @@ void Engine::Update(JOB_TYPES t, bool & flag, BaseContent* ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Engine::HandlePlayer(BaseContent* ptr)

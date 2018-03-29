@@ -1,12 +1,12 @@
 #include "Input.h"
 
-Input::Input() { keys = SDL_GetKeyboardState(NULL); }
+Input::Input(Scheduler * sch) : _scheduler{sch} { keys = SDL_GetKeyboardState(NULL); }
 
 Input::~Input() {}
 
 void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (job)
 	{
 	case INPUT_READ_PRESSED:
@@ -20,7 +20,7 @@ void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Input::Close()
@@ -39,7 +39,7 @@ void Input::ReadPress(BaseContent * ptr)
 		printf("0 Pressed");
 		break;
 	case SDLK_q:
-		Manager::instance().addJob("Render", JOB_TYPES::SWAP_COLOR);
+		_scheduler->addJob("Render", JOB_TYPES::SWAP_COLOR);
 		break;
 	default:
 		break;
@@ -67,5 +67,5 @@ void Input::readContinuous()
 	if (keys[SDL_SCANCODE_Q]) moveZ += -1.0f;
 
 	if (moveX != 0 || moveY != 0 || moveZ != 0)
-		Manager::instance().addJob("Render", JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(moveX, moveY, moveZ));
+		_scheduler->addJob("Render", JOB_TYPES::RENDER_HANDLE_CAMERA, new RenderCameraContent(moveX, moveY, moveZ));
 }
