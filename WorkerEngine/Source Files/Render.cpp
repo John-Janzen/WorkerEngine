@@ -1,5 +1,36 @@
 #include "Render.h"
 
+GLuint loadShaderFromFile(std::string path, GLenum shaderType)
+{
+	GLuint shaderID = 0;
+	std::string shaderString;
+	std::ifstream sourceFile(path.c_str());
+	if (sourceFile.is_open())
+	{
+		shaderString.assign((std::istreambuf_iterator<char>(sourceFile)), std::istreambuf_iterator<char>());
+		shaderID = glCreateShader(shaderType);
+
+		const GLchar* shaderSource = shaderString.c_str();
+		glShaderSource(shaderID, 1, (const GLchar**)&shaderSource, NULL);
+
+		glCompileShader(shaderID);
+
+		GLint shaderCompiled = GL_FALSE;
+		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
+		if (shaderCompiled != GL_TRUE)
+		{
+			printf("Unable to compile shader %d!\n\nSource:\n%s\n", shaderID, shaderSource);
+			glDeleteShader(shaderID);
+			shaderID = 0;
+		}
+	}
+	else
+	{
+		printf("Unable to open file %s\n", path.c_str());
+	}
+	return shaderID;
+}
+
 Render::Render(Scheduler * sch) : _scheduler{sch} {}
 
 Render::~Render() {}
@@ -89,70 +120,49 @@ void Render::InitGL()
 {
 	r_ProgramID = glCreateProgram();
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint vertexShader = loadShaderFromFile("Assets/shader.glvs", GL_VERTEX_SHADER);
 
-	const GLchar* vertexShaderSource[] =
+	if (vertexShader == 0)
 	{
-		"#version 330\nuniform mat4 model_matrix; uniform mat4 projection_matrix; uniform vec4 color_vec; layout(location = 0) in vec4 position; out vec4 vs_fs_color; void main(void) { vs_fs_color = color_vec; gl_Position = projection_matrix * (model_matrix * position); } "
-	};
-	glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+		printf("Vertex Shader went wrong");
+	}
 
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	if (vShaderCompiled != GL_TRUE)
+	glAttachShader(r_ProgramID, vertexShader);
+
+	GLuint fragmentShader = loadShaderFromFile("Assets/shader.glfs", GL_FRAGMENT_SHADER);
+
+	if (fragmentShader == 0)
 	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		printf("Fragment Shader went wrong");
+	}
+
+	glAttachShader(r_ProgramID, fragmentShader);
+
+	glLinkProgram(r_ProgramID);
+
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(r_ProgramID, GL_LINK_STATUS, &programSuccess);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", r_ProgramID);
 	}
 	else
 	{
-		glAttachShader(r_ProgramID, vertexShader);
+		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		glUseProgram(r_ProgramID);
+		render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
+		render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
+		color_vec_loc = glGetUniformLocation(r_ProgramID, "color_vec");
 
-		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
+		look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		const GLchar* fragmentShaderSource[] = 
-		{
-			"#version 330\nin vec4 vs_fs_color; layout(location = 0) out vec4 color; void main(void) { color = vs_fs_color; } "
-		};
-
-		glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
-		glCompileShader(fragmentShader);
-
-		GLint fShaderCompiled = GL_FALSE;
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-		if (fShaderCompiled != GL_TRUE)
-		{
-			printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		}
-		else
-		{
-			glAttachShader(r_ProgramID, fragmentShader);
-
-			glLinkProgram(r_ProgramID);
-
-			GLint programSuccess = GL_TRUE;
-			glGetProgramiv(r_ProgramID, GL_LINK_STATUS, &programSuccess);
-			if (programSuccess != GL_TRUE)
-			{
-				printf("Error linking program %d!\n", r_ProgramID);
-			}
-			else
-			{
-				glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-				glUseProgram(r_ProgramID);
-				render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
-				render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
-				color_vec_loc = glGetUniformLocation(r_ProgramID, "color_vec");
-
-				projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
-				look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				SDL_GL_SwapWindow(_window);
-				glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-			}
-		}
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		SDL_GL_SwapWindow(_window);
+		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	}
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 }
 
 void Render::InitObject(void * ptr)
@@ -165,27 +175,7 @@ void Render::InitObject(void * ptr)
 	{
 		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
 		{
-			//printf("Object %s Init\n", go->getName().c_str());
-			glGenBuffers(1, &rc->_EBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * rc->numInd), rc->getIndices(), GL_STATIC_DRAW);
-
-			glGenVertexArrays(1, &rc->_VAO);
-			glBindVertexArray(rc->_VAO);
-
-			glGenBuffers(1, &rc->_VBO);
-			glBindBuffer(GL_ARRAY_BUFFER, rc->_VBO);
-			glBufferData(GL_ARRAY_BUFFER, (sizeof(GLfloat) * rc->numVertices), rc->getVertices(), GL_STATIC_DRAW);
-
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), 0);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*) (3 * sizeof(GL_FLOAT)));
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GL_FLOAT), (GLvoid*) (5 * sizeof(GL_FLOAT)));
-			glEnableVertexAttribArray(2);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
+			rc->Initalize();
 		}
 	}
 }
@@ -223,13 +213,14 @@ void Render::RenderWindow(BaseContent* ptr)
 void Render::RenderObject(GameObject * go)
 {
 	RenderComponent * rc = static_cast<RenderComponent*>(go->getComponent("render"));
-	glBindVertexArray(rc->_VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rc->_EBO);
+
+	GLsizei num = rc->BindBuffers();
+	//glUniform1i(tex_unit_loc, 0);
 
 	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 	glUniform4f(color_vec_loc, go->color.x, go->color.y, go->color.z, go->color.w);
-	glDrawElements(GL_TRIANGLES, rc->numInd, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, num, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
 }

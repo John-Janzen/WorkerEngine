@@ -1,0 +1,19 @@
+
+
+#if __VERSION__ >= 130
+
+
+in vec4 vs_fs_color;
+out vec4 gl_FragColor;
+
+#else
+
+
+varying vec4 vs_fs_color;
+
+#endif
+
+void main()
+{
+	gl_FragColor = vs_fs_color;
+}

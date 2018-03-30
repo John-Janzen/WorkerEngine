@@ -13,16 +13,7 @@
 
 #include "System.h"
 
-static std::atomic_int32_t modelCount = -1;
-
-struct Model_Loaded
-{
-	const GLfloat * vertices;
-	const GLuint * indices;
-	const size_t VSize, ISize, TSize, NSize;
-	Model_Loaded(const GLfloat * vert, const GLuint * ind, const size_t is, const size_t vs, const size_t ts, const size_t ns)
-		: vertices{ vert }, indices{ ind }, VSize(vs), ISize(is), TSize(ts), NSize(ns) {};
-};
+static std::atomic_int32_t modelCount = -1, textCount = -1;
 
 class FileLoader : public System
 {
@@ -37,6 +28,8 @@ public:
 
 	void ObjImporter(BaseContent * ptr);
 
+	void loadTextureData(BaseContent * ptr);
+
 	void loadTextData(BaseContent* ptr);
 
 	void individualGameObject(BaseContent * ptr);
@@ -47,9 +40,13 @@ public:
 
 	void split(const std::string & s, char delim, std::vector<std::string> & out);
 	
-	void addModel(std::pair<std::string, Model_Loaded*> pair);
+	void addModel(std::pair<std::string, Model*> pair);
 
-	Model_Loaded * checkForModel(const std::string & s);
+	Model * checkForModel(const std::string & s);
+
+	void addTexture(std::pair<std::string, Texture*> pair);
+
+	Texture * checkForTexture(const std::string & s);
 
 	void findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string>&, std::vector<Component*> * c = nullptr);
 	
@@ -78,8 +75,9 @@ private:
 		}
 	}
 
-	std::map<std::string, Model_Loaded*> _loadedModels;
-	std::atomic<size_t> modelsToLoad = 0;
+	std::map<std::string, Model*> _loadedModels;
+	std::map<std::string, Texture*>  _loadedTextures;
+	std::atomic<size_t> modelsToLoad = 0, texturesToLoad = 0;
 	Scheduler * _scheduler;
 };
 

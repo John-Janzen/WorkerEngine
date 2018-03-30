@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\DevIL Windows SDK\include;$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,8 +89,8 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\glew-2.1.0\lib\Release\x64;$(ProjectDir)Libraries\freeglut\lib\x64;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\lib\x64;$(ProjectDir)Libraries\sdl\lib;$(ProjectDir)Libraries\sdl_image\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenGL32.lib;freeGLUT.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\DevIL Windows SDK\lib\x64\Release;$(ProjectDir)Libraries\glew-2.1.0\lib\Release\x64;$(ProjectDir)Libraries\freeglut\lib\x64;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\lib\x64;$(ProjectDir)Libraries\sdl\lib;$(ProjectDir)Libraries\sdl_image\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenGL32.lib;freeGLUT.lib;glew32.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
