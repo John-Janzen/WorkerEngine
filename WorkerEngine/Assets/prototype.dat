@@ -26,7 +26,7 @@ Player_01 {
 	type: Player,
 	comp: render(monkey),
 	id: 234,
-	pos: (0, 0, 50)
+	pos: (0, 0, 0)
 
 };
 
@@ -34,32 +34,32 @@ Quad_0 {
 	type: Quad,
 	id: 0,
 	comp: render(quad),
-	pos: (26, -17, 0)
+	pos: (10, 0, 0)
 };
 
 Quad_01 {
 	type: Quad,
 	id: 1,
 	comp: render(quad),
-	pos: (-5, 23, 0)
+	pos: (20, 0, 0)
 };
 
 Quad_02 {
 	type: Quad,
 	id: 2,
 	comp: render(quad),
-	pos: (-12, -12, 0)
+	pos: (30, 0, 0)
 };
 Quad_03 {
 	type: Quad,
 	id: 3,
 	comp: render(quad),
-	pos: (0, 0, 0)
+	pos: (40, 0, 0)
 };
 
 Quad_04 {
 	type: Quad,
 	id: 4,
 	comp: render(quad),
-	pos: (42, 1, 0)
+	pos: (50, 0, 0)
 };

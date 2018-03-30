@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "RenderComponent.h"
+#include "JTime.h"
 
 enum LOADABLE_ITEMS
 {

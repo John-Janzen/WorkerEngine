@@ -147,6 +147,7 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\Input.h" />
     <ClInclude Include="Header Files\Job.h" />
+    <ClInclude Include="Header Files\JTime.h" />
     <ClInclude Include="Header Files\Manager.h" />
     <ClInclude Include="Header Files\MoveCommand.h" />
     <ClInclude Include="Header Files\MyApp.h" />

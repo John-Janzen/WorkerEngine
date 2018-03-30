@@ -16,6 +16,9 @@ bool MyApp::Update()
 {
 	bool success = false;
 	now = SDL_GetTicks();
+
+	JTime::instance().CalcDeltaTime();
+
 	_scheduler->RunSchedule();
 
 	switch (state)
@@ -39,7 +42,7 @@ bool MyApp::Update()
 	case UPDATE:
 	{
 		success = ReadInputs();
-
+		
 		for (GameObject * go : _worldObjects)
 			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
 

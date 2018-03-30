@@ -67,10 +67,10 @@ void Input::readContinuous()
 {
 	keys = SDL_GetKeyboardState(NULL);
 	float moveX = 0, moveY = 0;
-	if (keys[SDL_SCANCODE_A]) moveX += -1.0f;
-	if (keys[SDL_SCANCODE_W]) moveY += 1.0f;
-	if (keys[SDL_SCANCODE_S]) moveY += -1.0f;
-	if (keys[SDL_SCANCODE_D]) moveX += 1.0f;
+	if (keys[SDL_SCANCODE_A]) moveX += -10.0f;
+	if (keys[SDL_SCANCODE_W]) moveY += 10.0f;
+	if (keys[SDL_SCANCODE_S]) moveY += -10.0f;
+	if (keys[SDL_SCANCODE_D]) moveX += 10.0f;
 
 	if (moveX != 0 || moveY != 0)
 	{

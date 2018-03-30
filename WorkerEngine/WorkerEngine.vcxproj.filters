@@ -116,5 +116,8 @@
     <ClInclude Include="Header Files\MoveCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\JTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

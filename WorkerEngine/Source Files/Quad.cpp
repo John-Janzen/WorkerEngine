@@ -15,7 +15,7 @@ void Quad::Update(float x, float y)
 	if (_position.y >= boundY || _position.y <= -boundY)
 		_velocity.y = -_velocity.y;
 
-	_position += _velocity * 1.5f;
+	_position += _velocity * 10.0f * JTime::instance().deltaTime;
 
 	if (collision)
 		color = glm::vec4(1.0, 0.0, 0.0, 1.0);
