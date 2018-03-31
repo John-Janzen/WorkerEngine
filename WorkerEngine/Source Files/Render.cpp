@@ -31,9 +31,9 @@ GLuint loadShaderFromFile(std::string path, GLenum shaderType)
 	return shaderID;
 }
 
-Render::Render(Scheduler * sch) : _scheduler{sch} {}
+Render::Render(Application * a) : System(a) {}
 
-Render::~Render() {}
+Render::~Render() { Close(); }
 
 void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 {

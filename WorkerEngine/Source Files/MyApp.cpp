@@ -2,14 +2,17 @@
 
 MyApp::MyApp() {}
 
-MyApp::~MyApp() {}
+MyApp::~MyApp() 
+{
+	//_scheduler->Close();
+}
 
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
 	renderCopy->Update(RENDER_INIT, _flag);
-	_scheduler->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
+	addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
 }
 
 bool MyApp::Update()
@@ -44,7 +47,7 @@ bool MyApp::Update()
 		success = ReadInputs();
 		
 		for (GameObject * go : _worldObjects)
-			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
+			addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
 
@@ -71,12 +74,12 @@ bool MyApp::ReadInputs()
 			break;
 		case SDL_KEYDOWN:
 			if (e.key.repeat == 0)
-				_scheduler->addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
+				addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
 			break;
 		default:
 			break;
 		}
 	}
-	_scheduler->addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
+	addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
 	return false;
 }

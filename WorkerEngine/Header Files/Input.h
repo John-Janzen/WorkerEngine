@@ -8,7 +8,7 @@
 class Input : public System
 {
 public:
-	Input(Scheduler * sch);
+	Input(Application * a);
 	~Input();
 
 	/*
@@ -29,7 +29,6 @@ public:
 private:
 	const Uint8 * keys;	
 	GameObject * _camera;
-	Scheduler * _scheduler;
 	Player * _player;
 	MoveCommand * _MoveCommand;
 };

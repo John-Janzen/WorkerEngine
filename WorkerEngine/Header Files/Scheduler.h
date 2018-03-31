@@ -16,16 +16,10 @@ public:
 
 	void RunSchedule();
 
-	void addSystem(std::string key, System * s);
-
-	void addJob(std::string name, JOB_TYPES j = SYSTEM_DEFAULT, BaseContent * ptr = nullptr);
-
-	void addJob(std::shared_ptr<Job> j);
-
+	void EmplaceJob(std::shared_ptr<Job> job);
 
 private:
 	std::deque<std::shared_ptr<Job>> _jobs;
-	std::map<std::string, System*> _systems;
 	std::atomic<size_t> _jobsSize = 0;
 	std::mutex _lockMutex;
 	std::condition_variable _c;

@@ -21,7 +21,7 @@ enum Color {
 class Render : public System
 {
 public:
-	Render(Scheduler * sch);
+	Render(Application * a);
 	~Render();
 
 	/*
@@ -83,6 +83,4 @@ protected:
 	const int SCREEN_WIDTH = 800;
 	const int SCREEN_HEIGHT = 600;
 	Color _ColorMode = Color::COLOR_MODE_CYAN;
-
-	Scheduler * _scheduler;
 };

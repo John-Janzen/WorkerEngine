@@ -5,11 +5,11 @@
 #include "Quad.h"
 #include "Player.h"
 #include "Scheduler.h"
-
+class Application;
 class System
 {
 public:
-	System();
+	System(Application * a);
 	~System();
 
 	/*
@@ -27,4 +27,5 @@ public:
 protected:
 	std::mutex _lockMutex;		// Mutex for when multiple threads are in the same system
 	std::condition_variable _c;
+	Application * _app;
 };
