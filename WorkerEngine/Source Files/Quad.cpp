@@ -3,7 +3,6 @@
 Quad::Quad(std::string n, int id) : GameObject(n, id) {
 	_position = glm::vec3(rand() % 100 - 50, rand() % 100 - 50, 0);
 	_velocity = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, 0);
-	color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 
@@ -16,12 +15,6 @@ void Quad::Update(float x, float y)
 		_velocity.y = -_velocity.y;
 
 	_position += _velocity * 10.0f * JTime::instance().deltaTime;
-
-	if (collision)
-		color = glm::vec4(1.0, 0.0, 0.0, 1.0);
-	else
-		color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-	collision = false;
 }
 
 Quad::~Quad() {}

@@ -169,14 +169,13 @@ void FileLoader::loadTextureData(BaseContent * ptr)
 {
 	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
 
-	bool textureloaded = false;
-	ILuint imgID = 0;
-	ilGenImages(1, &imgID);
-	ilBindImage(imgID);
 	Texture * txt_Load;
 
 	std::unique_lock<std::mutex> lock(_lockMutex);
 
+	ILuint imgID = 0;
+	ilGenImages(1, &imgID);
+	ilBindImage(imgID);
 	ILboolean success = ilLoadImage(FTLContent->path.c_str());
 	if (success == IL_TRUE)
 	{
@@ -194,11 +193,16 @@ void FileLoader::loadTextureData(BaseContent * ptr)
 				iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 				iluEnlargeCanvas((int)texWidth, (int)texHeight, 1);
 			}
-			txt_Load = new Texture((GLuint*)ilGetData(), imgWidth, imgHeight, texWidth, texHeight);
+			ILint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+			void* _data = malloc(size);
+			ILubyte* data = ilGetData();
+			memcpy(_data, data, size);
+			txt_Load = new Texture((GLuint*)_data, imgWidth, imgHeight, texWidth, texHeight);
 			_loadedTextures.emplace(std::make_pair(FTLContent->path, txt_Load));
 			printf("Texure Loaded: %s\n", FTLContent->path.c_str());
 			textCount++;
 		}
+		ilBindImage(0);
 		ilDeleteImages(1, &imgID);
 	}
 	else

@@ -150,9 +150,16 @@ void Render::InitGL()
 	{
 		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		glUseProgram(r_ProgramID);
+
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D);
+
 		render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
 		render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
 		color_vec_loc = glGetUniformLocation(r_ProgramID, "color_vec");
+		tex_color_loc = glGetUniformLocation(r_ProgramID, "tex_color");
+		tex_unit_loc = glGetUniformLocation(r_ProgramID, "tex_unit");
 
 		projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
 		look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -189,9 +196,6 @@ void Render::RenderWindow(BaseContent* ptr)
 		if (go->getName().compare("Camera") == 0)
 			translate = glm::translate(glm::mat4(), go->getPos());
 	}
-	
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -215,12 +219,13 @@ void Render::RenderObject(GameObject * go)
 	RenderComponent * rc = static_cast<RenderComponent*>(go->getComponent("render"));
 
 	GLsizei num = rc->BindBuffers();
-	//glUniform1i(tex_unit_loc, 0);
 
 	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glUniform4f(color_vec_loc, go->color.x, go->color.y, go->color.z, go->color.w);
+	glUniform1i(tex_unit_loc, 0);
+	glUniform4f(tex_color_loc, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(color_vec_loc, rc->_color.x, rc->_color.y, rc->_color.z, rc->_color.w);
 	glDrawElements(GL_TRIANGLES, num, GL_UNSIGNED_INT, NULL);
 
-	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

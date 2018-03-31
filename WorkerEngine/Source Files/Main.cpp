@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 	while (!_myApp.Update());				// Game Loop
 	
 	Manager::instance().Close();	// Close the game
+	_myApp.Close();
 	//_myApp.Close();				
 	SDL_Quit();						// Close SDL
 

@@ -1,4 +1,4 @@
-load: 8;
+load: 2;
 
 models {
 	quad,
@@ -9,8 +9,8 @@ models {
 
 textures {
 	test_texture,
-	test_texture2,
-	test_texture3
+	Test,
+	Checker
 };
 
 //	Comments end with;
@@ -29,51 +29,9 @@ Camera {
 	pos: (0, 0, -100)
 };
 
-Player_01 {
-	type: Player,
-	comp: render(monkey/text_texture),
-	id: 234,
-	pos: (0, 0, 0)
-};
-
 BackGround_01 {
 	type: GameObject,
-	comp: render(grid/test_texture2),
+	comp: render(grid/Checker),
 	id: 245,
 	pos: (0, 0, -1)
-
-};
-
-Quad_0 {
-	type: Quad,
-	id: 0,
-	comp: render(quad/test_texture),
-	pos: (10, 0, 0)
-};
-
-Quad_01 {
-	type: Quad,
-	id: 1,
-	comp: render(quad/test_texture),
-	pos: (20, 0, 0)
-};
-
-Quad_02 {
-	type: Quad,
-	id: 2,
-	comp: render(quad/test_texture),
-	pos: (30, 0, 0)
-};
-Quad_03 {
-	type: Quad,
-	id: 3,
-	comp: render(quad/test_texture),
-	pos: (40, 0, 0)
-};
-
-Quad_04 {
-	type: Quad,
-	id: 4,
-	comp: render(quad/test_texture),
-	pos: (50, 0, 0)
 };

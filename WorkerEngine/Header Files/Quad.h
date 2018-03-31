@@ -27,7 +27,6 @@ public:
 		: GameObject(s, comp) 
 	{
 		_velocity = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, 0);
-		color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	}
 	void Update(float x = 0, float y = 0);
 	~Quad();

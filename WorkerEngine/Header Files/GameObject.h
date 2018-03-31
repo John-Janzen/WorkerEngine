@@ -21,7 +21,7 @@ enum LOADABLE_ITEMS
 class GameObject
 {
 public:
-	GameObject() : _name("null"), _ID(0), _position{glm::vec3()} {};
+	GameObject() : _name("null"), _ID(0), _position{ glm::vec3() } {};
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
 	GameObject(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
 	~GameObject();
@@ -56,8 +56,6 @@ public:
 	}
 
 	virtual void Update(float x, float y) {};
-
-	glm::vec4 color;
 
 	int width = 2;
 	int height = 2;

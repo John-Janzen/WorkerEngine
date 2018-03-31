@@ -1,19 +1,20 @@
-
+uniform vec4 tex_color;
+uniform sampler2D tex_unit;
 
 #if __VERSION__ >= 130
 
-
+in vec2 out_tex_coord;
 in vec4 vs_fs_color;
 out vec4 gl_FragColor;
 
 #else
 
-
+varying vec2 out_tex_coord;
 varying vec4 vs_fs_color;
 
 #endif
 
 void main()
 {
-	gl_FragColor = vs_fs_color;
+	gl_FragColor = texture(tex_unit, out_tex_coord) * vs_fs_color;
 }

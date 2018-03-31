@@ -76,6 +76,7 @@ void Input::readContinuous()
 	{
 		_MoveCommand->x = moveX;
 		_MoveCommand->y = moveY;
-		_MoveCommand->execute(*_player);
+		if (_player != nullptr)
+			_MoveCommand->execute(*_player);
 	}
 }
