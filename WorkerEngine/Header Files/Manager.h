@@ -57,10 +57,7 @@ public:
 			_actions.pop_front();
 			return j;
 		}
-		else
-		{
-			return nullptr;
-		}
+		return nullptr;
 	}
 
 	bool checkDone()

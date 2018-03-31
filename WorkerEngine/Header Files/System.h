@@ -3,6 +3,7 @@
 #include <condition_variable>
 
 #include "Quad.h"
+#include "Player.h"
 #include "Scheduler.h"
 
 class System

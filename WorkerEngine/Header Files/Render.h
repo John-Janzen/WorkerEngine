@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <fstream>
 
 #include "System.h"
 
@@ -53,15 +54,15 @@ public:
 	void RenderWindow(BaseContent* ptr);
 
 	void RenderObject(GameObject * go);
-
-	void handleCamera(BaseContent * ptr);
-
 	
 protected:
 	SDL_Window* _window = NULL;
 	SDL_GLContext _context;
 
 	GLuint r_ProgramID = 0;
+
+	GLint tex_color_loc;
+	GLint tex_unit_loc;
 
 	GLint render_projection_matrix_loc;
 	GLint render_model_matrix_loc;

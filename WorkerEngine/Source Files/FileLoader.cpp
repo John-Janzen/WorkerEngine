@@ -1,6 +1,35 @@
+#include <IL\il.h>
+#include <IL\ilu.h>
+
 #include "FileLoader.h"
 
-FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch} {}
+GLuint powerOfTwo(GLuint num)
+{
+	if (num != 0)
+	{
+		num--;
+		num |= (num >> 1); //Or first 2 bits
+		num |= (num >> 2); //Or next 2 bits
+		num |= (num >> 4); //Or next 4 bits
+		num |= (num >> 8); //Or next 8 bits
+		num |= (num >> 16); //Or next 16 bits
+		num++;
+	}
+
+	return num;
+}
+
+FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch} 
+{
+	ilInit();
+	iluInit();
+	ilClearColour(255, 255, 255, 000);
+	ILenum ilError = ilGetError();
+	if (ilError != IL_NO_ERROR)
+	{
+		printf("Error initializing DevIL! %s\n", iluErrorString(ilError));
+	}
+}
 
 FileLoader::~FileLoader() {}
 
@@ -20,6 +49,9 @@ void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 	case FILE_LOAD_MODEL:
 		ObjImporter(ptr);
 		break;
+	case FILE_LOAD_TEXTURE:
+		loadTextureData(ptr);
+		break;
 	default:
 		break;
 	}
@@ -29,7 +61,11 @@ void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 
 void FileLoader::Close()
 {
+	for (std::map<std::string, Texture*>::iterator it = _loadedTextures.begin(); it != _loadedTextures.end(); ++it)
+		delete(it->second);
 
+	for (std::map<std::string, Model*>::iterator it = _loadedModels.begin(); it != _loadedModels.end(); ++it)
+		delete(it->second);
 }
 
 void FileLoader::LoadExternalFile(BaseContent * ptr)
@@ -62,7 +98,7 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 {
 	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
 	
-	Model_Loaded * ml;
+	Model * ml;
 	std::string output = FLContent->data;
 
 	std::vector<GLfloat> vertices;
@@ -122,11 +158,59 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 
 		std::vector<GLuint> ind;
 		std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
-		ml = new Model_Loaded(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size(), textures.size(), normals.size());
+		ml = new Model(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size());
 		addModel(std::make_pair(FLContent->name, ml));
 		printf("Model Loaded: %s\n", FLContent->name.c_str());
 		modelCount++;
 	}
+}
+
+void FileLoader::loadTextureData(BaseContent * ptr)
+{
+	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
+
+	Texture * txt_Load;
+
+	std::unique_lock<std::mutex> lock(_lockMutex);
+
+	ILuint imgID = 0;
+	ilGenImages(1, &imgID);
+	ilBindImage(imgID);
+	ILboolean success = ilLoadImage(FTLContent->path.c_str());
+	if (success == IL_TRUE)
+	{
+		success = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+		if (success == IL_TRUE)
+		{
+			GLuint imgWidth = (GLuint)ilGetInteger(IL_IMAGE_WIDTH);
+			GLuint imgHeight = (GLuint)ilGetInteger(IL_IMAGE_HEIGHT);
+
+			GLuint texWidth = powerOfTwo(imgWidth);
+			GLuint texHeight = powerOfTwo(imgHeight);
+
+			if (imgWidth != texWidth || imgHeight != texHeight)
+			{
+				iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
+				iluEnlargeCanvas((int)texWidth, (int)texHeight, 1);
+			}
+			ILint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+			void* _data = malloc(size);
+			ILubyte* data = ilGetData();
+			memcpy(_data, data, size);
+			txt_Load = new Texture((GLuint*)_data, imgWidth, imgHeight, texWidth, texHeight);
+			_loadedTextures.emplace(std::make_pair(FTLContent->path, txt_Load));
+			printf("Texure Loaded: %s\n", FTLContent->path.c_str());
+			textCount++;
+		}
+		ilBindImage(0);
+		ilDeleteImages(1, &imgID);
+	}
+	else
+	{
+		ILenum ilError = ilGetError();
+		printf("Error occured: %s\n", iluErrorString(ilError));
+	}
+	_c.notify_all();
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
@@ -180,9 +264,21 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					}
 					splitData.clear();
 				}
+				else if (sub.substr(0, local2).compare("textures") == 0)
+				{
+					size_t textEnd = sub.find_last_of('}') - 1;
+					sub = sub.substr(local2 + 1, textEnd - local2);
+					split(sub, ',', splitData);
+					texturesToLoad = splitData.size();
+					modelCount = 0;
+					for (std::string s : splitData)
+					{
+						_scheduler->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+					}
+				}
 				else
 				{
-					if (modelCount != modelsToLoad) 
+					if (modelCount != modelsToLoad && textCount != texturesToLoad) 
 					{
 						_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
 						return;
@@ -235,13 +331,18 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 		data = data.substr(local + 1);
 	} while (!data.empty());
 	
-	if (gameObjData.find(TYPE)->second.compare("GameObject") == 0)
+	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
 	{
-		go = new GameObject(gameObjData, components);
+		go = new Player(gameObjData, components);
+		_scheduler->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
 	}
 	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
 	{
 		go = new Quad(gameObjData, components);
+	}
+	else
+	{
+		go = new GameObject(gameObjData, components);
 	}
 	_scheduler->addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }
@@ -260,16 +361,28 @@ void FileLoader::split(const std::string &s, char delim, std::vector<std::string
 	split(s, delim, std::back_inserter(out));
 }
 
-void FileLoader::addModel(std::pair<std::string, Model_Loaded *> pair)
+void FileLoader::addModel(std::pair<std::string, Model*> pair)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	_loadedModels.emplace(pair);
 	_c.notify_all();
 }
 
-Model_Loaded * FileLoader::checkForModel(const std::string & s)
+Model * FileLoader::checkForModel(const std::string & s)
 {
 	return (_loadedModels.find(s) != _loadedModels.end()) ? _loadedModels.find(s)->second : nullptr;
+}
+
+void FileLoader::addTexture(std::pair<std::string, Texture*> pair)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	_loadedTextures.emplace(pair);
+	_c.notify_all();
+}
+
+Texture * FileLoader::checkForTexture(const std::string & s)
+{
+	return (_loadedTextures.find(s) != _loadedTextures.end()) ? _loadedTextures.find(s)->second : nullptr;
 }
 
 void FileLoader::findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string> & map, std::vector<Component*> * comps)
@@ -292,14 +405,15 @@ void FileLoader::findLoadItem(const std::string & item, const std::string & data
 		if (data.substr(0, brac1).compare("render") == 0)
 		{
 			std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
-			RenderComponent * rc = new RenderComponent();
-			Model_Loaded * ml;
-			if ((ml = checkForModel(std::string("Assets/" + sub2 + ".obj"))) != nullptr)
+			size_t slash = sub2.find_first_of('/');
+			RenderComponent * rc;
+			if (slash < sub2.size())
 			{
-				rc->setVertices(ml->vertices);
-				rc->setIndices(ml->indices);
-				rc->numInd = ml->ISize;
-				rc->numVertices = ml->VSize;
+				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj")), checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png")));
+			}
+			else
+			{
+				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2 + ".obj")), nullptr);
 			}
 			comps->emplace_back(rc);
 		}

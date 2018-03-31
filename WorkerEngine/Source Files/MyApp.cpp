@@ -16,6 +16,9 @@ bool MyApp::Update()
 {
 	bool success = false;
 	now = SDL_GetTicks();
+
+	JTime::instance().CalcDeltaTime();
+
 	_scheduler->RunSchedule();
 
 	switch (state)
@@ -39,14 +42,15 @@ bool MyApp::Update()
 	case UPDATE:
 	{
 		success = ReadInputs();
-
+		
 		for (GameObject * go : _worldObjects)
-			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go, 50, 50));
+			_scheduler->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
+
 		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
 		frameTicks = SDL_GetTicks();
-		printf("%u-", frameTicks - now);
+		//printf("%u-", frameTicks - now);
 		break;
 	}
 	default:

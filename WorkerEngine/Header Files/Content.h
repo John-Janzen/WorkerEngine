@@ -13,9 +13,8 @@ class EngineObjectContent : public BaseContent
 {
 public:
 	GameObject * obj;
-	int width, height;
 
-	EngineObjectContent(GameObject * o, int w, int h) : obj {o}, width (w), height (h) {}
+	EngineObjectContent(GameObject * o) : obj {o} {}
 	~EngineObjectContent() { obj = nullptr; }
 };
 
@@ -54,6 +53,15 @@ public:
 
 	InputContent(SDL_Event * e) : Event {e} {}
 	~InputContent() { Event = nullptr; }
+};
+
+class InputIPContent : public BaseContent
+{
+public:
+	GameObject * player;
+
+	InputIPContent(GameObject * p) : player{ p } {}
+	~InputIPContent() { player = nullptr; }
 };
 
 class FileToLoadContent : public BaseContent

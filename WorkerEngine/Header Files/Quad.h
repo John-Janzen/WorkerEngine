@@ -26,10 +26,9 @@ public:
 	Quad(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>()) 
 		: GameObject(s, comp) 
 	{
-		_velocity = glm::vec3(rand() % 4 - 2, rand() % 4 - 2, 0);
-		color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		_velocity = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, 0);
 	}
-	void Update(int boundX, int boundY);
+	void Update(float x = 0, float y = 0);
 	~Quad();
 
 private:
