@@ -2,18 +2,19 @@
 #include <SDL.h>
 
 #include "System.h"
-#include "Manager.h"
+#include "Scheduler.h"
+#include "MoveCommand.h"
 
 class Input : public System
 {
 public:
-	Input();
+	Input(Scheduler * sch);
 	~Input();
 
 	/*
 	* Update function that checks the job types to see what function to use
 	*/
-	virtual void Update(JOB_TYPES j, BaseContent * ptr);
+	virtual void Update(JOB_TYPES j, bool & flag, BaseContent * ptr);
 
 	/*
 	* The Close function that should be called
@@ -28,5 +29,8 @@ public:
 private:
 	const Uint8 * keys;	
 	GameObject * _camera;
+	Scheduler * _scheduler;
+	Player * _player;
+	MoveCommand * _MoveCommand;
 };
 

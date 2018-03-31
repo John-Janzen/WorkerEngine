@@ -9,29 +9,26 @@
 #include <algorithm>
 #include <filesystem>
 #include <vector>
+#include <atomic>
 
 #include "System.h"
-#include "Manager.h"
 
-struct Model_Loaded
-{
-	const GLfloat * vertices;
-	const GLuint * indices;
-	const size_t VSize, ISize, TSize, NSize;
-	Model_Loaded(const GLfloat * vert, const GLuint * ind, const size_t is, const size_t vs, const size_t ts, const size_t ns)
-		: vertices{ vert }, indices{ ind }, VSize(vs), ISize(is), TSize(ts), NSize(ns) {};
-};
+static std::atomic_int32_t modelCount = -1, textCount = -1;
 
 class FileLoader : public System
 {
 public:
-	FileLoader();
+	FileLoader(Scheduler * sch);
 	~FileLoader();
 
-	virtual void Update(JOB_TYPES j, BaseContent* ptr);
+	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
 
+	void LoadExternalFile(BaseContent * ptr);
+
 	void ObjImporter(BaseContent * ptr);
+
+	void loadTextureData(BaseContent * ptr);
 
 	void loadTextData(BaseContent* ptr);
 
@@ -43,11 +40,15 @@ public:
 
 	void split(const std::string & s, char delim, std::vector<std::string> & out);
 	
-	void addModel(std::pair<std::string, Model_Loaded*> pair);
+	void addModel(std::pair<std::string, Model*> pair);
 
-	Model_Loaded * checkForModel(const std::string & s);
+	Model * checkForModel(const std::string & s);
 
-	LOADABLE_ITEMS findLoadItem(const std::string & item);
+	void addTexture(std::pair<std::string, Texture*> pair);
+
+	Texture * checkForTexture(const std::string & s);
+
+	void findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string>&, std::vector<Component*> * c = nullptr);
 	
 	std::vector<GLfloat> combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & ind);
 
@@ -74,6 +75,9 @@ private:
 		}
 	}
 
-	std::map<std::string, Model_Loaded*> _loadedModels;
+	std::map<std::string, Model*> _loadedModels;
+	std::map<std::string, Texture*>  _loadedTextures;
+	std::atomic<size_t> modelsToLoad = 0, texturesToLoad = 0;
+	Scheduler * _scheduler;
 };
 

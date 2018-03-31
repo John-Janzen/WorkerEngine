@@ -4,25 +4,22 @@ Application::Application() {}
 
 Application::~Application() {}
 
-void Application::Init(int num)
+void Application::Init(uint16_t num)
 {
-	for (int i = 0; i < num; i++)
-		_workers.emplace_back(new ThreadWorker(i));
+	Manager::instance().Init(num);
+	_scheduler = new Scheduler();
 
-	Manager::instance().passCount(num);
-
-	renderCopy = new Render();
-
-	Manager::instance().addSystem("Engine", new Engine());
-	Manager::instance().addSystem("Render", renderCopy);
-	Manager::instance().addSystem("Input", new Input());
-	Manager::instance().addSystem("FileLoader", new FileLoader());
-	Manager::instance().addSystem("Application", this);
+	_scheduler->addSystem("Engine", new Engine(_scheduler));
+	renderCopy = new Render(_scheduler);
+	_scheduler->addSystem("Render", renderCopy);
+	_scheduler->addSystem("Input", new Input(_scheduler));
+	_scheduler->addSystem("FileLoader", new FileLoader(_scheduler));
+	_scheduler->addSystem("Application", this);
 }
 
-void Application::Update(JOB_TYPES t, BaseContent * ptr)
+void Application::Update(JOB_TYPES t, bool &flag, BaseContent * ptr)
 {
-	Manager::instance().signalWorking();
+	//Manager::instance().signalWorking();
 	switch (t)
 	{
 	case SYSTEM_DEFAULT:
@@ -44,18 +41,17 @@ void Application::Update(JOB_TYPES t, BaseContent * ptr)
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
+	//Manager::instance().signalDone();
 }
 
 void Application::Close()
 {
-	for (ThreadWorker * thread : _workers)
-		delete(thread);
 
 	for (GameObject * go : _worldObjects)
 		delete(go);
 
 	_worldObjects.clear();
+	delete(_scheduler);
 }
 
 void Application::addSingleObject(BaseContent * ptr)
@@ -64,8 +60,9 @@ void Application::addSingleObject(BaseContent * ptr)
 	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
 
 	if (FLContent->object != nullptr)
+	{
 		_worldObjects.emplace_back(FLContent->object);
-
-	printf("Loaded: %s\n", FLContent->object->getName().c_str());
+		printf("Loaded: %s\n", FLContent->object->getName().c_str());
+	}
 	_c.notify_one();
 }

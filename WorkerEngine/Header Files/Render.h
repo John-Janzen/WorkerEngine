@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <fstream>
 
 #include "System.h"
-#include "Manager.h"
 
 enum Color {
 	COLOR_MODE_CYAN,
@@ -21,13 +21,13 @@ enum Color {
 class Render : public System
 {
 public:
-	Render();
+	Render(Scheduler * sch);
 	~Render();
 
 	/*
 	* Update function that checks the job type for what function to call
 	*/
-	virtual void Update(JOB_TYPES T, BaseContent* ptr = nullptr);
+	virtual void Update(JOB_TYPES T, bool & flag, BaseContent* ptr = nullptr);
 
 	/*
 	* Deallocates SDL and OpenGL
@@ -54,14 +54,6 @@ public:
 	void RenderWindow(BaseContent* ptr);
 
 	void RenderObject(GameObject * go);
-
-	/*
-	* Swaps the cyan color and the multicolor flag
-	*/
-	void SwapColor();
-
-	void handleCamera(BaseContent * ptr);
-
 	
 protected:
 	SDL_Window* _window = NULL;
@@ -69,8 +61,13 @@ protected:
 
 	GLuint r_ProgramID = 0;
 
+	GLint tex_color_loc;
+	GLint tex_unit_loc;
+
 	GLint render_projection_matrix_loc;
 	GLint render_model_matrix_loc;
+	GLint color_vec_loc;
+
 	glm::mat4 projection_look_matrix;
 	glm::mat4 projection_matrix;
 	glm::mat4 look_matrix;
@@ -86,4 +83,6 @@ protected:
 	const int SCREEN_WIDTH = 800;
 	const int SCREEN_HEIGHT = 600;
 	Color _ColorMode = Color::COLOR_MODE_CYAN;
+
+	Scheduler * _scheduler;
 };

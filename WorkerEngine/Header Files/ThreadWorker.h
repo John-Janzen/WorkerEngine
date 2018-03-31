@@ -6,11 +6,11 @@
 #include <chrono>
 
 #include "Job.h"
-
+class ThreadPool;
 class ThreadWorker
 {
 public:
-	ThreadWorker(int i);
+	ThreadWorker(int i, ThreadPool * tp);
 	~ThreadWorker();
 	
 	/*
@@ -39,6 +39,6 @@ public:
 private:
 	std::thread * _thread;
 	char _name[30];
-	bool _dead;
-
+	bool _dead, _flag;
+	ThreadPool * _parent;
 };

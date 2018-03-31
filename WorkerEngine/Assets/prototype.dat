@@ -1,8 +1,20 @@
-#load: 9;
+load: 2;
+
+models {
+	quad,
+	cube,
+	monkey,
+	grid
+};
+
+textures {
+	test_texture,
+	Test,
+	Checker
+};
 
 //	Comments end with;
 //	To not be read;
-//	;
 //	Example data for level loading;
 //	std::string name;
 //	int id;
@@ -10,76 +22,16 @@
 //	glm::vec3 position;
 //	glm::vec3 rotation (in PI);
 // 	glm::vec3 scale;
-//	;
 
-type: GameObject,
-name: Camera,
-id: 01,
-posX: 0,
-posY: 0,
-posZ: 0;
+Camera {
+	type: GameObject,
+	id: 01,
+	pos: (0, 0, -100)
+};
 
-type: GameObject,
-name: Quad_01,
-id: 233,
-comp: render/quad,
-posX: 0,
-posY: -2,
-posZ: 0;
-
-type: GameObject,
-name: Cube_01,
-id: 234,
-comp: render/cube,
-posX: 0,
-posY: 0,
-posZ: -5;
-
-type: GameObject,
-name: Cube_02,
-id: 236,
-comp: render/cube,
-posX: -5,
-posY: 0,
-posZ: -5;
-
-type: GameObject,
-name: Cube_03,
-id: 237,
-comp: render/cube,
-posX: 0,
-posY: -5,
-posZ: -5;
-
-type: GameObject,
-name: Monkey_01,
-id: 235,
-comp: render/monkey,
-posX: 5,
-posY: 0,
-posZ: -5;
-
-type: GameObject,
-name: Monkey_02,
-id: 238,
-comp: render/monkey,
-posX: 5,
-posY: 5,
-posZ: -5;
-
-type: GameObject,
-name: Monkey_03,
-id: 239,
-comp: render/monkey,
-posX: 5,
-posY: -5,
-posZ: -5;
-
-type: GameObject,
-name: Monkey_04,
-id: 240,
-comp: render/monkey,
-posX: 5,
-posY: -5,
-posZ: 0;
-
+BackGround_01 {
+	type: GameObject,
+	comp: render(grid/Checker),
+	id: 245,
+	pos: (0, 0, -1)
+};

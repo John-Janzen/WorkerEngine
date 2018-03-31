@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ThreadWorker.h"
 #include "Render.h"
 #include "Engine.h"
 #include "Input.h"
@@ -16,9 +15,9 @@ public:
 	* Initializes Application systems and threads (Workers)
 	* Also Initializes Manager.
 	*/
-	void Init(int i);
+	void Init(uint16_t i);
 
-	virtual void Update(JOB_TYPES t, BaseContent * ptr = nullptr);
+	virtual void Update(JOB_TYPES t, bool & flag, BaseContent * ptr = nullptr);
 
 	/*
 	* Closes this application
@@ -29,8 +28,8 @@ public:
 	void addSingleObject(BaseContent * ptr);
 
 protected:
-	std::vector<ThreadWorker*> _workers;
 	Render * renderCopy;
 	std::vector<GameObject*> _worldObjects;
+	Scheduler * _scheduler;
 	int numOfObjects = -1;
 };

@@ -1,10 +1,21 @@
 #pragma once
 #include <SDL.h>
 
+#include "GameObject.h"
+
 class BaseContent
 {
 public:
 	virtual ~BaseContent() {};
+};
+
+class EngineObjectContent : public BaseContent
+{
+public:
+	GameObject * obj;
+
+	EngineObjectContent(GameObject * o) : obj {o} {}
+	~EngineObjectContent() { obj = nullptr; }
 };
 
 class RenderCameraContent : public BaseContent
@@ -44,6 +55,15 @@ public:
 	~InputContent() { Event = nullptr; }
 };
 
+class InputIPContent : public BaseContent
+{
+public:
+	GameObject * player;
+
+	InputIPContent(GameObject * p) : player{ p } {}
+	~InputIPContent() { player = nullptr; }
+};
+
 class FileToLoadContent : public BaseContent
 {
 public:
@@ -56,11 +76,10 @@ public:
 class FileLoadOBJContent : public BaseContent
 {
 public:
-	std::string path;
-	RenderComponent * rc;
+	std::string data, name;
 
-	FileLoadOBJContent(std::string p, RenderComponent * r) : path(p), rc{ r } {}
-	~FileLoadOBJContent() { rc = nullptr; }
+	FileLoadOBJContent(std::string p, std::string n) : data(p), name(n) {}
+	~FileLoadOBJContent() {}
 };
 
 class FileLoadedContent : public BaseContent
@@ -75,9 +94,9 @@ public:
 class FileIndividualContent : public BaseContent
 {
 public:
-	std::vector<std::string> info;
+	std::string info;
 
-	FileIndividualContent(std::vector<std::string> vs) : info { vs } {}
+	FileIndividualContent(std::string vs) : info { vs } {}
 	~FileIndividualContent() {}
 };
 

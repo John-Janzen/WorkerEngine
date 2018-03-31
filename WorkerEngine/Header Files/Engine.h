@@ -2,19 +2,20 @@
 #include <stdio.h>
 
 #include "System.h"
-#include "Manager.h"
 
 class Engine : public System
 {
 public:
-	Engine();
+	Engine(Scheduler *_scheduler);
 	~Engine();
 
 	/*
 	* The Update function that should be called
 	* Currently does nothing
 	*/
-	virtual void Update(JOB_TYPES t, BaseContent* ptr = nullptr);
+	virtual void Update(JOB_TYPES t, bool & flag, BaseContent* ptr = nullptr);
+
+	void HandlePlayer(BaseContent * ptr);
 
 	/*
 	* The Close function that should be called
@@ -23,5 +24,6 @@ public:
 	virtual void Close();
 
 private:
+	Scheduler * _scheduler;
 };
 

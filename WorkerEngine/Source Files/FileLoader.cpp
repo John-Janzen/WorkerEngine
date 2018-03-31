@@ -1,172 +1,293 @@
+#include <IL\il.h>
+#include <IL\ilu.h>
+
 #include "FileLoader.h"
 
-FileLoader::FileLoader() {}
+GLuint powerOfTwo(GLuint num)
+{
+	if (num != 0)
+	{
+		num--;
+		num |= (num >> 1); //Or first 2 bits
+		num |= (num >> 2); //Or next 2 bits
+		num |= (num >> 4); //Or next 4 bits
+		num |= (num >> 8); //Or next 8 bits
+		num |= (num >> 16); //Or next 16 bits
+		num++;
+	}
+
+	return num;
+}
+
+FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch} 
+{
+	ilInit();
+	iluInit();
+	ilClearColour(255, 255, 255, 000);
+	ILenum ilError = ilGetError();
+	if (ilError != IL_NO_ERROR)
+	{
+		printf("Error initializing DevIL! %s\n", iluErrorString(ilError));
+	}
+}
 
 FileLoader::~FileLoader() {}
 
-void FileLoader::Update(JOB_TYPES j, BaseContent* ptr)
+void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
-	Manager::instance().signalWorking();
 	switch (j)
 	{
+	case FILE_LOAD_EXTERNAL:
+		LoadExternalFile(ptr);
+		break;
 	case FILE_LOAD_TXT_DATA:
 		loadTextData(ptr);
 		break;
 	case FILE_LOAD_GAMEOBJECT:
 		individualGameObject(ptr);
 		break;
+	case FILE_LOAD_MODEL:
+		ObjImporter(ptr);
+		break;
+	case FILE_LOAD_TEXTURE:
+		loadTextureData(ptr);
+		break;
 	default:
 		break;
 	}
 	if (ptr != nullptr)
 		delete(ptr);
-	Manager::instance().signalDone();
 }
 
 void FileLoader::Close()
 {
+	for (std::map<std::string, Texture*>::iterator it = _loadedTextures.begin(); it != _loadedTextures.end(); ++it)
+		delete(it->second);
 
+	for (std::map<std::string, Model*>::iterator it = _loadedModels.begin(); it != _loadedModels.end(); ++it)
+		delete(it->second);
 }
 
-void FileLoader::ObjImporter(BaseContent * ptr)
+void FileLoader::LoadExternalFile(BaseContent * ptr)
 {
-	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
-	RenderComponent * rc = FLContent->rc;
+	FileToLoadContent * FLContent = static_cast<FileToLoadContent*> (ptr);
 	std::ifstream in(FLContent->path.c_str());
-
-	Model_Loaded * ml;
-		
-	std::vector<GLfloat> vertices;
-	std::vector<GLfloat> normals;
-	std::vector<GLuint> faces;
-	std::vector<GLfloat> textures;
-	std::vector<std::string> splitData, splitMore, splitMoreMore;
-
 	if (in.is_open())
 	{
 		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
+		std::string check = FLContent->path.substr(FLContent->path.find_last_of('.') + 1);
+
+		if (check.compare("dat") == 0)
+		{
+			_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
+		}
+		else if (check.compare("obj") == 0)
+		{
+			_scheduler->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(output, FLContent->path));
+		}
 		in.close();
-
-		if (output.empty())
-		{
-			printf("No data foudn within file %s", FLContent->path.c_str());
-		}
-		else
-		{
-			split(output, '\n', splitData);
-			for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
-			{
-				split(it->data(), ' ', splitMore);
-				if (it->at(0) == 'v')
-				{
-					if (it->at(1) == ' ')
-					{
-						// Vertex found
-						vertices.emplace_back(parseFloat(splitMore.at(1)));
-						vertices.emplace_back(parseFloat(splitMore.at(2)));
-						vertices.emplace_back(parseFloat(splitMore.at(3)));
-					}
-					else if (it->at(1) == 'n')
-					{
-						// Normal found
-						normals.emplace_back(parseFloat(splitMore.at(1)));
-						normals.emplace_back(parseFloat(splitMore.at(2)));
-						normals.emplace_back(parseFloat(splitMore.at(3)));
-					}
-					else if (it->at(1) == 't')
-					{
-						// Texture found
-						textures.emplace_back(parseFloat(splitMore.at(1)));
-						textures.emplace_back(parseFloat(splitMore.at(2)));
-					}
-				}
-				else if (it->at(0) == 'f')
-				{
-					// Face found
-					
-					for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
-					{
-						split(it2->data(), '/', splitMoreMore);
-						faces.emplace_back(parseInt(splitMoreMore.at(0)));
-						faces.emplace_back(parseInt(splitMoreMore.at(1)));
-						faces.emplace_back(parseInt(splitMoreMore.at(2)));
-						splitMoreMore.clear();
-					}
-				}
-				splitMore.clear();
-			}
-			splitData.clear();
-
-			std::vector<GLuint> ind;
-			std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
-			GLfloat * vert = mallocSpace(combined);
-			GLuint * in = mallocSpace(ind);
-			rc->setVertices(vert);
-			rc->setIndices(in);
-			rc->numInd = ind.size();
-			rc->numVertices = combined.size();
-			rc->numTextures = textures.size();
-			rc->numNormals = normals.size();
-
-			ml = new Model_Loaded(vert, in, ind.size(), combined.size(), textures.size(), normals.size());
-			addModel(std::make_pair(FLContent->path, ml));
-			printf("Model Loaded: %s\n", FLContent->path.c_str());
-		}
 	}
 	else
 	{
 		printf("Error opening file: %s", FLContent->path.c_str());
 	}
+}
 
+void FileLoader::ObjImporter(BaseContent * ptr)
+{
+	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
+	
+	Model * ml;
+	std::string output = FLContent->data;
+
+	std::vector<GLfloat> vertices;
+	std::vector<GLfloat> normals;
+	std::vector<GLuint> faces;
+	std::vector<GLfloat> textures;
+	std::vector<std::string> splitData, splitMore, splitMoreMore;
+	if (output.empty())
+	{
+		printf("No data foudn within file %s", FLContent->data.c_str());
+	}
+	else
+	{
+		split(output, '\n', splitData);
+		for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
+		{
+			split(it->data(), ' ', splitMore);
+			if (it->at(0) == 'v')
+			{
+				if (it->at(1) == ' ')
+				{
+					// Vertex found
+					vertices.emplace_back(parseFloat(splitMore.at(1)));
+					vertices.emplace_back(parseFloat(splitMore.at(2)));
+					vertices.emplace_back(parseFloat(splitMore.at(3)));
+				}
+				else if (it->at(1) == 'n')
+				{
+					// Normal found
+					normals.emplace_back(parseFloat(splitMore.at(1)));
+					normals.emplace_back(parseFloat(splitMore.at(2)));
+					normals.emplace_back(parseFloat(splitMore.at(3)));
+				}
+				else if (it->at(1) == 't')
+				{
+					// Texture found
+					textures.emplace_back(parseFloat(splitMore.at(1)));
+					textures.emplace_back(parseFloat(splitMore.at(2)));
+				}
+			}
+			else if (it->at(0) == 'f')
+			{
+				// Face found
+					
+				for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
+				{
+					split(it2->data(), '/', splitMoreMore);
+					faces.emplace_back(parseInt(splitMoreMore.at(0)));
+					faces.emplace_back(parseInt(splitMoreMore.at(1)));
+					faces.emplace_back(parseInt(splitMoreMore.at(2)));
+					splitMoreMore.clear();
+				}
+			}
+			splitMore.clear();
+		}
+		splitData.clear();
+
+		std::vector<GLuint> ind;
+		std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
+		ml = new Model(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size());
+		addModel(std::make_pair(FLContent->name, ml));
+		printf("Model Loaded: %s\n", FLContent->name.c_str());
+		modelCount++;
+	}
+}
+
+void FileLoader::loadTextureData(BaseContent * ptr)
+{
+	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
+
+	Texture * txt_Load;
+
+	std::unique_lock<std::mutex> lock(_lockMutex);
+
+	ILuint imgID = 0;
+	ilGenImages(1, &imgID);
+	ilBindImage(imgID);
+	ILboolean success = ilLoadImage(FTLContent->path.c_str());
+	if (success == IL_TRUE)
+	{
+		success = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+		if (success == IL_TRUE)
+		{
+			GLuint imgWidth = (GLuint)ilGetInteger(IL_IMAGE_WIDTH);
+			GLuint imgHeight = (GLuint)ilGetInteger(IL_IMAGE_HEIGHT);
+
+			GLuint texWidth = powerOfTwo(imgWidth);
+			GLuint texHeight = powerOfTwo(imgHeight);
+
+			if (imgWidth != texWidth || imgHeight != texHeight)
+			{
+				iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
+				iluEnlargeCanvas((int)texWidth, (int)texHeight, 1);
+			}
+			ILint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+			void* _data = malloc(size);
+			ILubyte* data = ilGetData();
+			memcpy(_data, data, size);
+			txt_Load = new Texture((GLuint*)_data, imgWidth, imgHeight, texWidth, texHeight);
+			_loadedTextures.emplace(std::make_pair(FTLContent->path, txt_Load));
+			printf("Texure Loaded: %s\n", FTLContent->path.c_str());
+			textCount++;
+		}
+		ilBindImage(0);
+		ilDeleteImages(1, &imgID);
+	}
+	else
+	{
+		ILenum ilError = ilGetError();
+		printf("Error occured: %s\n", iluErrorString(ilError));
+	}
+	_c.notify_all();
 }
 
 void FileLoader::loadTextData(BaseContent * ptr)
 {
 	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
 
-	std::string path = FTLContent->path;
-	std::ifstream in(path.c_str());
+	std::string output = FTLContent->path;
 
 	int location = -1;
-	std::vector<std::string> splitData, splitMore;
-	if (in.is_open())
+	std::vector<std::string> splitData;
+	output.erase(std::remove_if(output.begin(), output.end(), ::isspace), output.end());
+
+	if (output.empty())
 	{
-		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-		output.erase(std::remove_if(output.begin(), output.end(), ::isspace), output.end());
-		in.close();
-		
-		if (output.empty())
-		{
-			printf("No data found within file %s", path.c_str());
-		}
-		else
-		{
-			split(output, ';', splitData);
-			for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
-			{
-				if (!(it->empty() || it->at(0) == '\t' || it->at(0) == '/'))
-				{
-					if (it->at(0) == '#')
-					{
-						std::vector<std::string> smallSplit;
-						split(it->data(), ':', smallSplit);
-						Manager::instance().addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(smallSplit[1])));
-					}
-					else
-					{
-						split(it->data(), ',', splitMore);
-						Manager::instance().addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(splitMore));
-						splitMore.clear();
-					}
-				}
-			}
-			splitData.clear();
-		}
+		printf("No data found within file %s", output.c_str());
 	}
 	else
 	{
-		printf("File Missing %s", path.c_str());
+		std::string sub;
+		size_t local, local2;
+		do 
+		{
+			if (output[0] == '/' && output[1] == '/')
+			{
+				output = output.substr(local = output.find_first_of(';') + 1);
+				continue;
+			}
+			sub = output.substr(0, local = output.find_first_of(';'));
+
+			if ((local2 = output.find_first_of('{')) > local)
+			{
+				split(sub, ':', splitData);
+				if (splitData[0].compare("load") == 0)
+				{
+					_scheduler->addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(splitData[1])));
+				}
+				splitData.clear();
+			}
+			else
+			{
+				if (sub.substr(0, local2).compare("models") == 0)
+				{
+					size_t modelsEnd = sub.find_last_of('}') - 1;
+					sub = sub.substr(local2 + 1, modelsEnd - local2);
+					split(sub, ',', splitData);
+					modelsToLoad = splitData.size();
+					modelCount = 0;
+					for (std::string s : splitData)
+					{
+						_scheduler->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
+					}
+					splitData.clear();
+				}
+				else if (sub.substr(0, local2).compare("textures") == 0)
+				{
+					size_t textEnd = sub.find_last_of('}') - 1;
+					sub = sub.substr(local2 + 1, textEnd - local2);
+					split(sub, ',', splitData);
+					texturesToLoad = splitData.size();
+					modelCount = 0;
+					for (std::string s : splitData)
+					{
+						_scheduler->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+					}
+				}
+				else
+				{
+					if (modelCount != modelsToLoad && textCount != texturesToLoad) 
+					{
+						_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
+						return;
+					}
+					_scheduler->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
+				}
+			}
+			output = output.substr(local + 1);
+		} while (!output.empty());
 	}
 }
 
@@ -174,51 +295,56 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 {
 	FileIndividualContent * FIContent = static_cast<FileIndividualContent*> (ptr);
 
-	std::vector<std::string> modelData, keyValue;
+	std::vector<std::string> modelData;
 	std::map<LOADABLE_ITEMS, std::string> gameObjData;
 	std::vector<Component*> components;
+	std::string data = FIContent->info;
 	GameObject *go = nullptr;
-	for (std::vector<std::string>::iterator it2 = FIContent->info.begin(); it2 != FIContent->info.end(); ++it2)
+
+	size_t begin = data.find_first_of('{'), end = data.find_last_of('}');
+
+	findLoadItem("name", data.substr(0, begin), gameObjData);
+	data = data.substr(begin + 1, end - begin - 1);
+
+	size_t local;
+	do
 	{
-		split(it2->data(), ':', keyValue);
-		if (keyValue[0].compare("comp") == 0)
+		std::string s = data.substr(0, local = data.find_first_of(','));
+
+		split(s, ':', modelData);
+		if (modelData[0].compare("comp") == 0)
 		{
-			split(keyValue[1], '/', modelData);
-			if (modelData[0].compare("render") == 0)
-			{
-				RenderComponent * rc = new RenderComponent();
-				Model_Loaded * ml;
-				std::unique_lock<std::mutex> lock(_lockMutex);
-				if ((ml = checkForModel(std::string("Assets/" + modelData[1] + ".obj"))) != nullptr)
-				{
-					rc->setVertices(ml->vertices);
-					rc->setIndices(ml->indices);
-					rc->numInd = ml->ISize;
-					rc->numNormals = ml->NSize;
-					rc->numTextures = ml->TSize;
-					rc->numVertices = ml->VSize;
-				}
-				else
-				{
-					this->ObjImporter(new FileLoadOBJContent(std::string("Assets/" + modelData[1] + ".obj"), rc));
-				}
-				_c.notify_all();
-				components.emplace_back(rc);
-			}
-			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), modelData[0]));
-			modelData.clear();
+			findLoadItem(modelData[0], modelData[1], gameObjData, &components);
 		}
 		else
 		{
-			gameObjData.emplace(std::make_pair(findLoadItem(keyValue[0]), keyValue[1]));
+			if (modelData[0].compare("pos") == 0)
+			{
+				local = data.find_last_of(')');
+				size_t local2 = data.find_first_of('(');
+				findLoadItem(modelData[0], data.substr(local2 + 1, local - local2 - 1), gameObjData);
+			}
+			else
+				findLoadItem(modelData[0], modelData[1], gameObjData);
 		}
-		keyValue.clear();
+		modelData.clear();
+		data = data.substr(local + 1);
+	} while (!data.empty());
+	
+	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
+	{
+		go = new Player(gameObjData, components);
+		_scheduler->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
 	}
-	if (gameObjData.find(TYPE)->second.compare("GameObject") == 0)
+	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
+	{
+		go = new Quad(gameObjData, components);
+	}
+	else
 	{
 		go = new GameObject(gameObjData, components);
 	}
-	Manager::instance().addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
+	_scheduler->addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
 }
 
 GLfloat FileLoader::parseFloat(const std::string& str)
@@ -235,47 +361,68 @@ void FileLoader::split(const std::string &s, char delim, std::vector<std::string
 	split(s, delim, std::back_inserter(out));
 }
 
-void FileLoader::addModel(std::pair<std::string, Model_Loaded *> pair)
+void FileLoader::addModel(std::pair<std::string, Model*> pair)
 {
+	std::unique_lock<std::mutex> lock(_lockMutex);
 	_loadedModels.emplace(pair);
+	_c.notify_all();
 }
 
-Model_Loaded * FileLoader::checkForModel(const std::string & s)
+Model * FileLoader::checkForModel(const std::string & s)
 {
 	return (_loadedModels.find(s) != _loadedModels.end()) ? _loadedModels.find(s)->second : nullptr;
 }
 
-LOADABLE_ITEMS FileLoader::findLoadItem(const std::string & item)
+void FileLoader::addTexture(std::pair<std::string, Texture*> pair)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	_loadedTextures.emplace(pair);
+	_c.notify_all();
+}
+
+Texture * FileLoader::checkForTexture(const std::string & s)
+{
+	return (_loadedTextures.find(s) != _loadedTextures.end()) ? _loadedTextures.find(s)->second : nullptr;
+}
+
+void FileLoader::findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string> & map, std::vector<Component*> * comps)
 {
 	if (item.compare("type") == 0)
 	{
-		return TYPE;
+		map.emplace(std::make_pair(TYPE, data));
 	}
 	else if (item.compare("name") == 0)
 	{
-		return NAME;
+		map.emplace(std::make_pair(NAME, data));
 	}
 	else if (item.compare("id") == 0)
 	{
-		return ID;
+		map.emplace(std::make_pair(ID, data));
 	}
 	else if (item.compare("comp") == 0)
 	{
-		return COMP;
+		size_t brac1 = data.find_first_of('('), brac2 = data.find_last_of(')');
+		if (data.substr(0, brac1).compare("render") == 0)
+		{
+			std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
+			size_t slash = sub2.find_first_of('/');
+			RenderComponent * rc;
+			if (slash < sub2.size())
+			{
+				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj")), checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png")));
+			}
+			else
+			{
+				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2 + ".obj")), nullptr);
+			}
+			comps->emplace_back(rc);
+		}
+		map.emplace(std::make_pair(COMP, data.substr(0, brac1)));
 	}
-	else if (item.compare("posX") == 0)
+	else if (item.compare("pos") == 0)
 	{
-		return POSX;
+		map.emplace(std::make_pair(POS, data));
 	}
-	else if (item.compare("posY") == 0)
-	{
-		return POSY;
-	}
-	else if (item.compare("posZ") == 0)
-	{
-		return POSZ;
-	}
-	return DEFAULT;
 }
 
 std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & indices)

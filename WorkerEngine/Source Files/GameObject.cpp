@@ -25,14 +25,21 @@ GameObject::GameObject(std::map<LOADABLE_ITEMS, std::string> map, std::vector<Co
 		case ID:
 			_ID = atoi(it->second.c_str());
 			break;
-		case POSX:
-			x = atof(it->second.c_str());
-			break;
-		case POSY:
-			y = atof(it->second.c_str());
-			break;
-		case POSZ:
-			z = atof(it->second.c_str());
+		case POS:
+		{
+			std::string data = it->second;
+			size_t loc;
+			int count = 0;
+			do
+			{
+				std::string sub = data.substr(0, (loc = data.find_first_of(',')));
+				if (count == 0) x = (GLfloat)atof(sub.c_str());
+				else if (count == 1) y = (GLfloat)atof(sub.c_str());
+				else { z = (GLfloat)atof(sub.c_str()); break; }
+				data = data.substr(loc + 1);
+				count++;
+			} while (!data.empty());
+		}
 			break;
 		default:
 			break;
@@ -41,4 +48,9 @@ GameObject::GameObject(std::map<LOADABLE_ITEMS, std::string> map, std::vector<Co
 	_position = glm::vec3(x, y, z);
 }
 
-GameObject::~GameObject() {}
+GameObject::~GameObject() 
+{
+	for (std::map<std::string, Component*>::iterator it = _components.begin(); it != _components.end(); ++it)
+		delete(it->second);
+	_components.clear();
+}
