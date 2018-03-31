@@ -34,8 +34,10 @@ void Application::addSingleObject(GameObject * go)
 {
 	if (go != nullptr)
 	{
+		std::unique_lock<std::mutex> lock(_lockMutex);
 		_worldObjects.emplace_back(go);
 		printf("Loaded: %s\n", go->getName().c_str());
+		_c.notify_all();
 	}
 }
 
@@ -63,7 +65,9 @@ void Application::addJob(std::string name, JOB_TYPES j, BaseContent * ptr)
 */
 void Application::addJob(std::shared_ptr<Job> j)
 {
+	std::unique_lock<std::mutex> lock(_lockMutex);
 	_scheduler->EmplaceJob(j);
+	_c.notify_all();
 }
 
 void Application::initNumberObjects(int num)
