@@ -37,7 +37,7 @@ BackGround_01 {
 };
 
 Monkey_01 {
-	type: GameObject,
+	type: Player,
 	comp: render(monkey/Checker),
 	id: 246,
 	pos: (0, 0, 97)
