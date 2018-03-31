@@ -1,12 +1,12 @@
 #include "Input.h"
 
-Input::Input(Scheduler * sch) : _scheduler{sch} 
+Input::Input(Application * a) : System(a)
 { 
 	keys = SDL_GetKeyboardState(NULL); 
 	_MoveCommand = new MoveCommand();
 }
 
-Input::~Input() {}
+Input::~Input() { Close(); }
 
 void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 {
@@ -36,7 +36,7 @@ void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 
 void Input::Close()
 {
-	
+	delete(_MoveCommand);
 }
 
 void Input::ReadPress(BaseContent * ptr)

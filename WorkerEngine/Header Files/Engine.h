@@ -6,7 +6,7 @@
 class Engine : public System
 {
 public:
-	Engine(Scheduler *_scheduler);
+	Engine(Application * app);
 	~Engine();
 
 	/*
@@ -24,6 +24,6 @@ public:
 	virtual void Close();
 
 private:
-	Scheduler * _scheduler;
+	
 };
 

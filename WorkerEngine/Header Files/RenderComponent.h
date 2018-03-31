@@ -29,7 +29,7 @@ struct Texture
 	GLuint TextureID;
 
 	Texture(const GLuint * data, const GLuint & imgW, const GLuint & imgH, const GLuint & texW, const GLuint & texH)
-		: _texture(data), imgWidth(imgW), imgHeight(imgH), texWidth(texW), texHeight(texH) {}
+		: _texture{ data }, imgWidth(imgW), imgHeight(imgH), texWidth(texW), texHeight(texH) {}
 
 	~Texture() { if (TextureID != 0) glDeleteTextures(1, _texture); }
 
@@ -54,8 +54,6 @@ public:
 	{
 		glDeleteVertexArrays(1, &_VAO);
 		glDeleteBuffers(1, &_VBO);
-		delete(_model);
-		delete(_texture);
 	}
 
 	void Initalize()

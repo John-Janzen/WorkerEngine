@@ -19,6 +19,8 @@ public:
 	MyApp();
 	~MyApp();
 
+	void ShutDown();
+
 	/*
 	* Initializes the Application with threads + systems
 	* Calls Application::Init()
