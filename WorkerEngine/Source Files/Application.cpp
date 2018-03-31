@@ -2,67 +2,71 @@
 
 Application::Application() {}
 
-Application::~Application() {}
+Application::~Application() { Close(); }
 
 void Application::Init(uint16_t num)
 {
 	Manager::instance().Init(num);
 	_scheduler = new Scheduler();
 
-	_scheduler->addSystem("Engine", new Engine(_scheduler));
-	renderCopy = new Render(_scheduler);
-	_scheduler->addSystem("Render", renderCopy);
-	_scheduler->addSystem("Input", new Input(_scheduler));
-	_scheduler->addSystem("FileLoader", new FileLoader(_scheduler));
-	_scheduler->addSystem("Application", this);
-}
-
-void Application::Update(JOB_TYPES t, bool &flag, BaseContent * ptr)
-{
-	//Manager::instance().signalWorking();
-	switch (t)
-	{
-	case SYSTEM_DEFAULT:
-		break;
-	//case APPLICATION_ADD_OBJECTS:
-	//	addWorldObject(ptr);
-	//	break;
-	case APPLICATION_ADD_SINGLE_OBJECT:
-		addSingleObject(ptr);
-		break;
-	case APPLICATION_NUMBER_OBJECTS:
-	{
-		IntPassContent * IPContent = static_cast<IntPassContent*>(ptr);
-		numOfObjects = IPContent->num;
-		break;
-	}
-	default:
-		break;
-	}
-	if (ptr != nullptr)
-		delete(ptr);
-	//Manager::instance().signalDone();
+	addSystem("Engine", new Engine(this));
+	renderCopy = new Render(this);
+	addSystem("Render", renderCopy);
+	addSystem("Input", new Input(this));
+	addSystem("FileLoader", new FileLoader(this));
 }
 
 void Application::Close()
 {
-
 	for (GameObject * go : _worldObjects)
 		delete(go);
 
 	_worldObjects.clear();
+
+	for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
+		delete(i->second);
+
+	_systems.clear();
 	delete(_scheduler);
 }
 
-void Application::addSingleObject(BaseContent * ptr)
+void Application::addSingleObject(GameObject * go)
 {
-	std::unique_lock<std::mutex> lock(_lockMutex);
-	FileLoadedContent * FLContent = static_cast<FileLoadedContent*>(ptr);
-
-	if (FLContent->object != nullptr)
+	if (go != nullptr)
 	{
-		_worldObjects.emplace_back(FLContent->object);
-		printf("Loaded: %s\n", FLContent->object->getName().c_str());
+		_worldObjects.emplace_back(go);
+		printf("Loaded: %s\n", go->getName().c_str());
 	}
-	_c.notify_one();
+}
+
+/*
+* Add a system to the map
+*/
+void Application::addSystem(std::string key, System * s)
+{
+	_systems.emplace(std::make_pair(key, s));
+}
+
+/*
+* Add a job to the list by:
+* Name of system
+* Job type
+* Any void pointer
+*/
+void Application::addJob(std::string name, JOB_TYPES j, BaseContent * ptr)
+{
+	addJob(std::make_shared<Job>(_systems[name], j, ptr));
+}
+
+/*
+* Add a job to the list
+*/
+void Application::addJob(std::shared_ptr<Job> j)
+{
+	_scheduler->EmplaceJob(j);
+}
+
+void Application::initNumberObjects(int num)
+{
+	numOfObjects = num;
 }

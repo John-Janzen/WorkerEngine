@@ -1,4 +1,4 @@
-load: 2;
+load: 3;
 
 models {
 	quad,
@@ -34,4 +34,11 @@ BackGround_01 {
 	comp: render(grid/Checker),
 	id: 245,
 	pos: (0, 0, -1)
+};
+
+Monkey_01 {
+	type: GameObject,
+	comp: render(monkey/Checker),
+	id: 246,
+	pos: (0, 0, 97)
 };

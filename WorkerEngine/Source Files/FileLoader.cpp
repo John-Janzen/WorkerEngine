@@ -2,6 +2,7 @@
 #include <IL\ilu.h>
 
 #include "FileLoader.h"
+#include "Application.h"
 
 GLuint powerOfTwo(GLuint num)
 {
@@ -19,7 +20,7 @@ GLuint powerOfTwo(GLuint num)
 	return num;
 }
 
-FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch} 
+FileLoader::FileLoader(Application * a) : System(a)
 {
 	ilInit();
 	iluInit();
@@ -31,7 +32,7 @@ FileLoader::FileLoader(Scheduler * sch) : _scheduler{sch}
 	}
 }
 
-FileLoader::~FileLoader() {}
+FileLoader::~FileLoader() { Close(); }
 
 void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
@@ -63,9 +64,11 @@ void FileLoader::Close()
 {
 	for (std::map<std::string, Texture*>::iterator it = _loadedTextures.begin(); it != _loadedTextures.end(); ++it)
 		delete(it->second);
+	_loadedTextures.clear();
 
 	for (std::map<std::string, Model*>::iterator it = _loadedModels.begin(); it != _loadedModels.end(); ++it)
 		delete(it->second);
+	_loadedModels.clear();
 }
 
 void FileLoader::LoadExternalFile(BaseContent * ptr)
@@ -80,11 +83,11 @@ void FileLoader::LoadExternalFile(BaseContent * ptr)
 
 		if (check.compare("dat") == 0)
 		{
-			_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
+			_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
 		}
 		else if (check.compare("obj") == 0)
 		{
-			_scheduler->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(output, FLContent->path));
+			_app->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(output, FLContent->path));
 		}
 		in.close();
 	}
@@ -245,7 +248,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 				split(sub, ':', splitData);
 				if (splitData[0].compare("load") == 0)
 				{
-					_scheduler->addJob("Application", APPLICATION_NUMBER_OBJECTS, new IntPassContent(stoi(splitData[1])));
+					_app->initNumberObjects(stoi(splitData[1]));
 				}
 				splitData.clear();
 			}
@@ -260,7 +263,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					modelCount = 0;
 					for (std::string s : splitData)
 					{
-						_scheduler->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
+						_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
 					}
 					splitData.clear();
 				}
@@ -273,17 +276,17 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					modelCount = 0;
 					for (std::string s : splitData)
 					{
-						_scheduler->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+						_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
 					}
 				}
 				else
 				{
 					if (modelCount != modelsToLoad && textCount != texturesToLoad) 
 					{
-						_scheduler->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
+						_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
 						return;
 					}
-					_scheduler->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
+					_app->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
 				}
 			}
 			output = output.substr(local + 1);
@@ -334,7 +337,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
 	{
 		go = new Player(gameObjData, components);
-		_scheduler->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
+		_app->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
 	}
 	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
 	{
@@ -344,7 +347,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	{
 		go = new GameObject(gameObjData, components);
 	}
-	_scheduler->addJob("Application", APPLICATION_ADD_SINGLE_OBJECT, new FileLoadedContent(go));
+	_app->addSingleObject(go);
 }
 
 GLfloat FileLoader::parseFloat(const std::string& str)
@@ -407,13 +410,18 @@ void FileLoader::findLoadItem(const std::string & item, const std::string & data
 			std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
 			size_t slash = sub2.find_first_of('/');
 			RenderComponent * rc;
+			Model * m;
+			Texture * t;
 			if (slash < sub2.size())
 			{
-				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj")), checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png")));
+				m = checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj"));
+				t = checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png"));
+				rc = new RenderComponent(m, t);
 			}
 			else
 			{
-				rc = new RenderComponent(checkForModel(std::string("Assets/" + sub2 + ".obj")), nullptr);
+				m = checkForModel(std::string("Assets/" + sub2 + ".obj"));
+				rc = new RenderComponent(m);
 			}
 			comps->emplace_back(rc);
 		}
