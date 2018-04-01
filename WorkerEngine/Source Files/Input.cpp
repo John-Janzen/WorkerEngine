@@ -43,19 +43,28 @@ void Input::ReadPress(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	InputContent * IContent = static_cast<InputContent*>(ptr);
-	SDL_Event * e = IContent->Event;
-	switch (e->key.state)
+	SDL_Event e = IContent->Event;
+	switch (e.key.keysym.scancode)
 	{
-	case SDLK_0:
+	case SDL_SCANCODE_ESCAPE:
+		printf("Escape Pressed\n");
+		break;
+	case SDL_SCANCODE_0:
 		printf("0 Pressed");
 		break;
-	default:
-		break;
-	}
-	switch (e->key.keysym.sym)
-	{
-	case SDLK_ESCAPE:
-		printf("Escape Pressed\n");
+	case SDL_SCANCODE_K:
+
+		if (_mouseLocked == SDL_TRUE)
+		{
+			SDL_SetRelativeMouseMode(SDL_TRUE);
+			_mouseLocked = SDL_FALSE;
+		}
+		else
+		{
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			_mouseLocked = SDL_TRUE;
+		}
+
 		break;
 	default: 
 		break;

@@ -31,5 +31,6 @@ private:
 	GameObject * _camera;
 	Player * _player;
 	MoveCommand * _MoveCommand;
+	SDL_bool _mouseLocked = SDL_TRUE;
 };
 

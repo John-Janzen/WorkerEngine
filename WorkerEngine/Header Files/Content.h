@@ -50,10 +50,10 @@ public:
 class InputContent : public BaseContent
 {
 public:
-	SDL_Event * Event;
+	SDL_Event Event;
 
-	InputContent(SDL_Event * e) : Event {e} {}
-	~InputContent() { Event = nullptr; }
+	InputContent(SDL_Event e) : Event {e} {}
+	~InputContent() {}
 };
 
 class InputIPContent : public BaseContent

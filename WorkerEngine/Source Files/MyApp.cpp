@@ -12,6 +12,7 @@ void MyApp::Init(uint16_t n)
 	Application::Init(n);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
 	renderCopy->Update(RENDER_INIT, _flag);
+	
 	addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
 }
 
@@ -75,7 +76,7 @@ bool MyApp::ReadInputs()
 			break;
 		case SDL_KEYDOWN:
 			if (e.key.repeat == 0)
-				addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
+				addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(e));	// Send Job if Event is changed
 			break;
 		default:
 			break;
