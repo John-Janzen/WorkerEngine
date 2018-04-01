@@ -41,9 +41,10 @@ class RenderUpdateContent : public BaseContent
 {
 public:
 	std::vector<GameObject*> * objects;
+	GameObject * camera;
 
-	RenderUpdateContent(std::vector<GameObject*> * o) : objects{ o } { }
-	~RenderUpdateContent() { objects = nullptr; }
+	RenderUpdateContent(std::vector<GameObject*> * o, GameObject * cam) : objects{ o }, camera{cam} { }
+	~RenderUpdateContent() { objects = nullptr; camera = nullptr; }
 };
 
 class InputContent : public BaseContent

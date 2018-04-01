@@ -321,11 +321,12 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 		}
 		else
 		{
-			if (modelData[0].compare("pos") == 0)
+			if (modelData[0].compare("pos") == 0 || modelData[0].compare("rot") == 0)
 			{
-				local = data.find_last_of(')');
+				local = data.find_first_of(')');
 				size_t local2 = data.find_first_of('(');
 				findLoadItem(modelData[0], data.substr(local2 + 1, local - local2 - 1), gameObjData);
+				if (data[local + 1] == ',') local = local + 1;
 			}
 			else
 				findLoadItem(modelData[0], modelData[1], gameObjData);
@@ -430,6 +431,10 @@ void FileLoader::findLoadItem(const std::string & item, const std::string & data
 	else if (item.compare("pos") == 0)
 	{
 		map.emplace(std::make_pair(POS, data));
+	}
+	else if (item.compare("rot") == 0)
+	{
+		map.emplace(std::make_pair(ROT, data));
 	}
 }
 

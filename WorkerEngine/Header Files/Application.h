@@ -35,6 +35,7 @@ public:
 
 protected:
 	Render * renderCopy;
+	GameObject * _cameraObject;
 	std::vector<GameObject*> _worldObjects;
 	std::map<std::string, System*> _systems;
 	Scheduler * _scheduler;

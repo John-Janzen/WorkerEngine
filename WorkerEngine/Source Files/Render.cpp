@@ -189,19 +189,19 @@ void Render::InitObject(void * ptr)
 
 void Render::RenderWindow(BaseContent* ptr)
 {
-	glm::mat4 translate;
+
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
-	for (GameObject * go : *RUContent->objects)
-	{
-		if (go->getName().compare("Camera") == 0)
-			translate = glm::translate(glm::mat4(), go->getPos());
-	}
+	glm::mat4 model_matrix, rotation;
+	rotation = glm::rotate(rotation, RUContent->camera->getRot().z, glm::vec3(0, 0, 1));
+	rotation = glm::rotate(rotation, RUContent->camera->getRot().x, glm::vec3(1, 0, 0));
+	rotation = glm::rotate(rotation, RUContent->camera->getRot().y, glm::vec3(0, 1, 0));
+	model_matrix = glm::translate(rotation, RUContent->camera->getPos());
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(r_ProgramID);
 
-	projection_look_matrix = projection_matrix * (look_matrix * translate);
+	projection_look_matrix = projection_matrix * (look_matrix * model_matrix);
 	glUniformMatrix4fv(render_projection_matrix_loc, 1, GL_FALSE, glm::value_ptr(projection_look_matrix));
 
 	for (GameObject * go : *RUContent->objects)
@@ -219,8 +219,13 @@ void Render::RenderObject(GameObject * go)
 	RenderComponent * rc = static_cast<RenderComponent*>(go->getComponent("render"));
 
 	GLsizei num = rc->BindBuffers();
+	glm::mat4 rotation = glm::mat4();
+	rotation = glm::translate(rotation, go->getPos());
+	rotation = glm::rotate(rotation, go->getRot().z, glm::vec3(0, 0, 1));
+	rotation = glm::rotate(rotation, go->getRot().x, glm::vec3(1, 0, 0));
+	glm::mat4 model_matrix = glm::rotate(rotation, go->getRot().y, glm::vec3(0, 1, 0));
 
-	glm::mat4 model_matrix = glm::translate(glm::mat4(1.0f), go->getPos());
+
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 	glUniform1i(tex_unit_loc, 0);
 	glUniform4f(tex_color_loc, 1.0f, 1.0f, 1.0f, 1.0f);

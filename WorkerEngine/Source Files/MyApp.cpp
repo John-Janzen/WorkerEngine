@@ -29,12 +29,13 @@ bool MyApp::Update()
 	case LOADING:
 		if (_worldObjects.size() == numOfObjects && !Manager::instance().checkDone())
 		{
-			printf("Loading started");
+			printf("Loading started\n");
 			for (GameObject * obj : _worldObjects)
 			{
 				if (obj->getName().compare("Camera") == 0)
 				{
-					renderCopy->Update(RENDER_LOAD, _flag, new RenderLoadContent(&_worldObjects, obj));
+					_cameraObject = obj;
+					renderCopy->Update(RENDER_LOAD, _flag, new RenderLoadContent(&_worldObjects, _cameraObject));
 					break;
 				}
 			}
@@ -51,7 +52,7 @@ bool MyApp::Update()
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
 
-		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
+		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects, _cameraObject));		// Render the screen
 		frameTicks = SDL_GetTicks();
 		//printf("%u-", frameTicks - now);
 		break;
