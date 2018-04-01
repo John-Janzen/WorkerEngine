@@ -263,7 +263,8 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					modelCount = 0;
 					for (std::string s : splitData)
 					{
-						_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
+						if (_loadedModels.find(std::string("Assets/" + s + ".obj")) == _loadedModels.end())
+							_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
 					}
 					splitData.clear();
 				}
@@ -276,7 +277,8 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					modelCount = 0;
 					for (std::string s : splitData)
 					{
-						_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+						if (_loadedTextures.find(std::string("Assets/" + s + ".png")) == _loadedTextures.end())
+							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
 					}
 				}
 				else

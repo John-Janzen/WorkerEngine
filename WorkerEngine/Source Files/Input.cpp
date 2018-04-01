@@ -53,7 +53,6 @@ void Input::ReadPress(BaseContent * ptr)
 		printf("0 Pressed");
 		break;
 	case SDL_SCANCODE_K:
-
 		if (_mouseLocked == SDL_TRUE)
 		{
 			SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -64,7 +63,6 @@ void Input::ReadPress(BaseContent * ptr)
 			SDL_SetRelativeMouseMode(SDL_FALSE);
 			_mouseLocked = SDL_TRUE;
 		}
-
 		break;
 	default: 
 		break;

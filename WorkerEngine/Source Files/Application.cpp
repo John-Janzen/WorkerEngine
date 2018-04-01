@@ -18,10 +18,6 @@ void Application::Init(uint16_t num)
 
 void Application::Close()
 {
-	for (GameObject * go : _worldObjects)
-		delete(go);
-
-	_worldObjects.clear();
 
 	for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
 		delete(i->second);
@@ -35,7 +31,7 @@ void Application::addSingleObject(GameObject * go)
 	if (go != nullptr)
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
-		_worldObjects.emplace_back(go);
+		currentScene->AddObject(go);
 		printf("Loaded: %s\n", go->getName().c_str());
 		_c.notify_all();
 	}
@@ -72,5 +68,5 @@ void Application::addJob(std::shared_ptr<Job> j)
 
 void Application::initNumberObjects(int num)
 {
-	numOfObjects = num;
+	currentScene->initNumberObjects(num);
 }

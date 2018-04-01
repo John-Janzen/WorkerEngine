@@ -10,10 +10,10 @@ MyApp::~MyApp()
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
+	currentScene = new MainMenuScene(this, renderCopy);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
 	renderCopy->Update(RENDER_INIT, _flag);
-	
-	addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
+	currentScene->InitScene();
 }
 
 bool MyApp::Update()
@@ -28,32 +28,19 @@ bool MyApp::Update()
 	switch (state)
 	{
 	case LOADING:
-		if (_worldObjects.size() == numOfObjects && !Manager::instance().checkDone())
+		if (currentScene->LoadScene())
 		{
-			printf("Loading started\n");
-			for (GameObject * obj : _worldObjects)
-			{
-				if (obj->getName().compare("Camera") == 0)
-				{
-					_cameraObject = obj;
-					renderCopy->Update(RENDER_LOAD, _flag, new RenderLoadContent(&_worldObjects, _cameraObject));
-					break;
-				}
-			}
 			printf("Time Load End: %ums\n", SDL_GetTicks());
 			state = UPDATE;
 		}
+		
 		break;
 	case UPDATE:
 	{
 		success = ReadInputs();
 		
-		for (GameObject * go : _worldObjects)
-			addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
+		currentScene->UpdateScene();
 
-		while (Manager::instance().checkDone());			// Wait for the threads to finish
-
-		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects, _cameraObject));		// Render the screen
 		frameTicks = SDL_GetTicks();
 		//printf("%u-", frameTicks - now);
 		break;

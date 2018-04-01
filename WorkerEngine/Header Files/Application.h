@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "Input.h"
 #include "FileLoader.h"
+#include "../Scenes/Header Files/MainMenuScene.h"
 
 class Application 
 {
@@ -35,11 +36,10 @@ public:
 
 protected:
 	Render * renderCopy;
-	GameObject * _cameraObject;
-	std::vector<GameObject*> _worldObjects;
 	std::map<std::string, System*> _systems;
 	Scheduler * _scheduler;
 	std::mutex _lockMutex;
 	std::condition_variable _c;
 	int numOfObjects = -1;
+	Scene * currentScene;
 };
