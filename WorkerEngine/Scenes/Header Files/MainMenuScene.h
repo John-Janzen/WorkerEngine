@@ -6,15 +6,16 @@ class MainMenuScene :
 	public Scene
 {
 public:
-	MainMenuScene(Application * a, Render * r);
+	MainMenuScene(Application * a);
 	~MainMenuScene();
 
 	void InitScene();
 
-	bool LoadScene();
+	bool LoadScene(GameObject *& camera);
 	void UpdateScene();
+
+	void ReadInputs();
 	
 private:
-
 };
 

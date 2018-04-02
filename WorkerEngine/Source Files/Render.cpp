@@ -172,13 +172,13 @@ void Render::InitGL()
 	glDeleteShader(fragmentShader);
 }
 
-void Render::InitObject(void * ptr)
+void Render::InitObject(BaseContent * ptr)
 {
 	RenderLoadContent * RUContent = static_cast<RenderLoadContent*>(ptr);
 	RenderComponent * rc;
 	_camera = RUContent->camera;
 
-	for (GameObject * go : *RUContent->objects)
+	for (GameObject * go : RUContent->objects)
 	{
 		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
 		{
@@ -189,7 +189,6 @@ void Render::InitObject(void * ptr)
 
 void Render::RenderWindow(BaseContent* ptr)
 {
-
 	RenderUpdateContent * RUContent = static_cast<RenderUpdateContent*>(ptr);
 	glm::mat4 model_matrix, rotation;
 	rotation = glm::rotate(rotation, RUContent->camera->getRot().z, glm::vec3(0, 0, 1));
@@ -204,7 +203,7 @@ void Render::RenderWindow(BaseContent* ptr)
 	projection_look_matrix = projection_matrix * (look_matrix * model_matrix);
 	glUniformMatrix4fv(render_projection_matrix_loc, 1, GL_FALSE, glm::value_ptr(projection_look_matrix));
 
-	for (GameObject * go : *RUContent->objects)
+	for (GameObject * go : RUContent->objects)
 	{
 		if (go->getComponent("render") != nullptr)
 			RenderObject(go);

@@ -45,7 +45,7 @@ public:
 	*/
 	void InitGL();
 
-	void InitObject(void * ptr);
+	void InitObject(BaseContent * ptr);
 
 	/*
 	* Renders what is to be put on screen

@@ -4,6 +4,7 @@ Input::Input(Application * a) : System(a)
 { 
 	keys = SDL_GetKeyboardState(NULL); 
 	_MoveCommand = new MoveCommand();
+	currentControl = new DefaultControl("Initialized Default");
 }
 
 Input::~Input() { Close(); }
@@ -25,7 +26,6 @@ void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 		_player = static_cast<Player*>(IIPContent->player);
 		break;
 	}
-		
 	default:
 		break;
 	}
@@ -44,29 +44,7 @@ void Input::ReadPress(BaseContent * ptr)
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	InputContent * IContent = static_cast<InputContent*>(ptr);
 	SDL_Event e = IContent->Event;
-	switch (e.key.keysym.scancode)
-	{
-	case SDL_SCANCODE_ESCAPE:
-		printf("Escape Pressed\n");
-		break;
-	case SDL_SCANCODE_0:
-		printf("0 Pressed");
-		break;
-	case SDL_SCANCODE_K:
-		if (_mouseLocked == SDL_TRUE)
-		{
-			SDL_SetRelativeMouseMode(SDL_TRUE);
-			_mouseLocked = SDL_FALSE;
-		}
-		else
-		{
-			SDL_SetRelativeMouseMode(SDL_FALSE);
-			_mouseLocked = SDL_TRUE;
-		}
-		break;
-	default: 
-		break;
-	}
+	currentControl->ApplyControl(*this, e);
 	_c.notify_one();
 }
 
@@ -86,4 +64,9 @@ void Input::readContinuous()
 		if (_player != nullptr)
 			_MoveCommand->execute(*_player);
 	}
+}
+
+void Input::ChangeState(Control * c)
+{
+	currentControl = c;
 }

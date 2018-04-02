@@ -10,8 +10,7 @@ void Application::Init(uint16_t num)
 	_scheduler = new Scheduler();
 
 	addSystem("Engine", new Engine(this));
-	renderCopy = new Render(this);
-	addSystem("Render", renderCopy);
+	addSystem("Render", new Render(this));
 	addSystem("Input", new Input(this));
 	addSystem("FileLoader", new FileLoader(this));
 }
@@ -24,6 +23,11 @@ void Application::Close()
 
 	_systems.clear();
 	delete(_scheduler);
+}
+
+void Application::Quit()
+{
+	quit = true;
 }
 
 void Application::addSingleObject(GameObject * go)

@@ -30,21 +30,21 @@ public:
 class RenderLoadContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> * objects;
+	std::vector<GameObject*> objects;
 	GameObject * camera;
 
-	RenderLoadContent(std::vector<GameObject*> * o, GameObject * c) : objects{ o }, camera{c} { }
-	~RenderLoadContent() { objects = nullptr; camera = nullptr; }
+	RenderLoadContent(std::vector<GameObject*> o, GameObject * c) : objects{ o }, camera{c} { }
+	~RenderLoadContent() { objects.clear(); camera = nullptr; }
 };
 
 class RenderUpdateContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> * objects;
+	std::vector<GameObject*> objects;
 	GameObject * camera;
 
-	RenderUpdateContent(std::vector<GameObject*> * o, GameObject * cam) : objects{ o }, camera{cam} { }
-	~RenderUpdateContent() { objects = nullptr; camera = nullptr; }
+	RenderUpdateContent(std::vector<GameObject*> o, GameObject * cam) : objects{ o }, camera{cam} { }
+	~RenderUpdateContent() { objects.clear(); camera = nullptr; }
 };
 
 class InputContent : public BaseContent

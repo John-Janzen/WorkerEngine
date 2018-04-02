@@ -10,15 +10,14 @@ MyApp::~MyApp()
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
-	currentScene = new MainMenuScene(this, renderCopy);
+	currentScene = new MainMenuScene(this);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
-	renderCopy->Update(RENDER_INIT, _flag);
+	_systems["Render"]->Update(RENDER_INIT, _flag);
 	currentScene->InitScene();
 }
 
 bool MyApp::Update()
 {
-	bool success = false;
 	now = SDL_GetTicks();
 
 	JTime::instance().CalcDeltaTime();
@@ -28,18 +27,21 @@ bool MyApp::Update()
 	switch (state)
 	{
 	case LOADING:
-		if (currentScene->LoadScene())
+		if (currentScene->LoadScene(_cameraObject))
 		{
 			printf("Time Load End: %ums\n", SDL_GetTicks());
+			_systems["Render"]->Update(RENDER_LOAD, _flag, new RenderLoadContent(currentScene->getSceneObjects(), _cameraObject));
 			state = UPDATE;
 		}
 		
 		break;
 	case UPDATE:
 	{
-		success = ReadInputs();
-		
 		currentScene->UpdateScene();
+
+		while (Manager::instance().checkDone());			// Wait for the threads to finish
+
+		_systems["Render"]->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(currentScene->getSceneObjects(), _cameraObject));
 
 		frameTicks = SDL_GetTicks();
 		//printf("%u-", frameTicks - now);
@@ -48,27 +50,5 @@ bool MyApp::Update()
 	default:
 		break;
 	}
-	return success;
-}
-
-bool MyApp::ReadInputs()
-{
-	SDL_Event e;
-	while (SDL_PollEvent(&e))// Listen for events
-	{
-		switch (e.type)
-		{
-		case SDL_QUIT:		// Quit the game
-			return true;
-			break;
-		case SDL_KEYDOWN:
-			if (e.key.repeat == 0)
-				addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(e));	// Send Job if Event is changed
-			break;
-		default:
-			break;
-		}
-	}
-	addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
-	return false;
+	return quit;
 }

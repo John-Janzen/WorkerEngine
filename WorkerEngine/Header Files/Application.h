@@ -24,6 +24,8 @@ public:
 	*/
 	void Close();
 
+	void Quit();
+
 	void addSingleObject(GameObject * go);
 
 	void addSystem(std::string key, System * s);
@@ -35,11 +37,12 @@ public:
 	void initNumberObjects(int num);
 
 protected:
-	Render * renderCopy;
 	std::map<std::string, System*> _systems;
 	Scheduler * _scheduler;
 	std::mutex _lockMutex;
 	std::condition_variable _c;
 	int numOfObjects = -1;
 	Scene * currentScene;
+	GameObject * _cameraObject;
+	bool quit = false;
 };

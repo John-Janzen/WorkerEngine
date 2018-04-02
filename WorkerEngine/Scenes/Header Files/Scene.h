@@ -5,16 +5,22 @@
 
 #include "../../Header Files/GameObject.h"
 
+enum STATE
+{
+	LOADING,
+	UPDATE
+};
+
 class Application;
-class Render;
 class Scene
 {
 public:
-	Scene(Application * a, Render * r) : app{ a }, renderCopy{ r } {}
+	Scene(Application * a) : app{ a } {}
 	virtual ~Scene() {}
 	virtual void InitScene() = 0;
-	virtual bool LoadScene() = 0;
-	virtual void UpdateScene() = 0;
+	virtual bool LoadScene(GameObject *&) = 0;
+	virtual void UpdateScene() { ReadInputs(); };
+	virtual void ReadInputs() {};
 
 	void AddObject(GameObject * go)
 	{
@@ -34,11 +40,15 @@ public:
 		_sceneObjects.clear();
 	}
 
+	const std::vector<GameObject*> & getSceneObjects()
+	{
+		return _sceneObjects;
+	}
+
 protected:
 	std::vector<GameObject*> _sceneObjects;
 	int numOfObjects = -1;
 	GameObject * _cameraObject;
 	Application * app;
-	Render * renderCopy;
 };
 

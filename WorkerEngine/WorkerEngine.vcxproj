@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Scenes\Header Files;$(ProjectDir)Libraries\DevIL Windows SDK\include;$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\DevIL Windows SDK\include;$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(ProjectDir)Scenes\Header Files;$(ProjectDir)Controls\Header Files;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -123,6 +123,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Controls\Source Files\DefaultControl.cpp" />
+    <ClCompile Include="Controls\Source Files\MenuControl.cpp" />
     <ClCompile Include="Scenes\Source Files\MainMenuScene.cpp" />
     <ClCompile Include="Source Files\Application.cpp" />
     <ClCompile Include="Source Files\Engine.cpp" />
@@ -139,6 +141,8 @@
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controls\Header Files\Control.h" />
+    <ClInclude Include="Controls\Header Files\DefaultControl.h" />
     <ClInclude Include="Header Files\Application.h" />
     <ClInclude Include="Header Files\Command.h" />
     <ClInclude Include="Header Files\Component.h" />
@@ -160,6 +164,7 @@
     <ClInclude Include="Header Files\System.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\ThreadWorker.h" />
+    <ClInclude Include="Controls\Header Files\MenuControl.h" />
     <ClInclude Include="Scenes\Header Files\MainMenuScene.h" />
     <ClInclude Include="Scenes\Header Files\Scene.h" />
   </ItemGroup>
