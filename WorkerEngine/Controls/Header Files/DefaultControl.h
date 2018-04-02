@@ -8,6 +8,7 @@ public:
 	~DefaultControl();
 
 	void ApplyControl(Input & input, const SDL_Event & e);
+	const std::string & getName();
 protected:
 	SDL_bool _mouseLocked = SDL_TRUE;
 };

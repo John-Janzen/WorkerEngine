@@ -13,10 +13,11 @@ void DefaultControl::ApplyControl(Input & input, const SDL_Event & e)
 		printf("Escape Pressed\n");
 		break;
 	case SDL_SCANCODE_0:
-		printf("0 Pressed");
+		printf("0 Pressed\n");
 		break;
 	case SDL_SCANCODE_9:
 		input.ChangeState(&input._controlScheme2);
+		printf("Switched to %s\n", input._controlScheme2.getName().c_str());
 		break;
 	case SDL_SCANCODE_K:
 		if (_mouseLocked == SDL_TRUE)
@@ -33,4 +34,9 @@ void DefaultControl::ApplyControl(Input & input, const SDL_Event & e)
 	default:
 		break;
 	}
+}
+
+const std::string & DefaultControl::getName()
+{
+	return _name;
 }

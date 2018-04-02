@@ -26,7 +26,9 @@ private:
 	const Uint32 SCREEN_FPS = 60;
 	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 	Uint32 now, frameTicks;
+	Uint32 loadBegin = 0, loadEnd;
 	bool _flag = false;
 	STATE state = LOADING;
+	
 };
 

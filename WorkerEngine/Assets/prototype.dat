@@ -43,7 +43,7 @@ Monkey_01 {
 	type: GameObject,
 	comp: render(monkey/Checker),
 	id: 246,
-	pos: (0, 0, 10),
+	pos: (0, 0, 90),
 	rot: (0, 0, 0)
 };
 

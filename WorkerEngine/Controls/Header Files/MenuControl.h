@@ -7,6 +7,7 @@ public:
 	~MenuControl();
 
 	void ApplyControl(Input & input, const SDL_Event & e);
+	const std::string & getName();
 private:
 
 };

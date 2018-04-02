@@ -16,7 +16,7 @@ Camera {
 };
 
 Quad_01 {
-	type: Quad,
+	type: GameObject,
 	comp: render(quad/test_texture),
 	id: 02,
 	pos: (0, 0, 0),

@@ -10,7 +10,8 @@ MyApp::~MyApp()
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
-	printf("Time Load Start: %ums\n", SDL_GetTicks());
+	loadBegin = SDL_GetTicks();
+	printf("Time Load Start: %ums\n", loadBegin);
 	currentScene = new MainMenuScene(this);
 	_systems["Render"]->Update(RENDER_INIT, _flag);
 }
@@ -28,7 +29,8 @@ bool MyApp::Update()
 	case LOADING:
 		if (currentScene->LoadScene(_cameraObject))
 		{
-			printf("Time Load End: %ums\n", SDL_GetTicks());
+			loadEnd = SDL_GetTicks();
+			printf("Time Load End: %ums\n", loadEnd - loadBegin);
 			_systems["Render"]->Update(RENDER_LOAD, _flag, new RenderLoadContent(currentScene->getSceneObjects(), _cameraObject));
 			currentS = nextS;
 			state = UPDATE;
@@ -59,12 +61,14 @@ bool MyApp::Update()
 			break;
 		case PROTOTYPE_SCENE:
 			currentScene = new PrototypeScene(this);
+			printf("Loading Scene: Prototype\n");
 			break;
 		default:
 			break;
 		}
 		state = LOADING;
-		printf("Time Load Start: %ums\n", SDL_GetTicks());
+		loadBegin = SDL_GetTicks();
+		//printf("Time Load Start: %ums\n", loadBegin);
 		static_cast<Render*>(_systems["Render"])->LoadingView();
 		break;
 	}
