@@ -1,9 +1,15 @@
 #include "Input.h"
+#include "Application.h"
+
+DefaultControl Input::_controlScheme1 = DefaultControl("Default Control");
+MenuControl Input::_controlScheme2 = MenuControl("Menu Control");
 
 Input::Input(Application * a) : System(a)
 { 
 	keys = SDL_GetKeyboardState(NULL); 
 	_MoveCommand = new MoveCommand();
+	
+	currentControl = &_controlScheme1;
 }
 
 Input::~Input() { Close(); }
@@ -25,7 +31,6 @@ void Input::Update(JOB_TYPES job, bool & flag, BaseContent* ptr = nullptr)
 		_player = static_cast<Player*>(IIPContent->player);
 		break;
 	}
-		
 	default:
 		break;
 	}
@@ -43,23 +48,8 @@ void Input::ReadPress(BaseContent * ptr)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	InputContent * IContent = static_cast<InputContent*>(ptr);
-	SDL_Event * e = IContent->Event;
-	switch (e->key.state)
-	{
-	case SDLK_0:
-		printf("0 Pressed");
-		break;
-	default:
-		break;
-	}
-	switch (e->key.keysym.sym)
-	{
-	case SDLK_ESCAPE:
-		printf("Escape Pressed\n");
-		break;
-	default: 
-		break;
-	}
+	SDL_Event e = IContent->Event;
+	currentControl->ApplyControl(*this, e);
 	_c.notify_one();
 }
 
@@ -79,4 +69,14 @@ void Input::readContinuous()
 		if (_player != nullptr)
 			_MoveCommand->execute(*_player);
 	}
+}
+
+void Input::ChangeState(Control * c)
+{
+	currentControl = c;
+}
+
+void Input::ChangeScene(const SCENE & s)
+{
+	_app->addJob("Engine", CHANGE_SCENE, new ChangeSceneContent(s));
 }

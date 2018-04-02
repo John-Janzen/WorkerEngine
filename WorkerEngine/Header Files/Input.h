@@ -4,6 +4,8 @@
 #include "System.h"
 #include "Scheduler.h"
 #include "MoveCommand.h"
+#include "../Controls/Header Files/DefaultControl.h"
+#include "../Controls/Header Files/MenuControl.h"
 
 class Input : public System
 {
@@ -26,10 +28,18 @@ public:
 
 	void readContinuous();
 
+	void ChangeState(Control * c);
+
+	void ChangeScene(const SCENE & s);
+
+	static DefaultControl _controlScheme1;
+	static MenuControl _controlScheme2;
+
 private:
 	const Uint8 * keys;	
 	GameObject * _camera;
 	Player * _player;
 	MoveCommand * _MoveCommand;
+	Control * currentControl;
 };
 

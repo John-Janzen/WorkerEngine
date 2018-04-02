@@ -5,6 +5,8 @@
 #include "Quad.h"
 #include "Player.h"
 #include "Scheduler.h"
+#include "../Scenes/Header Files/SceneTypes.h"
+
 class Application;
 class System
 {

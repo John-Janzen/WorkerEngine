@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Libraries\DevIL Windows SDK\include;$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Libraries\DevIL Windows SDK\include;$(ProjectDir)Libraries\glew-2.1.0\include;$(ProjectDir)Libraries\glm\include;$(ProjectDir)Libraries\freeglut\include;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\include;$(ProjectDir)Libraries\sdl_image\include;$(ProjectDir)Libraries\sdl\include;$(ProjectDir)Header Files;$(ProjectDir)Scenes\Header Files;$(ProjectDir)Controls\Header Files;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,8 +89,8 @@
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\DevIL Windows SDK\lib\x64\Release;$(ProjectDir)Libraries\glew-2.1.0\lib\Release\x64;$(ProjectDir)Libraries\freeglut\lib\x64;$(ProjectDir)Libraries\SDL2_ttf-2.0.14\lib\x64;$(ProjectDir)Libraries\sdl\lib;$(ProjectDir)Libraries\sdl_image\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenGL32.lib;freeGLUT.lib;glew32.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\DevIL Windows SDK\lib\x64\Release;$(ProjectDir)Libraries\glew-2.1.0\lib\Release\x64;$(ProjectDir)Libraries\freeglut\lib\x64;$(ProjectDir)Libraries\sdl\lib;$(ProjectDir)Libraries\sdl_image\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;OpenGL32.lib;freeGLUT.lib;glew32.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -123,6 +123,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Controls\Source Files\DefaultControl.cpp" />
+    <ClCompile Include="Controls\Source Files\MenuControl.cpp" />
+    <ClCompile Include="Scenes\Source Files\PrototypeScene.cpp" />
+    <ClCompile Include="Scenes\Source Files\MainMenuScene.cpp" />
     <ClCompile Include="Source Files\Application.cpp" />
     <ClCompile Include="Source Files\Engine.cpp" />
     <ClCompile Include="Source Files\FileLoader.cpp" />
@@ -138,6 +142,8 @@
     <ClCompile Include="Source Files\ThreadWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controls\Header Files\Control.h" />
+    <ClInclude Include="Controls\Header Files\DefaultControl.h" />
     <ClInclude Include="Header Files\Application.h" />
     <ClInclude Include="Header Files\Command.h" />
     <ClInclude Include="Header Files\Component.h" />
@@ -159,6 +165,11 @@
     <ClInclude Include="Header Files\System.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\ThreadWorker.h" />
+    <ClInclude Include="Controls\Header Files\MenuControl.h" />
+    <ClInclude Include="Scenes\Header Files\PrototypeScene.h" />
+    <ClInclude Include="Scenes\Header Files\MainMenuScene.h" />
+    <ClInclude Include="Scenes\Header Files\Scene.h" />
+    <ClInclude Include="Scenes\Header Files\SceneTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,12 +1,21 @@
 #pragma once
 #include <SDL.h>
-
 #include "GameObject.h"
+#include "../Scenes/Header Files/SceneTypes.h"
 
 class BaseContent
 {
 public:
 	virtual ~BaseContent() {};
+};
+
+class ChangeSceneContent : public BaseContent
+{
+public:
+	SCENE sceneName;
+
+	ChangeSceneContent(const SCENE & n) : sceneName(n) {}
+	~ChangeSceneContent() {}
 };
 
 class EngineObjectContent : public BaseContent
@@ -30,29 +39,30 @@ public:
 class RenderLoadContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> * objects;
+	std::vector<GameObject*> objects;
 	GameObject * camera;
 
-	RenderLoadContent(std::vector<GameObject*> * o, GameObject * c) : objects{ o }, camera{c} { }
-	~RenderLoadContent() { objects = nullptr; camera = nullptr; }
+	RenderLoadContent(std::vector<GameObject*> o, GameObject * c) : objects{ o }, camera{c} { }
+	~RenderLoadContent() { objects.clear(); camera = nullptr; }
 };
 
 class RenderUpdateContent : public BaseContent
 {
 public:
-	std::vector<GameObject*> * objects;
+	std::vector<GameObject*> objects;
+	GameObject * camera;
 
-	RenderUpdateContent(std::vector<GameObject*> * o) : objects{ o } { }
-	~RenderUpdateContent() { objects = nullptr; }
+	RenderUpdateContent(std::vector<GameObject*> o, GameObject * cam) : objects{ o }, camera{cam} { }
+	~RenderUpdateContent() { objects.clear(); camera = nullptr; }
 };
 
 class InputContent : public BaseContent
 {
 public:
-	SDL_Event * Event;
+	SDL_Event Event;
 
-	InputContent(SDL_Event * e) : Event {e} {}
-	~InputContent() { Event = nullptr; }
+	InputContent(SDL_Event e) : Event {e} {}
+	~InputContent() {}
 };
 
 class InputIPContent : public BaseContent

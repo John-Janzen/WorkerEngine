@@ -15,7 +15,8 @@ enum LOADABLE_ITEMS
 	NAME,
 	ID,
 	COMP,
-	POS
+	POS,
+	ROT
 };
 
 class GameObject
@@ -33,8 +34,10 @@ public:
 	void setName(std::string name) { _name = name; };
 	void setID(int id) { _ID = id; };
 	void setPos(glm::vec3 pos) { _position = pos; };
+	void setRot(glm::vec3 rot) { _rotation = rot; };
 
 	glm::vec3 getPos() { return _position; }
+	glm::vec3 getRot() { return _rotation; }
 	std::string getName() { return _name; };
 
 	void addComponent(const std::string & name, Component * component)
@@ -62,6 +65,7 @@ public:
 
 protected:
 	glm::vec3 _position;
+	glm::vec3 _rotation;
 	bool collision = false;
 
 private:

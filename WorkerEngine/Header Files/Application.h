@@ -4,6 +4,8 @@
 #include "Engine.h"
 #include "Input.h"
 #include "FileLoader.h"
+#include "../Scenes/Header Files/MainMenuScene.h"
+#include "../Scenes/Header Files/PrototypeScene.h"
 
 class Application 
 {
@@ -23,6 +25,8 @@ public:
 	*/
 	void Close();
 
+	void Quit();
+
 	void addSingleObject(GameObject * go);
 
 	void addSystem(std::string key, System * s);
@@ -33,12 +37,16 @@ public:
 
 	void initNumberObjects(int num);
 
+	virtual void setNextScene(const SCENE & s) = 0;
+
 protected:
-	Render * renderCopy;
-	std::vector<GameObject*> _worldObjects;
 	std::map<std::string, System*> _systems;
 	Scheduler * _scheduler;
 	std::mutex _lockMutex;
 	std::condition_variable _c;
 	int numOfObjects = -1;
+	Scene * currentScene;
+	GameObject * _cameraObject;
+	bool quit = false;
+	SCENE nextS = MENU_SCENE, currentS = MENU_SCENE;
 };
