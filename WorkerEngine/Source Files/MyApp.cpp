@@ -10,14 +10,14 @@ MyApp::~MyApp()
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
-	printf("Time Load Start: %ums\n", SDL_GetTicks());
-	renderCopy->Update(RENDER_INIT, _flag);
-	addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/prototype.dat"));
+	loadBegin = SDL_GetTicks();
+	printf("Time Load Start: %ums\n", loadBegin);
+	currentScene = new MainMenuScene(this);
+	_systems["Render"]->Update(RENDER_INIT, _flag);
 }
 
 bool MyApp::Update()
 {
-	bool success = false;
 	now = SDL_GetTicks();
 
 	JTime::instance().CalcDeltaTime();
@@ -27,59 +27,58 @@ bool MyApp::Update()
 	switch (state)
 	{
 	case LOADING:
-		if (_worldObjects.size() == numOfObjects && !Manager::instance().checkDone())
+		if (currentScene->LoadScene(_cameraObject))
 		{
-			printf("Loading started");
-			for (GameObject * obj : _worldObjects)
-			{
-				if (obj->getName().compare("Camera") == 0)
-				{
-					renderCopy->Update(RENDER_LOAD, _flag, new RenderLoadContent(&_worldObjects, obj));
-					break;
-				}
-			}
-			printf("Time Load End: %ums\n", SDL_GetTicks());
+			loadEnd = SDL_GetTicks();
+			printf("Time Load End: %ums\n", loadEnd - loadBegin);
+			_systems["Render"]->Update(RENDER_LOAD, _flag, new RenderLoadContent(currentScene->getSceneObjects(), _cameraObject));
+			currentS = nextS;
 			state = UPDATE;
+			static_cast<Render*>(_systems["Render"])->DoneLoading();
 		}
+		
 		break;
 	case UPDATE:
 	{
-		success = ReadInputs();
-		
-		for (GameObject * go : _worldObjects)
-			addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
+		currentScene->UpdateScene();
 
 		while (Manager::instance().checkDone());			// Wait for the threads to finish
 
-		renderCopy->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(&_worldObjects));		// Render the screen
+		_systems["Render"]->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(currentScene->getSceneObjects(), _cameraObject));
+
 		frameTicks = SDL_GetTicks();
 		//printf("%u-", frameTicks - now);
+		if (nextS != currentS) state = UNLOAD;
+		break;
+	}
+	case UNLOAD:
+	{
+		delete(currentScene);
+		switch (nextS)
+		{
+		case MENU_SCENE:
+			currentScene = new MainMenuScene(this);
+			break;
+		case PROTOTYPE_SCENE:
+			currentScene = new PrototypeScene(this);
+			printf("Loading Scene: Prototype\n");
+			break;
+		default:
+			break;
+		}
+		state = LOADING;
+		loadBegin = SDL_GetTicks();
+		//printf("Time Load Start: %ums\n", loadBegin);
+		static_cast<Render*>(_systems["Render"])->LoadingView();
 		break;
 	}
 	default:
 		break;
 	}
-	return success;
+	return quit;
 }
 
-bool MyApp::ReadInputs()
+void MyApp::setNextScene(const SCENE & s)
 {
-	SDL_Event e;
-	while (SDL_PollEvent(&e))// Listen for events
-	{
-		switch (e.type)
-		{
-		case SDL_QUIT:		// Quit the game
-			return true;
-			break;
-		case SDL_KEYDOWN:
-			if (e.key.repeat == 0)
-				addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(&e));	// Send Job if Event is changed
-			break;
-		default:
-			break;
-		}
-	}
-	addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
-	return false;
+	nextS = s;
 }

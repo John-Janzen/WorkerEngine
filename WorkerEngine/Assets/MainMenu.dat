@@ -1,0 +1,24 @@
+load: 2;
+
+models {
+	quad
+};
+
+textures {
+	test_texture
+};
+
+Camera {
+	type: Player,
+	id: 01,
+	pos: (0, 0, -5),
+	rot: (0, 0, 0)
+};
+
+Quad_01 {
+	type: GameObject,
+	comp: render(quad/test_texture),
+	id: 02,
+	pos: (0, 0, 0),
+	rot: (0, 0, 0)
+};

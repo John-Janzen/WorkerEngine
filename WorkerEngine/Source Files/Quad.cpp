@@ -15,6 +15,7 @@ void Quad::Update(float x, float y)
 		_velocity.y = -_velocity.y;
 
 	_position += _velocity * 10.0f * JTime::instance().deltaTime;
+	_rotation += glm::vec3(0, 0, 1.57) * JTime::instance().deltaTime;
 }
 
 Quad::~Quad() {}

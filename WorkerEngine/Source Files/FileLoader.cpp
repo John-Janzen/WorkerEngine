@@ -259,11 +259,14 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					size_t modelsEnd = sub.find_last_of('}') - 1;
 					sub = sub.substr(local2 + 1, modelsEnd - local2);
 					split(sub, ',', splitData);
-					modelsToLoad = splitData.size();
-					modelCount = 0;
+					modelCount = modelsToLoad;
 					for (std::string s : splitData)
 					{
-						_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
+						if (_loadedModels.find(std::string("Assets/" + s + ".obj")) == _loadedModels.end())
+						{
+							modelsToLoad++;
+							_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
+						}
 					}
 					splitData.clear();
 				}
@@ -272,11 +275,14 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					size_t textEnd = sub.find_last_of('}') - 1;
 					sub = sub.substr(local2 + 1, textEnd - local2);
 					split(sub, ',', splitData);
-					texturesToLoad = splitData.size();
-					modelCount = 0;
+					modelCount = texturesToLoad;
 					for (std::string s : splitData)
 					{
-						_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+						if (_loadedTextures.find(std::string("Assets/" + s + ".png")) == _loadedTextures.end())
+						{
+							texturesToLoad++;
+							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
+						}
 					}
 				}
 				else
@@ -321,11 +327,12 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 		}
 		else
 		{
-			if (modelData[0].compare("pos") == 0)
+			if (modelData[0].compare("pos") == 0 || modelData[0].compare("rot") == 0)
 			{
-				local = data.find_last_of(')');
+				local = data.find_first_of(')');
 				size_t local2 = data.find_first_of('(');
 				findLoadItem(modelData[0], data.substr(local2 + 1, local - local2 - 1), gameObjData);
+				if (data[local + 1] == ',') local = local + 1;
 			}
 			else
 				findLoadItem(modelData[0], modelData[1], gameObjData);
@@ -430,6 +437,10 @@ void FileLoader::findLoadItem(const std::string & item, const std::string & data
 	else if (item.compare("pos") == 0)
 	{
 		map.emplace(std::make_pair(POS, data));
+	}
+	else if (item.compare("rot") == 0)
+	{
+		map.emplace(std::make_pair(ROT, data));
 	}
 }
 

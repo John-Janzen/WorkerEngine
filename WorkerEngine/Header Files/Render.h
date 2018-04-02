@@ -45,7 +45,11 @@ public:
 	*/
 	void InitGL();
 
-	void InitObject(void * ptr);
+	void LoadingView();
+
+	void DoneLoading();
+
+	void InitObject(BaseContent * ptr);
 
 	/*
 	* Renders what is to be put on screen
