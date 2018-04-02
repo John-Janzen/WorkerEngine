@@ -1,12 +1,21 @@
 #pragma once
 #include <SDL.h>
-
 #include "GameObject.h"
+#include "../Scenes/Header Files/SceneTypes.h"
 
 class BaseContent
 {
 public:
 	virtual ~BaseContent() {};
+};
+
+class ChangeSceneContent : public BaseContent
+{
+public:
+	SCENE sceneName;
+
+	ChangeSceneContent(const SCENE & n) : sceneName(n) {}
+	~ChangeSceneContent() {}
 };
 
 class EngineObjectContent : public BaseContent

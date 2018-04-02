@@ -163,13 +163,23 @@ void Render::InitGL()
 
 		projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
 		look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		SDL_GL_SwapWindow(_window);
-		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+}
+
+void Render::LoadingView()
+{
+	
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	SDL_GL_SwapWindow(_window);
+}
+
+void Render::DoneLoading()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
 void Render::InitObject(BaseContent * ptr)
@@ -223,7 +233,6 @@ void Render::RenderObject(GameObject * go)
 	rotation = glm::rotate(rotation, go->getRot().z, glm::vec3(0, 0, 1));
 	rotation = glm::rotate(rotation, go->getRot().x, glm::vec3(1, 0, 0));
 	glm::mat4 model_matrix = glm::rotate(rotation, go->getRot().y, glm::vec3(0, 1, 0));
-
 
 	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 	glUniform1i(tex_unit_loc, 0);

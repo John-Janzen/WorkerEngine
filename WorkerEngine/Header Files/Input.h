@@ -30,6 +30,11 @@ public:
 
 	void ChangeState(Control * c);
 
+	void ChangeScene(const SCENE & s);
+
+	static DefaultControl _controlScheme1;
+	static MenuControl _controlScheme2;
+
 private:
 	const Uint8 * keys;	
 	GameObject * _camera;

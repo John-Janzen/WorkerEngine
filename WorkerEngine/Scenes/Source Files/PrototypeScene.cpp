@@ -1,17 +1,15 @@
-#include "MainMenuScene.h"
+#include "PrototypeScene.h"
 #include "../../Header Files/Application.h"
 #include "../../Header Files/Render.h"
 
-MainMenuScene::MainMenuScene() {}
-
-MainMenuScene::MainMenuScene(Application * a) : Scene(a) 
+PrototypeScene::PrototypeScene(Application * a) : Scene(a) 
 {
-	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/MainMenu.dat"));
+	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/Prototype.dat"));
 }
 
-MainMenuScene::~MainMenuScene() { app = nullptr; DestroyObjects(); }
+PrototypeScene::~PrototypeScene() {}
 
-bool MainMenuScene::LoadScene(GameObject * & camera)
+bool PrototypeScene::LoadScene(GameObject *& camera) 
 {
 	if (_sceneObjects.size() == numOfObjects && !Manager::instance().checkDone())
 	{
@@ -29,7 +27,7 @@ bool MainMenuScene::LoadScene(GameObject * & camera)
 	return false;
 }
 
-void MainMenuScene::UpdateScene()
+void PrototypeScene::UpdateScene()
 {
 	Scene::UpdateScene();
 
@@ -37,7 +35,7 @@ void MainMenuScene::UpdateScene()
 		app->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
 }
 
-void MainMenuScene::ReadInputs()
+void PrototypeScene::ReadInputs()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e))// Listen for events

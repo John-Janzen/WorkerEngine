@@ -45,6 +45,10 @@ public:
 	*/
 	void InitGL();
 
+	void LoadingView();
+
+	void DoneLoading();
+
 	void InitObject(BaseContent * ptr);
 
 	/*

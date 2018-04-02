@@ -8,16 +8,17 @@
 enum STATE
 {
 	LOADING,
-	UPDATE
+	UPDATE,
+	UNLOAD
 };
 
 class Application;
 class Scene
 {
 public:
+	Scene() {}
 	Scene(Application * a) : app{ a } {}
 	virtual ~Scene() {}
-	virtual void InitScene() = 0;
 	virtual bool LoadScene(GameObject *&) = 0;
 	virtual void UpdateScene() { ReadInputs(); };
 	virtual void ReadInputs() {};

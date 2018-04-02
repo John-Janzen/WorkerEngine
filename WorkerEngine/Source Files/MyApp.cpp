@@ -10,10 +10,9 @@ MyApp::~MyApp()
 void MyApp::Init(uint16_t n)
 {
 	Application::Init(n);
-	currentScene = new MainMenuScene(this);
 	printf("Time Load Start: %ums\n", SDL_GetTicks());
+	currentScene = new MainMenuScene(this);
 	_systems["Render"]->Update(RENDER_INIT, _flag);
-	currentScene->InitScene();
 }
 
 bool MyApp::Update()
@@ -31,7 +30,9 @@ bool MyApp::Update()
 		{
 			printf("Time Load End: %ums\n", SDL_GetTicks());
 			_systems["Render"]->Update(RENDER_LOAD, _flag, new RenderLoadContent(currentScene->getSceneObjects(), _cameraObject));
+			currentS = nextS;
 			state = UPDATE;
+			static_cast<Render*>(_systems["Render"])->DoneLoading();
 		}
 		
 		break;
@@ -45,10 +46,35 @@ bool MyApp::Update()
 
 		frameTicks = SDL_GetTicks();
 		//printf("%u-", frameTicks - now);
+		if (nextS != currentS) state = UNLOAD;
+		break;
+	}
+	case UNLOAD:
+	{
+		delete(currentScene);
+		switch (nextS)
+		{
+		case MENU_SCENE:
+			currentScene = new MainMenuScene(this);
+			break;
+		case PROTOTYPE_SCENE:
+			currentScene = new PrototypeScene(this);
+			break;
+		default:
+			break;
+		}
+		state = LOADING;
+		printf("Time Load Start: %ums\n", SDL_GetTicks());
+		static_cast<Render*>(_systems["Render"])->LoadingView();
 		break;
 	}
 	default:
 		break;
 	}
 	return quit;
+}
+
+void MyApp::setNextScene(const SCENE & s)
+{
+	nextS = s;
 }

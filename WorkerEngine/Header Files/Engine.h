@@ -17,6 +17,8 @@ public:
 
 	void HandlePlayer(BaseContent * ptr);
 
+	void ChangeScene(BaseContent * ptr);
+
 	/*
 	* The Close function that should be called
 	* Currently does nothing

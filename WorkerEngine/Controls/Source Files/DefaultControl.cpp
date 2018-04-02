@@ -16,7 +16,7 @@ void DefaultControl::ApplyControl(Input & input, const SDL_Event & e)
 		printf("0 Pressed");
 		break;
 	case SDL_SCANCODE_9:
-		input.ChangeState(&Control::_controlScheme2);
+		input.ChangeState(&input._controlScheme2);
 		break;
 	case SDL_SCANCODE_K:
 		if (_mouseLocked == SDL_TRUE)

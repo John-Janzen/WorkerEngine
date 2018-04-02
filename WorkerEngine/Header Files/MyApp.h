@@ -20,6 +20,8 @@ public:
 	*/
 	bool Update();
 
+	void setNextScene(const SCENE & s);
+
 private:
 	const Uint32 SCREEN_FPS = 60;
 	const Uint32 SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;

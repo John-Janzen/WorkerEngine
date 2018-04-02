@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="Controls\Source Files\DefaultControl.cpp" />
     <ClCompile Include="Controls\Source Files\MenuControl.cpp" />
+    <ClCompile Include="Scenes\Source Files\PrototypeScene.cpp" />
     <ClCompile Include="Scenes\Source Files\MainMenuScene.cpp" />
     <ClCompile Include="Source Files\Application.cpp" />
     <ClCompile Include="Source Files\Engine.cpp" />
@@ -165,8 +166,10 @@
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\ThreadWorker.h" />
     <ClInclude Include="Controls\Header Files\MenuControl.h" />
+    <ClInclude Include="Scenes\Header Files\PrototypeScene.h" />
     <ClInclude Include="Scenes\Header Files\MainMenuScene.h" />
     <ClInclude Include="Scenes\Header Files\Scene.h" />
+    <ClInclude Include="Scenes\Header Files\SceneTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

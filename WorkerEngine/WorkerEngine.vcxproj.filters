@@ -63,6 +63,9 @@
     <ClCompile Include="Controls\Source Files\MenuControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\Source Files\PrototypeScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\ThreadWorker.h">
@@ -141,6 +144,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Controls\Header Files\MenuControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\Header Files\PrototypeScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\Header Files\SceneTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

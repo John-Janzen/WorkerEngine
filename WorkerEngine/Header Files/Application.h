@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "FileLoader.h"
 #include "../Scenes/Header Files/MainMenuScene.h"
+#include "../Scenes/Header Files/PrototypeScene.h"
 
 class Application 
 {
@@ -36,6 +37,8 @@ public:
 
 	void initNumberObjects(int num);
 
+	virtual void setNextScene(const SCENE & s) = 0;
+
 protected:
 	std::map<std::string, System*> _systems;
 	Scheduler * _scheduler;
@@ -45,4 +48,5 @@ protected:
 	Scene * currentScene;
 	GameObject * _cameraObject;
 	bool quit = false;
+	SCENE nextS = MENU_SCENE, currentS = MENU_SCENE;
 };

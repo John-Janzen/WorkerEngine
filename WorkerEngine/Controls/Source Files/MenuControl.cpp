@@ -16,7 +16,10 @@ void MenuControl::ApplyControl(Input & input, const SDL_Event & e)
 		printf("1 Pressed");
 		break;
 	case SDL_SCANCODE_9:
-		input.ChangeState(&Control::_controlScheme1);
+		input.ChangeState(&input._controlScheme1);
+		break;
+	case SDL_SCANCODE_S:
+		input.ChangeScene(PROTOTYPE_SCENE);
 		break;
 	default:
 		break;

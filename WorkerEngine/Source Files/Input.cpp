@@ -1,10 +1,15 @@
 #include "Input.h"
+#include "Application.h"
+
+DefaultControl Input::_controlScheme1 = DefaultControl("Default Control");
+MenuControl Input::_controlScheme2 = MenuControl("Menu Control");
 
 Input::Input(Application * a) : System(a)
 { 
 	keys = SDL_GetKeyboardState(NULL); 
 	_MoveCommand = new MoveCommand();
-	currentControl = new DefaultControl("Initialized Default");
+	
+	currentControl = &_controlScheme1;
 }
 
 Input::~Input() { Close(); }
@@ -69,4 +74,9 @@ void Input::readContinuous()
 void Input::ChangeState(Control * c)
 {
 	currentControl = c;
+}
+
+void Input::ChangeScene(const SCENE & s)
+{
+	_app->addJob("Engine", CHANGE_SCENE, new ChangeSceneContent(s));
 }
