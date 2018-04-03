@@ -70,6 +70,7 @@ bool MyApp::Update()
 		loadBegin = SDL_GetTicks();
 		//printf("Time Load Start: %ums\n", loadBegin);
 		static_cast<Render*>(_systems["Render"])->LoadingView();
+		_cameraObject = nullptr;
 		break;
 	}
 	default:
