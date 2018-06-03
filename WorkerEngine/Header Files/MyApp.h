@@ -29,6 +29,6 @@ private:
 	Uint32 loadBegin = 0, loadEnd;
 	bool _flag = false;
 	STATE state = LOADING;
-	
+	std::shared_ptr<Job> localJob;
 };
 

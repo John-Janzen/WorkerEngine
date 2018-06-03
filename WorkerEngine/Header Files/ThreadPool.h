@@ -32,7 +32,6 @@ public:
 		{
 			std::unique_lock<std::mutex> lock(_lockMutex);
 			ThreadWorker * t = _workers.front();
-			//printf("%s picked up %d\n", t->Get_Name(), job->Get_JobType());
 			_workers.pop_front();
 			count--;
 			t->a = std::move(job);
@@ -48,7 +47,6 @@ public:
 	void signalDone(ThreadWorker * tw) 
 	{
 		std::unique_lock<std::mutex> lock(_lockMutex);
-		//printf("%s returned\n", tw->Get_Name());
 		_workers.emplace_back(tw);
 		count++;
 		_c.notify_one();
@@ -68,9 +66,9 @@ public:
 		return (_workers.size() > 0) ? true : false;
 	}
 
-	bool checkWorking()
+	bool DoneWorking()
 	{
-		return (_workers.size() == max) ? false : true;
+		return (_workers.size() == max) ? true : false;
 	}
 
 private:

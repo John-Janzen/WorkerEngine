@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <vector>
 #include <atomic>
+#include <regex>
 
 #include "System.h"
 
@@ -49,8 +50,15 @@ public:
 	Texture * checkForTexture(const std::string & s);
 
 	void findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string>&, std::vector<Component*> * c = nullptr);
+
+	std::vector<GLfloat> combine (
+		const std::vector<glm::u16vec3>& faces, 
+		const std::vector<glm::vec3>& vert, 
+		const std::vector<glm::vec3>& norm, 
+		const std::vector<glm::vec2>& text, 
+		std::vector<GLuint>& indices
+	);
 	
-	std::vector<GLfloat> combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & ind);
 
 private:
 
@@ -62,17 +70,6 @@ private:
 		for (std::vector<Out>::iterator it = tooManyVecs.begin(); it != tooManyVecs.end(); ++it, j++)
 			arr[j] = *it;
 		return arr;
-	}
-
-	template <typename Out>
-	void split(const std::string &s, char delim, Out result)
-	{
-		std::stringstream ss;
-		ss.str(s);
-		std::string item;
-		while (std::getline(ss, item, delim)) {
-			*(result++) = item;
-		}
 	}
 
 	std::map<std::string, Model*> _loadedModels;

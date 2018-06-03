@@ -4,14 +4,14 @@
 
 PrototypeScene::PrototypeScene(Application * a) : Scene(a) 
 {
-	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/Prototype.dat"));
+	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/Prototype.dat", 0));
 }
 
 PrototypeScene::~PrototypeScene() {}
 
 bool PrototypeScene::LoadScene(GameObject *& camera) 
 {
-	if (_sceneObjects.size() == numOfObjects && !Manager::instance().checkDone())
+	if (_sceneObjects.size() == numOfObjects && Manager::instance().checkDone())
 	{
 		bool _flag = false;
 		printf("Loading started\n");

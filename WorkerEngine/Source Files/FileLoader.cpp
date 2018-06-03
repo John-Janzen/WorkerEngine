@@ -74,27 +74,16 @@ void FileLoader::Close()
 void FileLoader::LoadExternalFile(BaseContent * ptr)
 {
 	FileToLoadContent * FLContent = static_cast<FileToLoadContent*> (ptr);
-	std::ifstream in(FLContent->path.c_str());
-	if (in.is_open())
+	std::string extension = FLContent->path.substr(FLContent->path.find_last_of('.') + 1);
+	if (extension.compare("dat") == 0)
 	{
-		std::string output((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-
-		std::string check = FLContent->path.substr(FLContent->path.find_last_of('.') + 1);
-
-		if (check.compare("dat") == 0)
-		{
-			_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
-		}
-		else if (check.compare("obj") == 0)
-		{
-			_app->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(output, FLContent->path));
-		}
-		in.close();
+		_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(FLContent->path, 0));
 	}
-	else
+	else if (extension.compare("obj") == 0)
 	{
-		printf("Error opening file: %s", FLContent->path.c_str());
+		_app->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(FLContent->path));
 	}
+
 }
 
 void FileLoader::ObjImporter(BaseContent * ptr)
@@ -102,68 +91,72 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 	FileLoadOBJContent * FLContent = static_cast<FileLoadOBJContent*> (ptr);
 	
 	Model * ml;
-	std::string output = FLContent->data;
 
-	std::vector<GLfloat> vertices;
-	std::vector<GLfloat> normals;
-	std::vector<GLuint> faces;
-	std::vector<GLfloat> textures;
-	std::vector<std::string> splitData, splitMore, splitMoreMore;
-	if (output.empty())
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::u16vec3> faces;
+	std::vector<glm::vec2> textures;
+	FILE * file_stream;
+
+	if (fopen_s(&file_stream, FLContent->data.c_str(), "r") != 0)
 	{
 		printf("No data foudn within file %s", FLContent->data.c_str());
 	}
 	else
 	{
-		split(output, '\n', splitData);
-		for (std::vector<std::string>::iterator it = splitData.begin(); it != splitData.end(); ++it)
+		while (1)
 		{
-			split(it->data(), ' ', splitMore);
-			if (it->at(0) == 'v')
+			char lineHeader[128];
+
+			int res = fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+			if (res == EOF)
+				break;
+			if (strcmp(lineHeader, "v") == 0)
 			{
-				if (it->at(1) == ' ')
-				{
-					// Vertex found
-					vertices.emplace_back(parseFloat(splitMore.at(1)));
-					vertices.emplace_back(parseFloat(splitMore.at(2)));
-					vertices.emplace_back(parseFloat(splitMore.at(3)));
-				}
-				else if (it->at(1) == 'n')
-				{
-					// Normal found
-					normals.emplace_back(parseFloat(splitMore.at(1)));
-					normals.emplace_back(parseFloat(splitMore.at(2)));
-					normals.emplace_back(parseFloat(splitMore.at(3)));
-				}
-				else if (it->at(1) == 't')
-				{
-					// Texture found
-					textures.emplace_back(parseFloat(splitMore.at(1)));
-					textures.emplace_back(parseFloat(splitMore.at(2)));
-				}
+				glm::vec3 vertex;
+				fscanf_s(file_stream, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+				vertices.push_back(vertex);
 			}
-			else if (it->at(0) == 'f')
+			else if (strcmp(lineHeader, "vt") == 0)
 			{
-				// Face found
-					
-				for (std::vector<std::string>::iterator it2 = splitMore.begin() + 1; it2 != splitMore.end(); ++it2)
-				{
-					split(it2->data(), '/', splitMoreMore);
-					faces.emplace_back(parseInt(splitMoreMore.at(0)));
-					faces.emplace_back(parseInt(splitMoreMore.at(1)));
-					faces.emplace_back(parseInt(splitMoreMore.at(2)));
-					splitMoreMore.clear();
-				}
+				glm::vec2 uv;
+				fscanf_s(file_stream, "%f %f\n", &uv.x, &uv.y);
+				textures.push_back(uv);
 			}
-			splitMore.clear();
+			else if (strcmp(lineHeader, "vn") == 0)
+			{
+				glm::vec3 normal;
+				fscanf_s(file_stream, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+				normals.push_back(normal);
+			}
+			else if (strcmp(lineHeader, "f") == 0)
+			{
+				std::string vertex1, vertex2, vertex3;
+				glm::uvec3 face[3];
+				int matches = fscanf_s(file_stream, "%u/%u/%u %u/%u/%u %u/%u/%u\n",
+					&face[0].x, &face[0].y, &face[0].z,
+					&face[1].x, &face[1].y, &face[1].z,
+					&face[2].x, &face[2].y, &face[2].z);
+
+				if (matches != 9) {
+					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+				}
+				faces.push_back(face[0]);
+				faces.push_back(face[1]);
+				faces.push_back(face[2]);
+			}
+			else
+			{
+				fgets(lineHeader, 128, file_stream);
+			}
 		}
-		splitData.clear();
+		fclose(file_stream);
 
 		std::vector<GLuint> ind;
 		std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
 		ml = new Model(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size());
-		addModel(std::make_pair(FLContent->name, ml));
-		printf("Model Loaded: %s\n", FLContent->name.c_str());
+		addModel(std::make_pair(FLContent->data, ml));
+		printf("Model Loaded: %s\n", FLContent->data.c_str());
 		modelCount++;
 	}
 }
@@ -220,83 +213,83 @@ void FileLoader::loadTextData(BaseContent * ptr)
 {
 	FileToLoadContent * FTLContent = static_cast<FileToLoadContent*>(ptr);
 
-	std::string output = FTLContent->path;
-
+	FILE * file_stream;
 	int location = -1;
-	std::vector<std::string> splitData;
-	output.erase(std::remove_if(output.begin(), output.end(), ::isspace), output.end());
 
-	if (output.empty())
+	if (fopen_s(&file_stream, FTLContent->path.c_str(), "r") != 0)
 	{
-		printf("No data found within file %s", output.c_str());
+		printf("No data found within file %s", FTLContent->path.c_str());
 	}
 	else
 	{
-		std::string sub;
-		size_t local, local2;
-		do 
+		fseek(file_stream, FTLContent->location, SEEK_SET);
+		char lineHeader[32];
+		int end;
+		while (fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader)) != EOF)
 		{
-			if (output[0] == '/' && output[1] == '/')
+			if (strcmp(lineHeader, "load") == 0)
 			{
-				output = output.substr(local = output.find_first_of(';') + 1);
-				continue;
+				uint32_t num = 0;
+				fscanf_s(file_stream, "%u;", &num);
+				_app->initNumberObjects(num);
 			}
-			sub = output.substr(0, local = output.find_first_of(';'));
-
-			if ((local2 = output.find_first_of('{')) > local)
+			else if (strcmp(lineHeader, "models") == 0)
 			{
-				split(sub, ':', splitData);
-				if (splitData[0].compare("load") == 0)
+				modelCount = modelsToLoad;
+				do
 				{
-					_app->initNumberObjects(stoi(splitData[1]));
-				}
-				splitData.clear();
+					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
+					{
+						std::string name = "Assets/" + std::string(lineHeader) + ".obj";
+						if (_loadedModels.find(name) == _loadedModels.end())
+						{
+							modelsToLoad++;
+							_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(name, 0));
+						}
+					}
+				} while (strcmp(lineHeader, "};") != 0);
+			}
+			else if (strcmp(lineHeader, "textures") == 0)
+			{
+				textCount = texturesToLoad;
+				do
+				{
+					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
+					{
+						std::string name = "Assets/" + std::string(lineHeader) + ".png";
+						if (_loadedTextures.find(name) == _loadedTextures.end())
+						{
+							texturesToLoad++;
+							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(name, 0));
+						}
+					}
+				} while (strcmp(lineHeader, "};") != 0);
 			}
 			else
 			{
-				if (sub.substr(0, local2).compare("models") == 0)
+				if (modelCount != modelsToLoad && textCount != texturesToLoad)
 				{
-					size_t modelsEnd = sub.find_last_of('}') - 1;
-					sub = sub.substr(local2 + 1, modelsEnd - local2);
-					split(sub, ',', splitData);
-					modelCount = modelsToLoad;
-					for (std::string s : splitData)
-					{
-						if (_loadedModels.find(std::string("Assets/" + s + ".obj")) == _loadedModels.end())
-						{
-							modelsToLoad++;
-							_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(std::string("Assets/" + s + ".obj")));
-						}
-					}
-					splitData.clear();
-				}
-				else if (sub.substr(0, local2).compare("textures") == 0)
-				{
-					size_t textEnd = sub.find_last_of('}') - 1;
-					sub = sub.substr(local2 + 1, textEnd - local2);
-					split(sub, ',', splitData);
-					modelCount = texturesToLoad;
-					for (std::string s : splitData)
-					{
-						if (_loadedTextures.find(std::string("Assets/" + s + ".png")) == _loadedTextures.end())
-						{
-							texturesToLoad++;
-							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(std::string("Assets/" + s + ".png")));
-						}
-					}
+
+					_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(FTLContent->path, ftell(file_stream) - strlen(lineHeader)));
+					fclose(file_stream);
+					return;
 				}
 				else
 				{
-					if (modelCount != modelsToLoad && textCount != texturesToLoad) 
+					std::string obj = lineHeader;
+					obj += " ";
+					do
 					{
-						_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(output));
-						return;
-					}
-					_app->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(sub));
+						fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+						obj.append(lineHeader);
+						obj.append(" ");
+					} while (strcmp(lineHeader, "};") != 0);
+					_app->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(obj));
 				}
 			}
-			output = output.substr(local + 1);
-		} while (!output.empty());
+		}
 	}
 }
 
@@ -307,39 +300,86 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	std::vector<std::string> modelData;
 	std::map<LOADABLE_ITEMS, std::string> gameObjData;
 	std::vector<Component*> components;
+
 	std::string data = FIContent->info;
 	GameObject *go = nullptr;
-
-	size_t begin = data.find_first_of('{'), end = data.find_last_of('}');
-
-	findLoadItem("name", data.substr(0, begin), gameObjData);
-	data = data.substr(begin + 1, end - begin - 1);
-
-	size_t local;
+	char lineHeader[32];
+	sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+	gameObjData.emplace(std::make_pair(NAME, std::string(lineHeader)));
 	do
 	{
-		std::string s = data.substr(0, local = data.find_first_of(','));
-
-		split(s, ':', modelData);
-		if (modelData[0].compare("comp") == 0)
+		data = data.substr(data.find_first_of(' ') + 1, data.length());
+		sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+		if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 		{
-			findLoadItem(modelData[0], modelData[1], gameObjData, &components);
-		}
-		else
-		{
-			if (modelData[0].compare("pos") == 0 || modelData[0].compare("rot") == 0)
+			data = data.substr(data.find_first_of(' ') + 1, data.length());
+			if (strcmp(lineHeader, "type:") == 0)
 			{
-				local = data.find_first_of(')');
-				size_t local2 = data.find_first_of('(');
-				findLoadItem(modelData[0], data.substr(local2 + 1, local - local2 - 1), gameObjData);
-				if (data[local + 1] == ',') local = local + 1;
+				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				gameObjData.emplace(std::make_pair(TYPE, std::string(lineHeader)));
 			}
-			else
-				findLoadItem(modelData[0], modelData[1], gameObjData);
+			else if (strcmp(lineHeader, "id:") == 0)
+			{
+				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				gameObjData.emplace(std::make_pair(ID, std::string(lineHeader)));
+			}
+			else if (strcmp(lineHeader, "comp:") == 0)
+			{	
+				size_t brac1 = data.find_first_of('('), brac2 = data.find_first_of(')');
+				if (data.substr(0, brac1).compare("render") == 0)
+				{
+					std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
+					size_t slash = sub2.find_first_of('/');
+					RenderComponent * rc;
+					Model * m;
+					Texture * t;
+					if (slash < sub2.size())
+					{
+						m = checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj"));
+						t = checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png"));
+						rc = new RenderComponent(m, t);
+					}
+					else
+					{
+						m = checkForModel(std::string("Assets/" + sub2 + ".obj"));
+						rc = new RenderComponent(m);
+					}
+					components.emplace_back(rc);
+				}
+				gameObjData.emplace(std::make_pair(COMP, data.substr(0, brac1)));
+			}
+			else if (strcmp(lineHeader, "pos:") == 0)
+			{
+				char num[8];
+				std::string info = "";
+				for (int i = 0; i < 3; i++)
+				{
+					sscanf_s(data.c_str(), "%s", num, _countof(num));
+					info.append(num);
+					if (i != 2)
+					{
+						data = data.substr(data.find_first_of(' ') + 1, data.length());
+					}
+				}
+				gameObjData.emplace(std::make_pair(POS, info));
+			}
+			else if (strcmp(lineHeader, "rot:") == 0)
+			{
+				char line[8];
+				std::string info = "";
+				for (int i = 0; i < 3; i++)
+				{
+					sscanf_s(data.c_str(), "%s", line, _countof(line));
+					info.append(line);
+					if (i != 2)
+					{
+						data = data.substr(data.find_first_of(' ') + 1, data.length());
+					}
+				}
+				gameObjData.emplace(std::make_pair(ROT, info));
+			}
 		}
-		modelData.clear();
-		data = data.substr(local + 1);
-	} while (!data.empty());
+	} while (strcmp(lineHeader, "};") != 0);
 	
 	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
 	{
@@ -355,20 +395,6 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 		go = new GameObject(gameObjData, components);
 	}
 	_app->addSingleObject(go);
-}
-
-GLfloat FileLoader::parseFloat(const std::string& str)
-{
-	return std::stof(str);
-}
-
-GLuint FileLoader::parseInt(const std::string& str)
-{
-	return std::stoi(str);
-}
-
-void FileLoader::split(const std::string &s, char delim, std::vector<std::string> & out) {
-	split(s, delim, std::back_inserter(out));
 }
 
 void FileLoader::addModel(std::pair<std::string, Model*> pair)
@@ -395,66 +421,24 @@ Texture * FileLoader::checkForTexture(const std::string & s)
 	return (_loadedTextures.find(s) != _loadedTextures.end()) ? _loadedTextures.find(s)->second : nullptr;
 }
 
-void FileLoader::findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string> & map, std::vector<Component*> * comps)
-{
-	if (item.compare("type") == 0)
-	{
-		map.emplace(std::make_pair(TYPE, data));
-	}
-	else if (item.compare("name") == 0)
-	{
-		map.emplace(std::make_pair(NAME, data));
-	}
-	else if (item.compare("id") == 0)
-	{
-		map.emplace(std::make_pair(ID, data));
-	}
-	else if (item.compare("comp") == 0)
-	{
-		size_t brac1 = data.find_first_of('('), brac2 = data.find_last_of(')');
-		if (data.substr(0, brac1).compare("render") == 0)
-		{
-			std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
-			size_t slash = sub2.find_first_of('/');
-			RenderComponent * rc;
-			Model * m;
-			Texture * t;
-			if (slash < sub2.size())
-			{
-				m = checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj"));
-				t = checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png"));
-				rc = new RenderComponent(m, t);
-			}
-			else
-			{
-				m = checkForModel(std::string("Assets/" + sub2 + ".obj"));
-				rc = new RenderComponent(m);
-			}
-			comps->emplace_back(rc);
-		}
-		map.emplace(std::make_pair(COMP, data.substr(0, brac1)));
-	}
-	else if (item.compare("pos") == 0)
-	{
-		map.emplace(std::make_pair(POS, data));
-	}
-	else if (item.compare("rot") == 0)
-	{
-		map.emplace(std::make_pair(ROT, data));
-	}
-}
-
-std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<GLfloat> vert, std::vector<GLfloat> norm, std::vector<GLfloat> text, std::vector<GLuint> & indices)
+std::vector<GLfloat> FileLoader::combine
+(
+	const std::vector<glm::u16vec3> & faces, 
+	const std::vector<glm::vec3> & vert, 
+	const std::vector<glm::vec3> & norm, 
+	const std::vector<glm::vec2> & text, 
+	std::vector<GLuint> & indices
+)
 {
 	std::vector<GLfloat> finalData;
 	std::map<std::string, size_t> locations;
 	indices = std::vector<GLuint>();
-	size_t location = 0; 
+	size_t location = 0;
 	std::map <std::string, size_t> ::iterator loc;
-	
-	for (std::vector<GLuint>::iterator it = faces.begin(); it != faces.end(); it += 3)
+
+	for (std::vector<glm::u16vec3>::const_iterator it = faces.begin(); it != faces.end(); ++it)
 	{
-		GLuint v = *it, n = *(it + 1), t = *(it + 2);
+		GLuint v = (*it).x, n = (*it).y, t = (*it).z;
 		std::stringstream ss;
 		ss << v << '/' << n << '/' << t;
 
@@ -462,21 +446,21 @@ std::vector<GLfloat> FileLoader::combine(std::vector<GLuint> faces, std::vector<
 		{
 			indices.emplace_back(location);
 			locations.emplace(std::make_pair(ss.str(), location++));
-			size_t p = ((*it) - 1) * 3;
-			size_t pt = (*(it + 1) - 1) * 2;
-			size_t pn = (*(it + 2) - 1) * 3;
-			finalData.emplace_back(vert.at(p));
-			finalData.emplace_back(vert.at(p + 1)); 
-			finalData.emplace_back(vert.at(p + 2));
-			
-			finalData.emplace_back(text.at(pt));
-			finalData.emplace_back(text.at(pt + 1));
+			size_t p = ((*it).x - 1);
+			size_t pt = ((*it).y - 1);
+			size_t pn = ((*it).z - 1);
+			finalData.emplace_back(vert.at(p).x);
+			finalData.emplace_back(vert.at(p).y);
+			finalData.emplace_back(vert.at(p).z);
 
-			finalData.emplace_back(norm.at(pn));
-			finalData.emplace_back(norm.at(pn + 1));
-			finalData.emplace_back(norm.at(pn + 2));
+			finalData.emplace_back(text.at(pt).x);
+			finalData.emplace_back(text.at(pt).y);
+
+			finalData.emplace_back(norm.at(pn).x);
+			finalData.emplace_back(norm.at(pn).y);
+			finalData.emplace_back(norm.at(pn).z);
 		}
-		else 
+		else
 		{
 			indices.emplace_back(loc->second);
 		}

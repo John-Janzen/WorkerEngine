@@ -78,8 +78,9 @@ class FileToLoadContent : public BaseContent
 {
 public:
 	std::string path;
+	int location;
 
-	FileToLoadContent(std::string s) : path{ s } {}
+	FileToLoadContent(std::string s, int loc) : path{ s }, location(loc) {}
 	~FileToLoadContent() {}
 };
 
@@ -88,7 +89,7 @@ class FileLoadOBJContent : public BaseContent
 public:
 	std::string data, name;
 
-	FileLoadOBJContent(std::string p, std::string n) : data(p), name(n) {}
+	FileLoadOBJContent(std::string p) : data(p) {}
 	~FileLoadOBJContent() {}
 };
 

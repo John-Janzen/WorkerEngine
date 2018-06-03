@@ -4,7 +4,7 @@ MyApp::MyApp() {}
 
 MyApp::~MyApp() 
 {
-	//_scheduler->Close();
+	this->Close();
 }
 
 void MyApp::Init(uint16_t n)
@@ -24,6 +24,16 @@ bool MyApp::Update()
 
 	_scheduler->RunSchedule();
 
+	while (!Manager::instance().checkDone())
+	{
+		if ((localJob = Manager::instance().AllocateJobs()) != nullptr)
+		{
+			bool flag = false;
+			localJob->Get_System()->Update(localJob->Get_JobType(), flag, localJob->Get_Data());
+			localJob = nullptr;
+		}
+	}
+
 	switch (state)
 	{
 	case LOADING:
@@ -42,12 +52,10 @@ bool MyApp::Update()
 	{
 		currentScene->UpdateScene();
 
-		while (Manager::instance().checkDone());			// Wait for the threads to finish
-
 		_systems["Render"]->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(currentScene->getSceneObjects(), _cameraObject));
 
 		frameTicks = SDL_GetTicks();
-		//printf("%u-", frameTicks - now);
+		printf("%u-", frameTicks - now);
 		if (nextS != currentS) state = UNLOAD;
 		break;
 	}

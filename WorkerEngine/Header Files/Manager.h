@@ -48,12 +48,12 @@ public:
 	{
 		while (!_actions.empty() && _poolOfThreads->checkFree())
 		{
-			if (_poolOfThreads->emplaceJob(_actions.front()))
+			if (_poolOfThreads->emplaceJob(std::move(_actions.front())))
 				_actions.pop_front();
 		}
 		if (!_actions.empty())
 		{
-			std::shared_ptr<Job> j = _actions.front();
+			std::shared_ptr<Job> j = std::move(_actions.front());
 			_actions.pop_front();
 			return j;
 		}
@@ -62,7 +62,7 @@ public:
 
 	bool checkDone()
 	{
-		return _poolOfThreads->checkWorking() ? true : false;
+		return (_actions.empty() && _poolOfThreads->DoneWorking()) ? true : false;
 	}
 
 private:

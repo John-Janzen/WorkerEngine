@@ -6,14 +6,14 @@ MainMenuScene::MainMenuScene() {}
 
 MainMenuScene::MainMenuScene(Application * a) : Scene(a) 
 {
-	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/MainMenu.dat"));
+	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/MainMenu.dat", 0));
 }
 
 MainMenuScene::~MainMenuScene() { app = nullptr; DestroyObjects(); }
 
 bool MainMenuScene::LoadScene(GameObject * & camera)
 {
-	if (_sceneObjects.size() == numOfObjects && !Manager::instance().checkDone())
+	if (_sceneObjects.size() == numOfObjects && Manager::instance().checkDone())
 	{
 		bool _flag = false;
 		printf("Loading started\n");

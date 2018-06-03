@@ -2,7 +2,7 @@
 
 Application::Application() {}
 
-Application::~Application() { Close(); }
+Application::~Application() {}
 
 void Application::Init(uint16_t num)
 {
@@ -17,7 +17,6 @@ void Application::Init(uint16_t num)
 
 void Application::Close()
 {
-
 	for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
 		delete(i->second);
 
