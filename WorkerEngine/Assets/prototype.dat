@@ -14,6 +14,14 @@ textures {
 	Checker2
 };
 
+Vshaders {
+	default_V_shader
+};
+
+Fshaders {
+	default_F_shader
+};
+
 Camera {
 	type: Player
 	id: 01
@@ -23,7 +31,12 @@ Camera {
 
 BackGround_01 {
 	type: GameObject
-	comp: render(grid/Checker2)
+	comp: render {
+		model: grid
+		texture: Checker2
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 245
 	pos: 0, 0, -1
 	rot: 0, 0, 0
@@ -31,7 +44,12 @@ BackGround_01 {
 
 Monkey_01 {
 	type: GameObject
-	comp: render(monkey/Checker)
+	comp: render {
+		model: monkey
+		texture: Checker
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 246
 	pos: 0, 0, 90
 	rot: 0, 0, 0
@@ -39,7 +57,12 @@ Monkey_01 {
 
 Quad_01 {
 	type: Quad
-	comp: render(quad/Test)
+	comp: render {
+		model: quad
+		texture: Test
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 247
 	pos: 0, 0, 0
 	rot: 0, 0, 0
@@ -47,7 +70,12 @@ Quad_01 {
 
 Quad_02 {
 	type: Quad
-	comp: render(quad/test_texture)
+	comp: render {
+		model: quad
+		texture: test_texture
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 248
 	pos: 20, -34, 0
 	rot: 0, 0, 0
@@ -55,7 +83,12 @@ Quad_02 {
 
 Quad_03 {
 	type: Quad
-	comp: render(quad/Checker)
+	comp: render {
+		model: quad
+		texture: Checker
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 249
 	pos: -46, 20, 0
 	rot: 0, 0, 0

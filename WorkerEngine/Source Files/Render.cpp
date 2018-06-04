@@ -1,36 +1,5 @@
 #include "Render.h"
 
-GLuint loadShaderFromFile(std::string path, GLenum shaderType)
-{
-	GLuint shaderID = 0;
-	std::string shaderString;
-	std::ifstream sourceFile(path.c_str());
-	if (sourceFile.is_open())
-	{
-		shaderString.assign((std::istreambuf_iterator<char>(sourceFile)), std::istreambuf_iterator<char>());
-		shaderID = glCreateShader(shaderType);
-
-		const GLchar* shaderSource = shaderString.c_str();
-		glShaderSource(shaderID, 1, (const GLchar**)&shaderSource, NULL);
-
-		glCompileShader(shaderID);
-
-		GLint shaderCompiled = GL_FALSE;
-		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
-		if (shaderCompiled != GL_TRUE)
-		{
-			printf("Unable to compile shader %d!\n\nSource:\n%s\n", shaderID, shaderSource);
-			glDeleteShader(shaderID);
-			shaderID = 0;
-		}
-	}
-	else
-	{
-		printf("Unable to open file %s\n", path.c_str());
-	}
-	return shaderID;
-}
-
 Render::Render(Application * a) : System(a) {}
 
 Render::~Render() { Close(); }
@@ -62,8 +31,6 @@ void Render::Update(JOB_TYPES T, bool & flag, BaseContent* ptr)
 
 void Render::Close()
 {
-	glUseProgram(0);
-	glDeleteProgram(r_ProgramID);
 
 	SDL_DestroyWindow(_window);
 	_window = NULL;
@@ -118,54 +85,14 @@ void Render::Init()
 
 void Render::InitGL()
 {
-	r_ProgramID = glCreateProgram();
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	GLuint vertexShader = loadShaderFromFile("Assets/shader.glvs", GL_VERTEX_SHADER);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
-	if (vertexShader == 0)
-	{
-		printf("Vertex Shader went wrong");
-	}
-
-	glAttachShader(r_ProgramID, vertexShader);
-
-	GLuint fragmentShader = loadShaderFromFile("Assets/shader.glfs", GL_FRAGMENT_SHADER);
-
-	if (fragmentShader == 0)
-	{
-		printf("Fragment Shader went wrong");
-	}
-
-	glAttachShader(r_ProgramID, fragmentShader);
-
-	glLinkProgram(r_ProgramID);
-
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(r_ProgramID, GL_LINK_STATUS, &programSuccess);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", r_ProgramID);
-	}
-	else
-	{
-		glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		glUseProgram(r_ProgramID);
-
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_TEXTURE_2D);
-
-		render_model_matrix_loc = glGetUniformLocation(r_ProgramID, "model_matrix");
-		render_projection_matrix_loc = glGetUniformLocation(r_ProgramID, "projection_matrix");
-		color_vec_loc = glGetUniformLocation(r_ProgramID, "color_vec");
-		tex_color_loc = glGetUniformLocation(r_ProgramID, "tex_color");
-		tex_unit_loc = glGetUniformLocation(r_ProgramID, "tex_unit");
-
-		projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
-		look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	projection_matrix = glm::perspective(glm::radians(60.0f), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 1.0f, 500.0f);
+	look_matrix = glm::lookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Render::LoadingView()
@@ -207,37 +134,10 @@ void Render::RenderWindow(BaseContent* ptr)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(r_ProgramID);
-
 	projection_look_matrix = projection_matrix * (look_matrix * model_matrix);
-	glUniformMatrix4fv(render_projection_matrix_loc, 1, GL_FALSE, glm::value_ptr(projection_look_matrix));
 
 	for (GameObject * go : RUContent->objects)
-	{
-		if (go->getComponent("render") != nullptr)
-			RenderObject(go);
-	}
+		go->DrawMyself(glm::value_ptr(projection_look_matrix));
 
-	glBindVertexArray(0);
 	SDL_GL_SwapWindow(_window);
-}
-
-void Render::RenderObject(GameObject * go)
-{
-	RenderComponent * rc = static_cast<RenderComponent*>(go->getComponent("render"));
-
-	GLsizei num = rc->BindBuffers();
-	glm::mat4 rotation = glm::mat4();
-	rotation = glm::translate(rotation, go->getPos());
-	rotation = glm::rotate(rotation, go->getRot().z, glm::vec3(0, 0, 1));
-	rotation = glm::rotate(rotation, go->getRot().x, glm::vec3(1, 0, 0));
-	glm::mat4 model_matrix = glm::rotate(rotation, go->getRot().y, glm::vec3(0, 1, 0));
-
-	glUniformMatrix4fv(render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-	glUniform1i(tex_unit_loc, 0);
-	glUniform4f(tex_color_loc, 1.0f, 1.0f, 1.0f, 1.0f);
-	glUniform4f(color_vec_loc, rc->_color.x, rc->_color.y, rc->_color.z, rc->_color.w);
-	glDrawElements(GL_TRIANGLES, num, GL_UNSIGNED_INT, NULL);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
 }

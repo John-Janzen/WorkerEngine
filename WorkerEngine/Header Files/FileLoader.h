@@ -25,7 +25,7 @@ public:
 	virtual void Update(JOB_TYPES j, bool & flag, BaseContent* ptr);
 	virtual void Close();
 
-	void LoadExternalFile(BaseContent * ptr);
+	void loadShaderFromFile(BaseContent * ptr);
 
 	void ObjImporter(BaseContent * ptr);
 
@@ -34,12 +34,6 @@ public:
 	void loadTextData(BaseContent* ptr);
 
 	void individualGameObject(BaseContent * ptr);
-
-	GLfloat parseFloat(const std::string & str);
-
-	GLuint parseInt(const std::string & str);
-
-	void split(const std::string & s, char delim, std::vector<std::string> & out);
 	
 	void addModel(std::pair<std::string, Model*> pair);
 
@@ -49,7 +43,9 @@ public:
 
 	Texture * checkForTexture(const std::string & s);
 
-	void findLoadItem(const std::string & item, const std::string & data, std::map<LOADABLE_ITEMS, std::string>&, std::vector<Component*> * c = nullptr);
+	void addShader(std::pair<std::string, Shader*> pair, const GLenum & en);
+
+	Shader * checkForShader(const std::string & s, const GLenum & en);
 
 	std::vector<GLfloat> combine (
 		const std::vector<glm::u16vec3>& faces, 
@@ -74,6 +70,8 @@ private:
 
 	std::map<std::string, Model*> _loadedModels;
 	std::map<std::string, Texture*>  _loadedTextures;
+	std::map<std::string, Shader*> _loadedVShaders;
+	std::map<std::string, Shader*> _loadedFShaders;
 	std::atomic<size_t> modelsToLoad = 0, texturesToLoad = 0;
 };
 

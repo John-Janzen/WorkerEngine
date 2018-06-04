@@ -78,5 +78,5 @@ void Input::ChangeState(Control * c)
 
 void Input::ChangeScene(const SCENE & s)
 {
-	_app->addJob("Engine", CHANGE_SCENE, new ChangeSceneContent(s));
+	_app->addJob("Engine", CHANGE_SCENE, WHICH_THREAD::ANY, new ChangeSceneContent(s));
 }

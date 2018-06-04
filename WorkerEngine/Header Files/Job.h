@@ -53,13 +53,20 @@ enum JOB_TYPES
 	FILE_LOAD_TXT_DATA = 0x400,
 	FILE_LOAD_GAMEOBJECT,
 	FILE_LOAD_MODEL,
-	FILE_LOAD_EXTERNAL,
 	FILE_LOAD_TEXTURE,
+	FILE_LOAD_SHDR_DATA,
 
 	APPLICATION_ADD_OBJECTS = 0x500,
 	APPLICATION_ADD_SINGLE_OBJECT,
 	APPLICATION_NUMBER_OBJECTS,
 	CHANGE_SCENE
+};
+
+enum WHICH_THREAD
+{
+	THREAD_DEFAULT,
+	MAIN_ONLY,
+	ANY
 };
 
 class System;
@@ -71,7 +78,7 @@ public:
 	* The job type the thread needs to do on the system
 	* Any type of data that needs to be in pointer form
 	*/
-	Job(System * sys, JOB_TYPES type, BaseContent * ptr = nullptr) : _system{ sys }, _type{ type }, _ptr{ ptr } {};
+	Job(System * sys, JOB_TYPES type, WHICH_THREAD which, BaseContent * ptr = nullptr) : _system{ sys }, _type{ type }, _priority{which}, _ptr { ptr } {};
 
 	~Job() 
 	{
@@ -91,6 +98,8 @@ public:
 	*/
 	JOB_TYPES Get_JobType() { return _type; }
 
+	WHICH_THREAD Get_PriorityThread() { return _priority; }
+
 	/*
 	* Get the data that is passed through as a pointer
 	* static_cast<?>(_ptr) **REQUIRED**
@@ -101,4 +110,5 @@ private:
 	System * _system;
 	JOB_TYPES _type;
 	BaseContent * _ptr;
+	WHICH_THREAD _priority;
 };

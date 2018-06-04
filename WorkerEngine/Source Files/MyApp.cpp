@@ -55,7 +55,7 @@ bool MyApp::Update()
 		_systems["Render"]->Update(RENDER_UPDATE, _flag, new RenderUpdateContent(currentScene->getSceneObjects(), _cameraObject));
 
 		frameTicks = SDL_GetTicks();
-		printf("%u-", frameTicks - now);
+		//printf("%u-", frameTicks - now);
 		if (nextS != currentS) state = UNLOAD;
 		break;
 	}

@@ -6,6 +6,15 @@ models {
 
 textures {
 	test_texture
+	ColorSwitch1
+};
+
+Vshaders {
+	default_V_shader
+};
+
+Fshaders {
+	default_F_shader
 };
 
 Camera {
@@ -17,7 +26,12 @@ Camera {
 
 Quad_01 {
 	type: GameObject
-	comp: render(quad/test_texture)
+	comp: render {
+		model: quad
+		texture: ColorSwitch1
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
 	id: 02
 	pos: 0, 0, 0
 	rot: 0, 0, 0

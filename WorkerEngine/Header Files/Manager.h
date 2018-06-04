@@ -46,18 +46,30 @@ public:
 	*/
 	std::shared_ptr<Job> AllocateJobs()
 	{
+		std::shared_ptr<Job> j = nullptr;
 		while (!_actions.empty() && _poolOfThreads->checkFree())
 		{
-			if (_poolOfThreads->emplaceJob(std::move(_actions.front())))
+			if (_actions.front()->Get_PriorityThread() != WHICH_THREAD::MAIN_ONLY)
+			{
+				if (_poolOfThreads->emplaceJob(std::move(_actions.front())))
+					_actions.pop_front();
+			}
+			else if (_actions.front()->Get_PriorityThread() == WHICH_THREAD::MAIN_ONLY && j == nullptr)
+			{
+				j = std::move(_actions.front());
 				_actions.pop_front();
+			}
+			else
+			{
+				return j;
+			}
 		}
-		if (!_actions.empty())
+		if (!_actions.empty() && j == nullptr)
 		{
-			std::shared_ptr<Job> j = std::move(_actions.front());
+			j = std::move(_actions.front());
 			_actions.pop_front();
-			return j;
 		}
-		return nullptr;
+		return j;
 	}
 
 	bool checkDone()

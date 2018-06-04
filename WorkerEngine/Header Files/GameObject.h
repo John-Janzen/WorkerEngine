@@ -4,6 +4,10 @@
 #include <map>
 #include <vector>
 #include <time.h>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
+#include <gtx\euler_angles.hpp>
+#include <gtc\type_ptr.hpp>
 
 #include "RenderComponent.h"
 #include "JTime.h"
@@ -16,7 +20,7 @@ enum LOADABLE_ITEMS
 	ID,
 	COMP,
 	POS,
-	ROT
+	ROT,
 };
 
 class GameObject
@@ -26,6 +30,8 @@ public:
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
 	GameObject(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
 	~GameObject();
+
+	void DrawMyself(const float * matrix);
 
 	void adjustPosY(GLfloat num) { _position.y += num; }
 	void adjustPosX(GLfloat num) { _position.x += num; }

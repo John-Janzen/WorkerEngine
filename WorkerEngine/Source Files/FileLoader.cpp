@@ -38,9 +38,6 @@ void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 {
 	switch (j)
 	{
-	case FILE_LOAD_EXTERNAL:
-		LoadExternalFile(ptr);
-		break;
 	case FILE_LOAD_TXT_DATA:
 		loadTextData(ptr);
 		break;
@@ -52,6 +49,9 @@ void FileLoader::Update(JOB_TYPES j, bool & flag, BaseContent* ptr)
 		break;
 	case FILE_LOAD_TEXTURE:
 		loadTextureData(ptr);
+		break;
+	case FILE_LOAD_SHDR_DATA:
+		loadShaderFromFile(ptr);
 		break;
 	default:
 		break;
@@ -71,19 +71,40 @@ void FileLoader::Close()
 	_loadedModels.clear();
 }
 
-void FileLoader::LoadExternalFile(BaseContent * ptr)
+void FileLoader::loadShaderFromFile(BaseContent * ptr)
 {
-	FileToLoadContent * FLContent = static_cast<FileToLoadContent*> (ptr);
-	std::string extension = FLContent->path.substr(FLContent->path.find_last_of('.') + 1);
-	if (extension.compare("dat") == 0)
-	{
-		_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(FLContent->path, 0));
-	}
-	else if (extension.compare("obj") == 0)
-	{
-		_app->addJob("FileLoader", FILE_LOAD_MODEL, new FileLoadOBJContent(FLContent->path));
-	}
+	FileLoadShaderContent * FLSContent = static_cast<FileLoadShaderContent*>(ptr);
 
+	GLuint shaderID = 0;
+	std::string shaderString;
+	std::ifstream sourceFile(FLSContent->path.c_str());
+	if (sourceFile.is_open())
+	{
+		shaderString.assign((std::istreambuf_iterator<char>(sourceFile)), std::istreambuf_iterator<char>());
+		shaderID = glCreateShader(FLSContent->type);
+
+		const GLchar* shaderSource = shaderString.c_str();
+		glShaderSource(shaderID, 1, (const GLchar**)&shaderSource, NULL);
+		
+		GLint shaderCompiled = GL_FALSE;
+		glCompileShader(shaderID);
+		
+		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
+		if (shaderCompiled != GL_TRUE)
+		{
+			printf("Unable to compile shader %d!\n\nSource:\n%s\n", shaderID, shaderSource);
+			glDeleteShader(shaderID);
+			shaderID = 0;
+			return;
+		}
+		sourceFile.close();
+	}
+	else
+	{
+		printf("Unable to open file %s\n", FLSContent->path.c_str());
+		return;
+	}
+	addShader(std::make_pair(FLSContent->path, new Shader(shaderID)), FLSContent->type);
 }
 
 void FileLoader::ObjImporter(BaseContent * ptr)
@@ -108,7 +129,7 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 		{
 			char lineHeader[128];
 
-			int res = fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+			int res = fscanf_s(file_stream, "%s", &lineHeader, _countof(lineHeader));
 			if (res == EOF)
 				break;
 			if (strcmp(lineHeader, "v") == 0)
@@ -154,7 +175,7 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 
 		std::vector<GLuint> ind;
 		std::vector<GLfloat> combined = combine(faces, vertices, normals, textures, ind);
-		ml = new Model(mallocSpace(combined), mallocSpace(ind), ind.size(), combined.size());
+		ml = new Model(mallocSpace(combined), mallocSpace(ind), (GLsizei)ind.size(), (GLsizei)combined.size());
 		addModel(std::make_pair(FLContent->data, ml));
 		printf("Model Loaded: %s\n", FLContent->data.c_str());
 		modelCount++;
@@ -224,7 +245,6 @@ void FileLoader::loadTextData(BaseContent * ptr)
 	{
 		fseek(file_stream, FTLContent->location, SEEK_SET);
 		char lineHeader[32];
-		int end;
 		while (fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader)) != EOF)
 		{
 			if (strcmp(lineHeader, "load") == 0)
@@ -245,7 +265,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 						if (_loadedModels.find(name) == _loadedModels.end())
 						{
 							modelsToLoad++;
-							_app->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent(name, 0));
+							_app->addJob("FileLoader", FILE_LOAD_MODEL, WHICH_THREAD::ANY, new FileToLoadContent(name, 0));
 						}
 					}
 				} while (strcmp(lineHeader, "};") != 0);
@@ -262,7 +282,37 @@ void FileLoader::loadTextData(BaseContent * ptr)
 						if (_loadedTextures.find(name) == _loadedTextures.end())
 						{
 							texturesToLoad++;
-							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, new FileToLoadContent(name, 0));
+							_app->addJob("FileLoader", FILE_LOAD_TEXTURE, WHICH_THREAD::ANY, new FileToLoadContent(name, 0));
+						}
+					}
+				} while (strcmp(lineHeader, "};") != 0);
+			}
+			else if (strcmp(lineHeader, "Vshaders") == 0)
+			{
+				do
+				{
+					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
+					{
+						std::string name = "Assets/" + std::string(lineHeader) + ".glvs";
+						if (_loadedTextures.find(name) == _loadedTextures.end())
+						{
+							_app->addJob("FileLoader", FILE_LOAD_SHDR_DATA, WHICH_THREAD::MAIN_ONLY, new FileLoadShaderContent(name, GL_VERTEX_SHADER));
+						}
+					}
+				} while (strcmp(lineHeader, "};") != 0);
+			}
+			else if (strcmp(lineHeader, "Fshaders") == 0)
+			{
+				do
+				{
+					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
+					{
+						std::string name = "Assets/" + std::string(lineHeader) + ".glfs";
+						if (_loadedTextures.find(name) == _loadedTextures.end())
+						{
+							_app->addJob("FileLoader", FILE_LOAD_SHDR_DATA, WHICH_THREAD::MAIN_ONLY, new FileLoadShaderContent(name, GL_FRAGMENT_SHADER));
 						}
 					}
 				} while (strcmp(lineHeader, "};") != 0);
@@ -271,8 +321,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			{
 				if (modelCount != modelsToLoad && textCount != texturesToLoad)
 				{
-
-					_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, new FileToLoadContent(FTLContent->path, ftell(file_stream) - strlen(lineHeader)));
+					_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, WHICH_THREAD::ANY, new FileToLoadContent(FTLContent->path, ftell(file_stream) - strlen(lineHeader)));
 					fclose(file_stream);
 					return;
 				}
@@ -286,7 +335,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 						obj.append(lineHeader);
 						obj.append(" ");
 					} while (strcmp(lineHeader, "};") != 0);
-					_app->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, new FileIndividualContent(obj));
+					_app->addJob("FileLoader", FILE_LOAD_GAMEOBJECT, WHICH_THREAD::ANY, new FileIndividualContent(obj));
 				}
 			}
 		}
@@ -324,29 +373,47 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 				gameObjData.emplace(std::make_pair(ID, std::string(lineHeader)));
 			}
 			else if (strcmp(lineHeader, "comp:") == 0)
-			{	
-				size_t brac1 = data.find_first_of('('), brac2 = data.find_first_of(')');
-				if (data.substr(0, brac1).compare("render") == 0)
+			{
+				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				if (strcmp(lineHeader, "render") == 0)
 				{
-					std::string sub2 = data.substr(brac1 + 1, brac2 - brac1 - 1);
-					size_t slash = sub2.find_first_of('/');
-					RenderComponent * rc;
-					Model * m;
-					Texture * t;
-					if (slash < sub2.size())
+					gameObjData.emplace(std::make_pair(COMP, std::string(lineHeader)));
+					RenderComponent *rc;
+					Shader * vertex, * frag;
+					Texture * tex;
+					Model * mod;
+					do
 					{
-						m = checkForModel(std::string("Assets/" + sub2.substr(0, slash) + ".obj"));
-						t = checkForTexture(std::string("Assets/" + sub2.substr(slash + 1) + ".png"));
-						rc = new RenderComponent(m, t);
-					}
-					else
-					{
-						m = checkForModel(std::string("Assets/" + sub2 + ".obj"));
-						rc = new RenderComponent(m);
-					}
+						data = data.substr(data.find_first_of(' ') + 1, data.length());
+						sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+						if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "}") != 0)
+						{
+							data = data.substr(data.find_first_of(' ') + 1, data.length());
+							if (strcmp(lineHeader, "model:") == 0)
+							{
+								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								mod = checkForModel(std::string("Assets/" + std::string(lineHeader) + ".obj"));
+							}
+							else if (strcmp(lineHeader, "texture:") == 0)
+							{
+								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								tex = checkForTexture(std::string("Assets/" + std::string(lineHeader) + ".png"));
+							}
+							else if (strcmp(lineHeader, "Vshader:") == 0)
+							{
+								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								vertex = checkForShader(std::string("Assets/" + std::string(lineHeader) + ".glvs"), GL_VERTEX_SHADER);
+							}
+							else if (strcmp(lineHeader, "Fshader:") == 0)
+							{
+								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								frag = checkForShader(std::string("Assets/" + std::string(lineHeader) + ".glfs"), GL_FRAGMENT_SHADER);
+							}
+						}
+					} while (strcmp(lineHeader, "}") != 0);
+					rc = new RenderComponent(mod, tex, vertex, frag);
 					components.emplace_back(rc);
 				}
-				gameObjData.emplace(std::make_pair(COMP, data.substr(0, brac1)));
 			}
 			else if (strcmp(lineHeader, "pos:") == 0)
 			{
@@ -384,7 +451,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	if (gameObjData.find(TYPE)->second.compare("Player") == 0)
 	{
 		go = new Player(gameObjData, components);
-		_app->addJob("Input", INPUT_ADD_PLAYER, new InputIPContent(go));
+		_app->addJob("Input", INPUT_ADD_PLAYER, WHICH_THREAD::ANY, new InputIPContent(go));
 	}
 	else if (gameObjData.find(TYPE)->second.compare("Quad") == 0)
 	{
@@ -419,6 +486,32 @@ void FileLoader::addTexture(std::pair<std::string, Texture*> pair)
 Texture * FileLoader::checkForTexture(const std::string & s)
 {
 	return (_loadedTextures.find(s) != _loadedTextures.end()) ? _loadedTextures.find(s)->second : nullptr;
+}
+
+void FileLoader::addShader(std::pair<std::string, Shader*> pair, const GLenum & en)
+{
+	std::unique_lock<std::mutex> lock(_lockMutex);
+	if (en == GL_VERTEX_SHADER)
+	{
+		_loadedVShaders.emplace(pair);
+	}
+	else if (en == GL_FRAGMENT_SHADER)
+	{
+		_loadedFShaders.emplace(pair);
+	}
+	_c.notify_all();
+}
+
+Shader * FileLoader::checkForShader(const std::string & s, const GLenum & en)
+{
+	if (en == GL_VERTEX_SHADER)
+	{
+		return (_loadedVShaders.find(s) != _loadedVShaders.end()) ? _loadedVShaders.find(s)->second : nullptr;
+	} 
+	else if (en == GL_FRAGMENT_SHADER)
+	{
+		return (_loadedFShaders.find(s) != _loadedFShaders.end()) ? _loadedFShaders.find(s)->second : nullptr;
+	}
 }
 
 std::vector<GLfloat> FileLoader::combine

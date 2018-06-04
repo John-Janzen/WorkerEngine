@@ -84,6 +84,16 @@ public:
 	~FileToLoadContent() {}
 };
 
+class FileLoadShaderContent : public BaseContent
+{
+public:
+	std::string path;
+	GLenum type;
+
+	FileLoadShaderContent(const std::string & p, const GLenum & en) : path{ p }, type( en ) {};
+	~FileLoadShaderContent() {}
+};
+
 class FileLoadOBJContent : public BaseContent
 {
 public:

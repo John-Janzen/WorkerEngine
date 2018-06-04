@@ -31,7 +31,7 @@ public:
 
 	void addSystem(std::string key, System * s);
 
-	void addJob(std::string name, JOB_TYPES j = SYSTEM_DEFAULT, BaseContent * ptr = nullptr);
+	void addJob(std::string name, JOB_TYPES j, WHICH_THREAD which, BaseContent * ptr = nullptr);
 
 	void addJob(std::shared_ptr<Job> j);
 
