@@ -78,9 +78,9 @@ class FileToLoadContent : public BaseContent
 {
 public:
 	std::string path;
-	int location;
+	long location;
 
-	FileToLoadContent(std::string s, int loc) : path{ s }, location(loc) {}
+	FileToLoadContent(std::string s, long loc) : path{ s }, location(loc) {}
 	~FileToLoadContent() {}
 };
 

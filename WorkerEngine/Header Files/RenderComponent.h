@@ -132,6 +132,19 @@ public:
 				render_model_matrix_loc = glGetUniformLocation(_ProgramID, "model_matrix");
 				render_projection_matrix_loc = glGetUniformLocation(_ProgramID, "projection_matrix");
 
+				iSpriteFrame_loc = glGetUniformLocation(_ProgramID, "iSpriteFrame");
+				texture_width_adj_loc = glGetUniformLocation(_ProgramID, "texture_width_adj");
+				texture_height_adj_loc = glGetUniformLocation(_ProgramID, "texture_height_adj");
+				if (_texture != nullptr && _texture->TextureID != 0)
+				{
+					glUniform1i(glGetUniformLocation(_ProgramID, "tex_available"), 1);
+					glUniform1f(texture_width_adj_loc, _texture->imgWidth / (GLfloat)_texture->texWidth);
+					glUniform1f(texture_height_adj_loc, _texture->imgHeight / (GLfloat)_texture->texHeight);
+				}
+				else
+				{
+					glUniform1i(glGetUniformLocation(_ProgramID, "tex_available"), 0);
+				}
 				color_vec_loc = glGetUniformLocation(_ProgramID, "color_vec");
 				tex_color_loc = glGetUniformLocation(_ProgramID, "tex_color");
 				tex_unit_loc = glGetUniformLocation(_ProgramID, "tex_unit");
@@ -157,6 +170,11 @@ public:
 		glUniform1i(tex_unit_loc, 0);
 		glUniform4f(tex_color_loc, 1.0f, 1.0f, 1.0f, 1.0f);
 		glUniform4f(color_vec_loc, _color.x, _color.y, _color.z, _color.w);
+
+		if (iSpriteFrame_loc != -1)
+		{
+			glUniform1ui(iSpriteFrame_loc, 0);
+		}
 		return _model->ISize;
 	}
 
@@ -178,6 +196,10 @@ private:
 
 	GLint tex_color_loc;
 	GLint tex_unit_loc;
+
+	GLint iSpriteFrame_loc;
+	GLint texture_width_adj_loc;
+	GLint texture_height_adj_loc;
 
 	GLint color_vec_loc;
 };

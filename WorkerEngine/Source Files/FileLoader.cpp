@@ -105,6 +105,7 @@ void FileLoader::loadShaderFromFile(BaseContent * ptr)
 		return;
 	}
 	addShader(std::make_pair(FLSContent->path, new Shader(shaderID)), FLSContent->type);
+	printf("Shader Loaded: %s\n", FLSContent->path.c_str());
 }
 
 void FileLoader::ObjImporter(BaseContent * ptr)
@@ -129,7 +130,7 @@ void FileLoader::ObjImporter(BaseContent * ptr)
 		{
 			char lineHeader[128];
 
-			int res = fscanf_s(file_stream, "%s", &lineHeader, _countof(lineHeader));
+			int res = fscanf_s(file_stream, "%s", &lineHeader, (unsigned int)_countof(lineHeader));
 			if (res == EOF)
 				break;
 			if (strcmp(lineHeader, "v") == 0)
@@ -245,7 +246,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 	{
 		fseek(file_stream, FTLContent->location, SEEK_SET);
 		char lineHeader[32];
-		while (fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader)) != EOF)
+		while (fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader)) != EOF)
 		{
 			if (strcmp(lineHeader, "load") == 0)
 			{
@@ -255,10 +256,10 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			}
 			else if (strcmp(lineHeader, "models") == 0)
 			{
-				modelCount = modelsToLoad;
+				modelCount = 0;
 				do
 				{
-					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader));
 					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 					{
 						std::string name = "Assets/" + std::string(lineHeader) + ".obj";
@@ -272,10 +273,10 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			}
 			else if (strcmp(lineHeader, "textures") == 0)
 			{
-				textCount = texturesToLoad;
+				textCount = 0;
 				do
 				{
-					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader));
 					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 					{
 						std::string name = "Assets/" + std::string(lineHeader) + ".png";
@@ -291,7 +292,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			{
 				do
 				{
-					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader));
 					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 					{
 						std::string name = "Assets/" + std::string(lineHeader) + ".glvs";
@@ -306,7 +307,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			{
 				do
 				{
-					fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+					fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader));
 					if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 					{
 						std::string name = "Assets/" + std::string(lineHeader) + ".glfs";
@@ -321,7 +322,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 			{
 				if (modelCount != modelsToLoad && textCount != texturesToLoad)
 				{
-					_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, WHICH_THREAD::ANY, new FileToLoadContent(FTLContent->path, ftell(file_stream) - strlen(lineHeader)));
+					_app->addJob("FileLoader", FILE_LOAD_TXT_DATA, WHICH_THREAD::ANY, new FileToLoadContent(FTLContent->path, ftell(file_stream) - (long)strlen(lineHeader)));
 					fclose(file_stream);
 					return;
 				}
@@ -331,7 +332,7 @@ void FileLoader::loadTextData(BaseContent * ptr)
 					obj += " ";
 					do
 					{
-						fscanf_s(file_stream, "%s", lineHeader, _countof(lineHeader));
+						fscanf_s(file_stream, "%s", lineHeader, (unsigned int)_countof(lineHeader));
 						obj.append(lineHeader);
 						obj.append(" ");
 					} while (strcmp(lineHeader, "};") != 0);
@@ -353,60 +354,60 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	std::string data = FIContent->info;
 	GameObject *go = nullptr;
 	char lineHeader[32];
-	sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+	sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 	gameObjData.emplace(std::make_pair(NAME, std::string(lineHeader)));
 	do
 	{
 		data = data.substr(data.find_first_of(' ') + 1, data.length());
-		sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+		sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 		if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "};") != 0)
 		{
 			data = data.substr(data.find_first_of(' ') + 1, data.length());
 			if (strcmp(lineHeader, "type:") == 0)
 			{
-				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 				gameObjData.emplace(std::make_pair(TYPE, std::string(lineHeader)));
 			}
 			else if (strcmp(lineHeader, "id:") == 0)
 			{
-				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 				gameObjData.emplace(std::make_pair(ID, std::string(lineHeader)));
 			}
 			else if (strcmp(lineHeader, "comp:") == 0)
 			{
-				sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+				sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 				if (strcmp(lineHeader, "render") == 0)
 				{
 					gameObjData.emplace(std::make_pair(COMP, std::string(lineHeader)));
 					RenderComponent *rc;
-					Shader * vertex, * frag;
-					Texture * tex;
-					Model * mod;
+					Shader * vertex = nullptr, * frag = nullptr;
+					Texture * tex = nullptr;
+					Model * mod = nullptr;
 					do
 					{
 						data = data.substr(data.find_first_of(' ') + 1, data.length());
-						sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+						sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 						if (strcmp(lineHeader, "{") != 0 && strcmp(lineHeader, "}") != 0)
 						{
 							data = data.substr(data.find_first_of(' ') + 1, data.length());
 							if (strcmp(lineHeader, "model:") == 0)
 							{
-								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 								mod = checkForModel(std::string("Assets/" + std::string(lineHeader) + ".obj"));
 							}
 							else if (strcmp(lineHeader, "texture:") == 0)
 							{
-								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 								tex = checkForTexture(std::string("Assets/" + std::string(lineHeader) + ".png"));
 							}
 							else if (strcmp(lineHeader, "Vshader:") == 0)
 							{
-								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 								vertex = checkForShader(std::string("Assets/" + std::string(lineHeader) + ".glvs"), GL_VERTEX_SHADER);
 							}
 							else if (strcmp(lineHeader, "Fshader:") == 0)
 							{
-								sscanf_s(data.c_str(), "%s", lineHeader, _countof(lineHeader));
+								sscanf_s(data.c_str(), "%s", lineHeader, (unsigned int)_countof(lineHeader));
 								frag = checkForShader(std::string("Assets/" + std::string(lineHeader) + ".glfs"), GL_FRAGMENT_SHADER);
 							}
 						}
@@ -421,7 +422,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 				std::string info = "";
 				for (int i = 0; i < 3; i++)
 				{
-					sscanf_s(data.c_str(), "%s", num, _countof(num));
+					sscanf_s(data.c_str(), "%s", num, (unsigned int)_countof(num));
 					info.append(num);
 					if (i != 2)
 					{
@@ -436,7 +437,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 				std::string info = "";
 				for (int i = 0; i < 3; i++)
 				{
-					sscanf_s(data.c_str(), "%s", line, _countof(line));
+					sscanf_s(data.c_str(), "%s", line, (unsigned int)_countof(line));
 					info.append(line);
 					if (i != 2)
 					{
@@ -512,6 +513,7 @@ Shader * FileLoader::checkForShader(const std::string & s, const GLenum & en)
 	{
 		return (_loadedFShaders.find(s) != _loadedFShaders.end()) ? _loadedFShaders.find(s)->second : nullptr;
 	}
+	return nullptr;
 }
 
 std::vector<GLfloat> FileLoader::combine

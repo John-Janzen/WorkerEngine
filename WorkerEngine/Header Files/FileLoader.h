@@ -14,8 +14,6 @@
 
 #include "System.h"
 
-static std::atomic_int32_t modelCount = -1, textCount = -1;
-
 class FileLoader : public System
 {
 public:
@@ -59,11 +57,11 @@ public:
 private:
 
 	template<typename Out>
-	Out * mallocSpace(std::vector<Out> tooManyVecs)
+	Out * mallocSpace(const std::vector<Out> & tooManyVecs)
 	{
 		Out* arr = (Out*)malloc(tooManyVecs.size() * sizeof(Out));
 		int j = 0;
-		for (std::vector<Out>::iterator it = tooManyVecs.begin(); it != tooManyVecs.end(); ++it, j++)
+		for (std::vector<Out>::const_iterator it = tooManyVecs.begin(); it != tooManyVecs.end(); ++it, j++)
 			arr[j] = *it;
 		return arr;
 	}
@@ -72,6 +70,7 @@ private:
 	std::map<std::string, Texture*>  _loadedTextures;
 	std::map<std::string, Shader*> _loadedVShaders;
 	std::map<std::string, Shader*> _loadedFShaders;
-	std::atomic<size_t> modelsToLoad = 0, texturesToLoad = 0;
+	std::atomic<int32_t> modelsToLoad = 0, texturesToLoad = 0;
+	std::atomic<int32_t> modelCount = -1, textCount = -1;
 };
 
