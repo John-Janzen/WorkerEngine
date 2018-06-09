@@ -11,9 +11,9 @@ class ThreadPool
 {
 public:
 
-	ThreadPool(int num) 
+	ThreadPool(const size_t & num) 
 	{
-		for (int i = 0; i < num; i++)
+		for (size_t i = 0; i < num; i++)
 			_workers.emplace_back(new ThreadWorker(i, this));
 		count = max = num;
 	}
@@ -72,7 +72,7 @@ public:
 	}
 
 private:
-	std::atomic<int> count, max;
+	std::atomic<size_t> count, max;
 	std::deque<ThreadWorker*> _workers;
 	std::mutex _lockMutex;
 	std::condition_variable _c;

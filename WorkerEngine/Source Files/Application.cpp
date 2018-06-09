@@ -4,7 +4,7 @@ Application::Application() {}
 
 Application::~Application() {}
 
-void Application::Init(uint16_t num)
+void Application::Init(const size_t & num)
 {
 	Manager::instance().Init(num);
 	_scheduler = new Scheduler();

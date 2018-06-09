@@ -16,7 +16,7 @@ public:
 		return manager;
 	}
 
-	void Init(int num)
+	void Init(const size_t & num)
 	{
 		_poolOfThreads = new ThreadPool(num);
 	}

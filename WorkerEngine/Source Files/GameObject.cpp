@@ -19,7 +19,7 @@ GameObject::GameObject(std::map<LOADABLE_ITEMS, std::string> map, std::vector<Co
 		{
 			for (Component * c : comp)
 			{
-				this->addComponent(it->second, c);
+				this->addComponent(c);
 			}
 			break;
 		}
@@ -76,7 +76,7 @@ GameObject::~GameObject()
 void GameObject::DrawMyself(const float * matrix)
 {
 	RenderComponent * rc = nullptr;
-	if ((rc = static_cast<RenderComponent*>(getComponent("render"))) != nullptr)
+	if ((rc = getComponent<RenderComponent*>()) != nullptr)
 	{
 		GLsizei num = rc->BindBuffers();
 

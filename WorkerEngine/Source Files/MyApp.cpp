@@ -1,19 +1,17 @@
 #include "MyApp.h"
 
-MyApp::MyApp() {}
-
-MyApp::~MyApp() 
+MyApp::MyApp(const size_t & n) 
 {
-	this->Close();
-}
-
-void MyApp::Init(uint16_t n)
-{
-	Application::Init(n);
+	Init(n);
 	loadBegin = SDL_GetTicks();
 	printf("Time Load Start: %ums\n", loadBegin);
 	currentScene = new MainMenuScene(this);
 	_systems["Render"]->Update(RENDER_INIT, _flag);
+}
+
+MyApp::~MyApp() 
+{
+	this->Close();
 }
 
 bool MyApp::Update()

@@ -74,10 +74,10 @@ void Render::Init()
 					printf("Error initializing GLEW! %s", glewGetErrorString(glewError));
 				}
 
-				if (SDL_GL_SetSwapInterval(1) < 0)
+				/*if (SDL_GL_SetSwapInterval(1) < 0)
 				{
 					printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
-				}
+				}*/
 			}
 		}
 	}
@@ -116,7 +116,7 @@ void Render::InitObject(BaseContent * ptr)
 
 	for (GameObject * go : RUContent->objects)
 	{
-		if ((rc = static_cast<RenderComponent*>(go->getComponent("render"))) != nullptr)
+		if ((rc = go->getComponent<RenderComponent*>()) != nullptr)
 		{
 			rc->Initalize();
 		}

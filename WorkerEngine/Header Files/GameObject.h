@@ -46,22 +46,21 @@ public:
 	glm::vec3 getRot() { return _rotation; }
 	std::string getName() { return _name; };
 
-	void addComponent(const std::string & name, Component * component)
+	void addComponent(Component * component)
 	{
-		_components.emplace(std::make_pair(name, component));
+		_components[component->getID()] = component;
 	}
 
-	Component* getComponent(const std::string & name)
+	template <class T>
+	T getComponent()
 	{
-		if (_components.find(name) == _components.end())
-			return nullptr;
-		else
-			return _components[name];
+		return (this->hasComponent<T>()) ? dynamic_cast<T>(_components[this->getType<T>()]) : nullptr;
 	}
 
-	void changeColor()
+	template <class T>
+	bool hasComponent()
 	{
-		collision = true;
+		return (_components.find(this->getType<T>()) != _components.end()) ? true : false;
 	}
 
 	virtual void Update(float x, float y) {};
@@ -78,6 +77,12 @@ private:
 	int _ID;
 	std::string _name;
 
-	std::map<std::string, Component*> _components;
-};
+	template <typename T>
+	std::string getType()
+	{
+		return typeid(T).name();
+	};
 
+	std::map<std::string, Component*> _components;
+	//std::vector<Component*> _components;
+};

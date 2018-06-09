@@ -16,7 +16,7 @@ out vec4 vs_fs_color;
 
 void main() {
 	vs_fs_color = vec4(1.0, 1.0, 1.0, 1.0);
-	out_tex_coord.x = (iSpriteFrame + (in_tex_coord.x * texture_width_adj)) * 0.2;
+	out_tex_coord.x = (iSpriteFrame + (in_tex_coord.x * texture_width_adj)) * (0.2 * texture_width_adj);
 	out_tex_coord.y = (in_tex_coord.y * texture_height_adj) * 0.2;
 	gl_Position = projection_matrix * (model_matrix * vec4(position, 1.0));
 }

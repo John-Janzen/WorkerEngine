@@ -412,7 +412,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 							}
 						}
 					} while (strcmp(lineHeader, "}") != 0);
-					rc = new RenderComponent(mod, tex, vertex, frag);
+					rc = new RenderComponent(typeid(rc).name(), mod, tex, vertex, frag);
 					components.emplace_back(rc);
 				}
 			}
@@ -465,7 +465,7 @@ void FileLoader::individualGameObject(BaseContent * ptr)
 	_app->addSingleObject(go);
 }
 
-void FileLoader::addModel(std::pair<std::string, Model*> pair)
+void FileLoader::addModel(const std::pair<std::string, Model*> & pair)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	_loadedModels.emplace(pair);
@@ -477,7 +477,7 @@ Model * FileLoader::checkForModel(const std::string & s)
 	return (_loadedModels.find(s) != _loadedModels.end()) ? _loadedModels.find(s)->second : nullptr;
 }
 
-void FileLoader::addTexture(std::pair<std::string, Texture*> pair)
+void FileLoader::addTexture(const std::pair<std::string, Texture*> & pair)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	_loadedTextures.emplace(pair);
@@ -489,7 +489,7 @@ Texture * FileLoader::checkForTexture(const std::string & s)
 	return (_loadedTextures.find(s) != _loadedTextures.end()) ? _loadedTextures.find(s)->second : nullptr;
 }
 
-void FileLoader::addShader(std::pair<std::string, Shader*> pair, const GLenum & en)
+void FileLoader::addShader(const std::pair<std::string, Shader*> & pair, const GLenum & en)
 {
 	std::unique_lock<std::mutex> lock(_lockMutex);
 	if (en == GL_VERTEX_SHADER)

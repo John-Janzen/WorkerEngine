@@ -33,15 +33,15 @@ public:
 
 	void individualGameObject(BaseContent * ptr);
 	
-	void addModel(std::pair<std::string, Model*> pair);
+	void addModel(const std::pair<std::string, Model*> & pair);
 
 	Model * checkForModel(const std::string & s);
 
-	void addTexture(std::pair<std::string, Texture*> pair);
+	void addTexture(const std::pair<std::string, Texture*> & pair);
 
 	Texture * checkForTexture(const std::string & s);
 
-	void addShader(std::pair<std::string, Shader*> pair, const GLenum & en);
+	void addShader(const std::pair<std::string, Shader*> & pair, const GLenum & en);
 
 	Shader * checkForShader(const std::string & s, const GLenum & en);
 

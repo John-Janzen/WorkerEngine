@@ -41,7 +41,7 @@ struct Shader
 {
 	const GLuint _shaderID;
 	
-	Shader(const GLuint data) : _shaderID(data) {};
+	Shader(const GLuint & data) : _shaderID(data) {};
 
 	~Shader() {}
 
@@ -54,11 +54,12 @@ public:
 
 	RenderComponent
 	(
+		std::string id,
 		Model * mdl = nullptr,
 		Texture * tdl = nullptr,
 		Shader * vShader = nullptr,
 		Shader * fShader = nullptr
-	) : _model{ mdl }, _texture{ tdl }, _vertexS{ vShader }, _fragmentS{ fShader }
+	) : Component(id), _model{ std::move(mdl) }, _texture{ tdl }, _vertexS{ vShader }, _fragmentS{ fShader }
 	{
 		_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
@@ -173,7 +174,7 @@ public:
 
 		if (iSpriteFrame_loc != -1)
 		{
-			glUniform1ui(iSpriteFrame_loc, 0);
+			glUniform1ui(iSpriteFrame_loc, 1);
 		}
 		return _model->ISize;
 	}

@@ -18,9 +18,7 @@ https://github.com/John-Janzen
 int main(int argc, char *argv[]) 
 {
 	uint16_t num = std::thread::hardware_concurrency() / 2;
-	MyApp * _myApp = new MyApp();
-
-	_myApp->Init(num);
+	MyApp * _myApp = new MyApp(num);
 	
 	while (!_myApp->Update());				// Game Loop
 	

@@ -13,11 +13,12 @@ public:
 	Application();
 	~Application();
 
+
 	/*
 	* Initializes Application systems and threads (Workers)
 	* Also Initializes Manager.
 	*/
-	void Init(uint16_t i);
+	void Init(const size_t & num);
 
 	/*
 	* Closes this application

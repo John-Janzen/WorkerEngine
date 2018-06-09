@@ -2,9 +2,9 @@
 #include "ThreadPool.h"
 #include "System.h"
 
-ThreadWorker::ThreadWorker(int i, ThreadPool * tp) : _parent{tp}
+ThreadWorker::ThreadWorker(const size_t & i, ThreadPool * tp) : _parent{tp}
 { 
-	sprintf_s(_name, "Thread%d", i);
+	sprintf_s(_name, "Thread%u", i);
 	printf("%s Start\n", _name);
 	_thread = new std::thread(&ThreadWorker::Running, this); 
 };
@@ -28,7 +28,7 @@ void ThreadWorker::Running()
 		}
 		else
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(2));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(2));
 			//std::this_thread::yield();
 		}
 	}
