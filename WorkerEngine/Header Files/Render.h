@@ -56,21 +56,10 @@ public:
 	* SwapsWindows at the very end
 	*/
 	void RenderWindow(BaseContent* ptr);
-
-	void RenderObject(GameObject * go);
 	
 protected:
 	SDL_Window* _window = NULL;
 	SDL_GLContext _context;
-
-	GLuint r_ProgramID = 0;
-
-	GLint tex_color_loc;
-	GLint tex_unit_loc;
-
-	GLint render_projection_matrix_loc;
-	GLint render_model_matrix_loc;
-	GLint color_vec_loc;
 
 	glm::mat4 projection_look_matrix;
 	glm::mat4 projection_matrix;

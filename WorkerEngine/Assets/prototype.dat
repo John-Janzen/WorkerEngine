@@ -1,72 +1,95 @@
-load: 6;
+load 6;
 
 models {
-	quad,
-	cube,
-	monkey,
+	quad
+	cube
+	monkey
 	grid
 };
 
 textures {
-	test_texture,
-	Test,
-	Checker,
+	test_texture
+	Test
+	Checker
 	Checker2
 };
 
-//	Comments end with;
-//	To not be read;
-//	Example data for level loading;
-//	std::string name;
-//	int id;
-//	Components: render, rigid, sound;
-//	glm::vec3 position;
-//	glm::vec3 rotation (in PI);
-// 	glm::vec3 scale;
+Vshaders {
+	default_V_shader
+};
+
+Fshaders {
+	default_F_shader
+};
 
 Camera {
-	type: Player,
-	id: 01,
-	pos: (0, 0, -100),
-	rot: (0, 0, 0)
+	type: Player
+	id: 01
+	pos: 0, 0, -100
+	rot: 0, 0, 0
 };
 
 BackGround_01 {
-	type: GameObject,
-	comp: render(grid/Checker2),
-	id: 245,
-	pos: (0, 0, -1),
-	rot: (0, 0, 0)
+	type: GameObject
+	comp: render {
+		model: grid
+		texture: Checker2
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 245
+	pos: 0, 0, -1
+	rot: 0, 0, 0
 };
 
 Monkey_01 {
-	type: GameObject,
-	comp: render(monkey/Checker),
-	id: 246,
-	pos: (0, 0, 90),
-	rot: (0, 0, 0)
+	type: GameObject
+	comp: render {
+		model: monkey
+		texture: Checker
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 246
+	pos: 0, 0, 90
+	rot: 0, 0, 0
 };
 
 Quad_01 {
-	type: Quad,
-	comp: render(quad/Test),
-	id: 247,
-	pos: (0, 0, 0),
-	rot: (0, 0, 0)
+	type: Quad
+	comp: render {
+		model: quad
+		texture: Test
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 247
+	pos: 0, 0, 0
+	rot: 0, 0, 0
 };
 
 Quad_02 {
-	type: Quad,
-	comp: render(quad/test_texture),
-	id: 248,
-	pos: (20, -34, 0),
-	rot: (0, 0, 0)
+	type: Quad
+	comp: render {
+		model: quad
+		texture: test_texture
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 248
+	pos: 20, -34, 0
+	rot: 0, 0, 0
 };
 
 Quad_03 {
-	type: Quad,
-	comp: render(quad/Checker),
-	id: 249,
-	pos: (-46, 20, 0),
-	rot: (0, 0, 0)
+	type: Quad
+	comp: render {
+		model: quad
+		texture: Checker
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 249
+	pos: -46, 20, 0
+	rot: 0, 0, 0
 };

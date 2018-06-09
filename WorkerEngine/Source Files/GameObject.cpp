@@ -19,7 +19,7 @@ GameObject::GameObject(std::map<LOADABLE_ITEMS, std::string> map, std::vector<Co
 		{
 			for (Component * c : comp)
 			{
-				this->addComponent(it->second, c);
+				this->addComponent(c);
 			}
 			break;
 		}
@@ -71,4 +71,29 @@ GameObject::~GameObject()
 	for (std::map<std::string, Component*>::iterator it = _components.begin(); it != _components.end(); ++it)
 		delete(it->second);
 	_components.clear();
+}
+
+void GameObject::DrawMyself(const float * matrix)
+{
+	RenderComponent * rc = nullptr;
+	if ((rc = getComponent<RenderComponent*>()) != nullptr)
+	{
+		GLsizei num = rc->BindBuffers();
+
+		glm::mat4 rotation = glm::mat4();
+		rotation = glm::translate(rotation, _position);
+		rotation = glm::rotate(rotation, _rotation.z, glm::vec3(0, 0, 1));
+		rotation = glm::rotate(rotation, _rotation.x, glm::vec3(1, 0, 0));
+		glm::mat4 model_matrix = glm::rotate(rotation, _rotation.y, glm::vec3(0, 1, 0));
+
+		glUniformMatrix4fv(rc->render_projection_matrix_loc, 1, GL_FALSE, matrix);
+		glUniformMatrix4fv(rc->render_model_matrix_loc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		glDrawElements(GL_TRIANGLES, num, GL_UNSIGNED_INT, NULL);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
+	rc = nullptr;
 }

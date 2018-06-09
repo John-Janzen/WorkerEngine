@@ -6,14 +6,8 @@
 class MyApp : public Application
 {
 public:
-	MyApp();
+	MyApp(const size_t & n);
 	~MyApp();
-
-	/*
-	* Initializes the Application with threads + systems
-	* Calls Application::Init()
-	*/
-	void Init(uint16_t n);
 
 	/*
 	* Updates the game and specific functions
@@ -29,6 +23,6 @@ private:
 	Uint32 loadBegin = 0, loadEnd;
 	bool _flag = false;
 	STATE state = LOADING;
-	
+	std::shared_ptr<Job> localJob;
 };
 

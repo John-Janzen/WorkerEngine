@@ -78,9 +78,20 @@ class FileToLoadContent : public BaseContent
 {
 public:
 	std::string path;
+	long location;
 
-	FileToLoadContent(std::string s) : path{ s } {}
+	FileToLoadContent(std::string s, long loc) : path{ s }, location(loc) {}
 	~FileToLoadContent() {}
+};
+
+class FileLoadShaderContent : public BaseContent
+{
+public:
+	std::string path;
+	GLenum type;
+
+	FileLoadShaderContent(const std::string & p, const GLenum & en) : path{ p }, type( en ) {};
+	~FileLoadShaderContent() {}
 };
 
 class FileLoadOBJContent : public BaseContent
@@ -88,7 +99,7 @@ class FileLoadOBJContent : public BaseContent
 public:
 	std::string data, name;
 
-	FileLoadOBJContent(std::string p, std::string n) : data(p), name(n) {}
+	FileLoadOBJContent(std::string p) : data(p) {}
 	~FileLoadOBJContent() {}
 };
 

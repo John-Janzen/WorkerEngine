@@ -1,4 +1,4 @@
-load: 2;
+load 3;
 
 models {
 	quad
@@ -6,19 +6,47 @@ models {
 
 textures {
 	test_texture
+	ColorSwitch1
+};
+
+Vshaders {
+	default_V_shader
+	animation_shader
+};
+
+Fshaders {
+	default_F_shader
 };
 
 Camera {
-	type: Player,
-	id: 01,
-	pos: (0, 0, -5),
-	rot: (0, 0, 0)
+	type: Player
+	id: 01
+	pos: 0, 0, -5
+	rot: 0, 0, 0
 };
 
 Quad_01 {
-	type: GameObject,
-	comp: render(quad/test_texture),
-	id: 02,
-	pos: (0, 0, 0),
-	rot: (0, 0, 0)
+	type: GameObject
+	comp: render {
+		model: quad
+		texture: ColorSwitch1
+		Vshader: animation_shader
+		Fshader: default_F_shader
+	}
+	id: 02
+	pos: -2, 0, 0
+	rot: 0, 0, 0
+};
+
+Quad_02 {
+	type: GameObject
+	comp: render {
+		model: quad
+		texture: test_texture
+		Vshader: default_V_shader
+		Fshader: default_F_shader
+	}
+	id: 03
+	pos: 2, 0, 0
+	rot: 0, 0, 0
 };

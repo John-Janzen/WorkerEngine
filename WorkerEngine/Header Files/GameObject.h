@@ -4,6 +4,10 @@
 #include <map>
 #include <vector>
 #include <time.h>
+#include <glm.hpp>
+#include <gtc\matrix_transform.hpp>
+#include <gtx\euler_angles.hpp>
+#include <gtc\type_ptr.hpp>
 
 #include "RenderComponent.h"
 #include "JTime.h"
@@ -16,7 +20,7 @@ enum LOADABLE_ITEMS
 	ID,
 	COMP,
 	POS,
-	ROT
+	ROT,
 };
 
 class GameObject
@@ -26,6 +30,8 @@ public:
 	GameObject(std::string name, int id, glm::vec3 pos = glm::vec3());
 	GameObject(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>());
 	~GameObject();
+
+	void DrawMyself(const float * matrix);
 
 	void adjustPosY(GLfloat num) { _position.y += num; }
 	void adjustPosX(GLfloat num) { _position.x += num; }
@@ -40,22 +46,21 @@ public:
 	glm::vec3 getRot() { return _rotation; }
 	std::string getName() { return _name; };
 
-	void addComponent(const std::string & name, Component * component)
+	void addComponent(Component * component)
 	{
-		_components.emplace(std::make_pair(name, component));
+		_components[component->getID()] = component;
 	}
 
-	Component* getComponent(const std::string & name)
+	template <class T>
+	T getComponent()
 	{
-		if (_components.find(name) == _components.end())
-			return nullptr;
-		else
-			return _components[name];
+		return (this->hasComponent<T>()) ? dynamic_cast<T>(_components[this->getType<T>()]) : nullptr;
 	}
 
-	void changeColor()
+	template <class T>
+	bool hasComponent()
 	{
-		collision = true;
+		return (_components.find(this->getType<T>()) != _components.end()) ? true : false;
 	}
 
 	virtual void Update(float x, float y) {};
@@ -72,6 +77,12 @@ private:
 	int _ID;
 	std::string _name;
 
-	std::map<std::string, Component*> _components;
-};
+	template <typename T>
+	std::string getType()
+	{
+		return typeid(T).name();
+	};
 
+	std::map<std::string, Component*> _components;
+	//std::vector<Component*> _components;
+};

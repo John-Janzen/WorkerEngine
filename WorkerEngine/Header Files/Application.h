@@ -13,11 +13,12 @@ public:
 	Application();
 	~Application();
 
+
 	/*
 	* Initializes Application systems and threads (Workers)
 	* Also Initializes Manager.
 	*/
-	void Init(uint16_t i);
+	void Init(const size_t & num);
 
 	/*
 	* Closes this application
@@ -31,7 +32,7 @@ public:
 
 	void addSystem(std::string key, System * s);
 
-	void addJob(std::string name, JOB_TYPES j = SYSTEM_DEFAULT, BaseContent * ptr = nullptr);
+	void addJob(std::string name, JOB_TYPES j, WHICH_THREAD which, BaseContent * ptr = nullptr);
 
 	void addJob(std::shared_ptr<Job> j);
 

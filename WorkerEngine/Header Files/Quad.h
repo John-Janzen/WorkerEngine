@@ -24,7 +24,7 @@ class Quad : public GameObject
 public:
 	Quad(std::string, int);
 	Quad(std::map<LOADABLE_ITEMS, std::string> s, std::vector<Component*> comp = std::vector<Component*>()) 
-		: GameObject(s, comp) 
+		: GameObject(s, comp)
 	{
 		_velocity = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, 0);
 	}

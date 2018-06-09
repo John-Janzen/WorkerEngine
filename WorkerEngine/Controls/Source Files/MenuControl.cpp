@@ -22,6 +22,9 @@ void MenuControl::ApplyControl(Input & input, const SDL_Event & e)
 	case SDL_SCANCODE_P:
 		input.ChangeScene(PROTOTYPE_SCENE);
 		break;
+	case SDL_SCANCODE_W:
+
+		break;
 	default:
 		break;
 	}
