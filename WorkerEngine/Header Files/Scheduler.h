@@ -21,7 +21,5 @@ public:
 private:
 	std::deque<std::shared_ptr<Job>> _jobs;
 	std::atomic<size_t> _jobsSize = 0;
-	std::mutex _lockMutex;
-	std::condition_variable _c;
 };
 

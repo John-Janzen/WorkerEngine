@@ -2,9 +2,9 @@
 
 Application::Application() {}
 
-Application::~Application() { Close(); }
+Application::~Application() {}
 
-void Application::Init(uint16_t num)
+void Application::Init(const size_t & num)
 {
 	Manager::instance().Init(num);
 	_scheduler = new Scheduler();
@@ -17,7 +17,6 @@ void Application::Init(uint16_t num)
 
 void Application::Close()
 {
-
 	for (std::map<std::string, System*>::iterator i = _systems.begin(); i != _systems.end(); ++i)
 		delete(i->second);
 
@@ -55,9 +54,9 @@ void Application::addSystem(std::string key, System * s)
 * Job type
 * Any void pointer
 */
-void Application::addJob(std::string name, JOB_TYPES j, BaseContent * ptr)
+void Application::addJob(std::string name, JOB_TYPES j, WHICH_THREAD which, BaseContent * ptr)
 {
-	addJob(std::make_shared<Job>(_systems[name], j, ptr));
+	addJob(std::make_shared<Job>(_systems[name], j, which, ptr));
 }
 
 /*

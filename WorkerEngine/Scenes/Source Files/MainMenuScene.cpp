@@ -6,14 +6,14 @@ MainMenuScene::MainMenuScene() {}
 
 MainMenuScene::MainMenuScene(Application * a) : Scene(a) 
 {
-	a->addJob("FileLoader", FILE_LOAD_EXTERNAL, new FileToLoadContent("Assets/MainMenu.dat"));
+	a->addJob("FileLoader", FILE_LOAD_TXT_DATA, WHICH_THREAD::ANY, new FileToLoadContent("Assets/MainMenu.dat", 0));
 }
 
 MainMenuScene::~MainMenuScene() { app = nullptr; DestroyObjects(); }
 
 bool MainMenuScene::LoadScene(GameObject * & camera)
 {
-	if (_sceneObjects.size() == numOfObjects && !Manager::instance().checkDone())
+	if (_sceneObjects.size() == numOfObjects && Manager::instance().checkDone())
 	{
 		bool _flag = false;
 		printf("Loading started\n");
@@ -34,7 +34,7 @@ void MainMenuScene::UpdateScene()
 	Scene::UpdateScene();
 
 	for (GameObject * go : _sceneObjects)
-		app->addJob("Engine", ENGINE_HANDLE_OBJECT, new EngineObjectContent(go));
+		app->addJob("Engine", ENGINE_HANDLE_OBJECT, WHICH_THREAD::ANY, new EngineObjectContent(go));
 }
 
 void MainMenuScene::ReadInputs()
@@ -49,11 +49,11 @@ void MainMenuScene::ReadInputs()
 			break;
 		case SDL_KEYDOWN:
 			if (e.key.repeat == 0)
-				app->addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, new InputContent(e));	// Send Job if Event is changed
+				app->addJob("Input", JOB_TYPES::INPUT_READ_PRESSED, WHICH_THREAD::ANY, new InputContent(e));	// Send Job if Event is changed
 			break;
 		default:
 			break;
 		}
 	}
-	app->addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS);	// Read held keys
+	app->addJob("Input", JOB_TYPES::INPUT_READ_CONTINUOUS, WHICH_THREAD::ANY);	// Read held keys
 }

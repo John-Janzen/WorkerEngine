@@ -10,7 +10,7 @@ class ThreadPool;
 class ThreadWorker
 {
 public:
-	ThreadWorker(int i, ThreadPool * tp);
+	ThreadWorker(const size_t & i, ThreadPool * tp);
 	~ThreadWorker();
 	
 	/*
